@@ -1,0 +1,56 @@
+@model PostaCitasWeb.Models.ViewModels.CitaEditViewModel
+
+@{
+    ViewData["Title"] = "Editar Cita";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h1 class="h3 mb-1">Editar Cita</h1>
+            <p class="text-muted mb-0">Modificar información básica de la cita seleccionada.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="CitaId" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label class="form-label">Paciente</label>
+                    <input class="form-control" value="@Model.PacienteNombre" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Estado</label>
+                    <input class="form-control" value="@Model.EstadoCita" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EspecialidadId" class="form-label"></label>
+                    <select asp-for="EspecialidadId" asp-items="Model.Especialidades" class="form-select"></select>
+                    <span asp-validation-for="EspecialidadId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Fecha" class="form-label"></label>
+                    <input asp-for="Fecha" class="form-control" type="date" />
+                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,167 @@
+@model PostaCitasWeb.Models.ViewModels.AdmisionDashboardViewModel
+
+@{
+    ViewData["Title"] = "Panel de Admisión";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h1 class="h3 mb-1">Panel de Admisión</h1>
+            <p class="text-muted mb-0">Gestión de disponibilidad, citas presenciales y programación operativa.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Citas de hoy</h6>
+                    <p class="display-6 mb-0">@(ViewBag.TotalCitasHoy ?? 0)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Programaciones</h6>
+                    <p class="display-6 mb-0">@(ViewBag.TotalProgramaciones ?? 0)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Programaciones habilitadas</h6>
+                    <p class="display-6 mb-0">@(ViewBag.TotalProgramacionesHabilitadas ?? 0)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Citas presenciales</h6>
+                    <p class="display-6 mb-0">@(ViewBag.TotalCitasPresenciales ?? 0)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Citas web</h6>
+                    <p class="display-6 mb-0">@(ViewBag.TotalCitasWeb ?? 0)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Gestionar Programación Operativa</h5>
+                    <p class="card-text">Seleccionar especialidad, médico, turno, duración y cupos para jornadas futuras.</p>
+                    <a asp-controller="Admision" asp-action="Index" class="btn btn-primary">Configurar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Habilitar Disponibilidad</h5>
+                    <p class="card-text">Abrir cupos de una programación existente sin crear horarios nuevos.</p>
+                    <a asp-controller="Admision" asp-action="Index" class="btn btn-success">Publicar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Ajustar Disponibilidad</h5>
+                    <p class="card-text">Modificar disponibilidad futura por rotación, ausencia o reprogramación.</p>
+                    <a asp-controller="Admision" asp-action="Index" class="btn btn-outline-secondary">Ajustar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Registrar Cita Presencial</h5>
+                    <p class="card-text">Buscar paciente, seleccionar especialidad, elegir horario y confirmar la reserva compartiendo stock con la web.</p>
+                    <a asp-controller="Citas" asp-action="Create" class="btn btn-success">Nueva cita</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <strong>Vista general de citas</strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Cita</th>
+                        <th>Paciente</th>
+                        <th>Especialidad</th>
+                        <th>Médico</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cita in Model.CitasPresenciales)
+                    {
+                        var pacienteNombre = cita.Paciente?.Nombres ?? $"Paciente #{cita.PacienteId}";
+                        var especialidadNombre = cita.Especialidad?.Nombre ?? $"Especialidad #{cita.EspecialidadId}";
+                        var medicoNombre = cita.Slot?.Programacion?.Medico?.Nombres ?? $"Médico #{cita.Slot?.Programacion?.MedicoId ?? 0}";
+                        <tr>
+                            <td>@cita.CitaId</td>
+                            <td>@pacienteNombre</td>
+                            <td>@especialidadNombre</td>
+                            <td>@medicoNombre</td>
+                            <td>@cita.EstadoCita</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <strong>Gestión de slots / disponibilidad</strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Especialidad</th>
+                        <th>Médico</th>
+                        <th>Turno</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Programaciones)
+                    {
+                        var especialidadNombre = item.Especialidad?.Nombre ?? $"Especialidad #{item.EspecialidadId}";
+                        var medicoNombre = item.Medico?.Nombres ?? $"Médico #{item.MedicoId}";
+                        <tr>
+                            <td>@especialidadNombre</td>
+                            <td>@medicoNombre</td>
+                            <td>@item.Turno</td>
+                            <td>@(item.Habilitada ? "Habilitada" : "Pendiente")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

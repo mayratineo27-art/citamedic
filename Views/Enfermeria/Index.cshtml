@@ -1,0 +1,78 @@
+@model PostaCitasWeb.Models.ViewModels.EnfermeriaDashboardViewModel
+
+@{
+    ViewData["Title"] = "Panel de Enfermería";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h1 class="h3 mb-1">Panel de Enfermería</h1>
+            <p class="text-muted mb-0">Triaje de pacientes del día y visualización de avisos de atención inmediata.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Pacientes en estado Programado / En Espera</strong>
+            <span class="badge bg-primary">Triaje</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Cita</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cita in Model.CitasEnEspera)
+                    {
+                        var pacienteNombre = cita.Paciente?.Nombres ?? $"Paciente #{cita.PacienteId}";
+                        var estadoTexto = cita.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Pendiente ? "Programado" : "En Espera";
+                        <tr>
+                            <td>@pacienteNombre</td>
+                            <td>@cita.CitaId</td>
+                            <td>@estadoTexto</td>
+                            <td>
+                                <a asp-controller="Triaje" asp-action="Create" asp-route-id="@cita.CitaId" class="btn btn-sm btn-primary">
+                                    Registrar Triaje
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <strong>Avisos de atención inmediata</strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var aviso in Model.AvisosPendientes)
+                    {
+                        var pacienteNombre = aviso.Paciente?.Nombres ?? $"Paciente #{aviso.PacienteId}";
+                        <tr>
+                            <td>@pacienteNombre</td>
+                            <td>@aviso.Motivo</td>
+                            <td>@aviso.EstadoAviso</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

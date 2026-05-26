@@ -1,0 +1,39 @@
+﻿@model PostaCitasWeb.Models.ViewModels.CitaViewModel
+@{
+    ViewData["Title"] = "Agendar Cita";
+}
+
+<h2>Agendar Nueva Cita</h2>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EspecialidadId" class="control-label">Especialidad</label>
+                <select asp-for="EspecialidadId" class="form-control" asp-items="ViewBag.Especialidades">
+                    <option value="">-- Seleccione una Especialidad --</option>
+                </select>
+                <span asp-validation-for="EspecialidadId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Fecha" class="control-label">Fecha de la Cita</label>
+                <input asp-for="Fecha" type="date" class="form-control" />
+                <span asp-validation-for="Fecha" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-success">Confirmar Reserva</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

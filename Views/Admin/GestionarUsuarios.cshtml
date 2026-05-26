@@ -1,0 +1,355 @@
+@model List<UsuarioViewModel>
+@{
+    ViewData["Title"] = "Gestionar Usuarios - CU18";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h1 class="h3 mb-1">Gestionar Usuarios y Personal</h1>
+                <p class="text-muted mb-0">Registrar, buscar y administrar roles de Pacientes, Médicos, Enfermeras y Personal de Admisión.</p>
+            </div>
+            <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">Volver al Panel</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Formulario de Creación/Edición de Usuarios -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">Crear/Editar Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <form id="formUsuario">
+                        <!-- Input Group: DNI con botón Buscar -->
+                        <div class="mb-3">
+                            <label for="DNI" class="form-label">DNI</label>
+                            <div class="input-group">
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="DNI" 
+                                    name="DNI" 
+                                    maxlength="8" 
+                                    placeholder="Ingrese 8 dígitos"
+                                    required>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-primary" 
+                                    id="btnBuscarDni">Buscar</button>
+                            </div>
+                            <small class="form-text text-muted">Ingrese exactamente 8 dígitos numéricos</small>
+                        </div>
+
+                        <!-- Campos Nombres y Apellidos (readonly) -->
+                        <div class="mb-3">
+                            <label for="Nombres" class="form-label">Nombres</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="Nombres" 
+                                name="Nombres" 
+                                readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Apellidos" class="form-label">Apellidos</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="Apellidos" 
+                                name="Apellidos" 
+                                readonly>
+                        </div>
+
+                        <!-- Nombre Usuario -->
+                        <div class="mb-3">
+                            <label for="NombreUsuario" class="form-label">Nombre de Usuario</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="NombreUsuario" 
+                                name="NombreUsuario" 
+                                required>
+                        </div>
+
+                        <!-- Rol -->
+                        <div class="mb-3">
+                            <label for="Rol" class="form-label">Rol</label>
+                            <select class="form-select" id="Rol" name="Rol" required>
+                                <option value="">Seleccione un rol</option>
+                                <option value="0">Paciente</option>
+                                <option value="1">Admisión</option>
+                                <option value="2">Enfermería</option>
+                                <option value="4">Médico</option>
+                            </select>
+                        </div>
+
+                        <!-- Celular -->
+                        <div class="mb-3">
+                            <label for="Celular" class="form-label">Celular</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="Celular" 
+                                name="Celular" 
+                                placeholder="Ej: 987654321"
+                                required>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-3">
+                            <label for="Password" class="form-label">Contraseña</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="Password" 
+                                name="Password" 
+                                required>
+                            <small class="form-text text-muted">Mínimo 8 caracteres</small>
+                        </div>
+
+                        <!-- Confirmar Contraseña -->
+                        <div class="mb-3">
+                            <label for="ConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="ConfirmPassword" 
+                                name="ConfirmPassword" 
+                                required>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-3 form-check">
+                            <input 
+                                type="checkbox" 
+                                class="form-check-input" 
+                                id="Activo" 
+                                name="Activo" 
+                                checked>
+                            <label class="form-check-label" for="Activo">
+                                Usuario Activo
+                            </label>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success" id="btnGuardar">Guardar Usuario</button>
+                            <button type="reset" class="btn btn-outline-secondary" id="btnLimpiar">Limpiar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Usuarios -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">Usuarios Registrados</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>DNI</th>
+                                        <th>Usuario</th>
+                                        <th>Rol</th>
+                                        <th>Celular</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var usuario in Model)
+                                    {
+                                        <tr>
+                                            <td>@usuario.DNI</td>
+                                            <td>@usuario.NombreUsuario</td>
+                                            <td>@usuario.Rol</td>
+                                            <td>@usuario.Celular</td>
+                                            <td>
+                                                @if (usuario.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-warning" onclick="cargarUsuario(@usuario.UsuarioId)">Editar</button>
+                                                @if (usuario.Activo)
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="desactivarUsuario(@usuario.UsuarioId)">Desactivar</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            No hay usuarios registrados aún.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Alertas -->
+<div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMensajeTitulo">Mensaje</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalMensajeContenido">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const formUsuario = document.getElementById('formUsuario');
+    const btnBuscarDni = document.getElementById('btnBuscarDni');
+    const inputDni = document.getElementById('DNI');
+    const inputNombres = document.getElementById('Nombres');
+    const inputApellidos = document.getElementById('Apellidos');
+    const btnGuardar = document.getElementById('btnGuardar');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+
+    // Evento: Buscar DNI
+    btnBuscarDni.addEventListener('click', async function () {
+        const dni = inputDni.value.trim();
+
+        // Validar que sea 8 dígitos numéricos
+        if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
+            mostrarAlerta('Error', 'Por favor ingrese 8 dígitos numéricos válidos.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/Admin/BuscarDni?dni=${dni}`);
+            const data = await response.json();
+
+            if (data.success) {
+                // Asignar valores y hacer readonly
+                inputNombres.value = data.nombres || '';
+                inputApellidos.value = data.apellidos || '';
+                inputNombres.readOnly = true;
+                inputApellidos.readOnly = true;
+            } else {
+                mostrarAlerta('Error', data.message || 'No se encontraron datos para este DNI.');
+                inputNombres.value = '';
+                inputApellidos.value = '';
+                inputNombres.readOnly = false;
+                inputApellidos.readOnly = false;
+            }
+        } catch (error) {
+            console.error('Error al buscar DNI:', error);
+            mostrarAlerta('Error', 'Error en la consulta. Intente nuevamente.');
+        }
+    });
+
+    // Evento: Guardar Usuario
+    btnGuardar.addEventListener('click', async function (e) {
+        e.preventDefault();
+
+        // Validar que los campos obligatorios estén llenos
+        if (!formUsuario.checkValidity()) {
+            formUsuario.reportValidity();
+            return;
+        }
+
+        // Validar contraseñas coincidan
+        if (document.getElementById('Password').value !== document.getElementById('ConfirmPassword').value) {
+            mostrarAlerta('Error', 'Las contraseñas no coinciden.');
+            return;
+        }
+
+        const formData = new FormData(formUsuario);
+        const usuarioData = {
+            DNI: formData.get('DNI'),
+            NombreUsuario: formData.get('NombreUsuario'),
+            Password: formData.get('Password'),
+            ConfirmPassword: formData.get('ConfirmPassword'),
+            Rol: parseInt(formData.get('Rol')),
+            Celular: formData.get('Celular'),
+            Activo: document.getElementById('Activo').checked
+        };
+
+        try {
+            const response = await fetch('/Admin/GuardarUsuario', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(usuarioData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                mostrarAlerta('Éxito', result.message || 'Usuario guardado exitosamente.');
+                formUsuario.reset();
+                inputNombres.value = '';
+                inputApellidos.value = '';
+                inputNombres.readOnly = false;
+                inputApellidos.readOnly = false;
+                // Recargar la lista de usuarios después de 2 segundos
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                mostrarAlerta('Error', result.message || 'Error al guardar el usuario.');
+            }
+        } catch (error) {
+            console.error('Error al guardar usuario:', error);
+            mostrarAlerta('Error', 'Error en la solicitud. Intente nuevamente.');
+        }
+    });
+
+    // Función auxiliar: Mostrar alerta en modal
+    function mostrarAlerta(titulo, mensaje) {
+        document.getElementById('modalMensajeTitulo').textContent = titulo;
+        document.getElementById('modalMensajeContenido').textContent = mensaje;
+        const modal = new bootstrap.Modal(document.getElementById('modalMensaje'));
+        modal.show();
+    }
+
+    // Función: Cargar usuario para editar
+    function cargarUsuario(usuarioId) {
+        // Implementar en siguiente fase
+        alert('Funcionalidad de edición en desarrollo.');
+    }
+
+    // Función: Desactivar usuario
+    function desactivarUsuario(usuarioId) {
+        // Implementar en siguiente fase
+        alert('Funcionalidad de desactivación en desarrollo.');
+    }
+
+    // Evento: Limpiar formulario
+    btnLimpiar.addEventListener('click', function () {
+        formUsuario.reset();
+        inputNombres.value = '';
+        inputApellidos.value = '';
+        inputNombres.readOnly = false;
+        inputApellidos.readOnly = false;
+    });
+</script>

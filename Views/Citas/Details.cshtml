@@ -1,0 +1,48 @@
+@model PostaCitasWeb.Entities.Cita
+
+@{
+    ViewData["Title"] = "Detalle de Cita";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h1 class="h3 mb-1">Detalle de Cita</h1>
+                <p class="text-muted mb-0">Información de la reserva seleccionada.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.CitaId" class="btn btn-outline-secondary">Editar</a>
+                <a asp-action="Cancel" asp-route-id="@Model.CitaId" class="btn btn-outline-danger">Cancelar Cita</a>
+                <a asp-action="Index" class="btn btn-primary">Volver</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <strong>Información de la cita</strong>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Fecha</dt>
+                <dd class="col-sm-9">@Model.FechaReserva.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">Paciente</dt>
+                <dd class="col-sm-9">@Model.Paciente?.Nombres @Model.Paciente?.ApellidoPaterno</dd>
+
+                <dt class="col-sm-3">Especialidad</dt>
+                <dd class="col-sm-9">@Model.Especialidad?.Nombre</dd>
+
+                <dt class="col-sm-3">Médico</dt>
+                <dd class="col-sm-9">@Model.Slot?.Programacion?.Medico?.Nombres @Model.Slot?.Programacion?.Medico?.ApellidoPaterno</dd>
+
+                <dt class="col-sm-3">Estado</dt>
+                <dd class="col-sm-9">@Model.EstadoCita</dd>
+
+                <dt class="col-sm-3">Origen</dt>
+                <dd class="col-sm-9">@Model.OrigenReserva</dd>
+            </dl>
+        </div>
+    </div>
+</div>

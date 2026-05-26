@@ -1,0 +1,42 @@
+@model AdminDashboardViewModel
+
+<div class="modal fade" id="editEspecialidadModal" tabindex="-1" aria-labelledby="editEspecialidadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEspecialidadModalLabel">Editar Especialidad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-action="UpdateEspecialidad">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editEspecialidadId" class="form-label">ID</label>
+                        <input type="number" class="form-control" id="editEspecialidadId" name="especialidadId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEspecialidadNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editEspecialidadNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEspecialidadUPS" class="form-label">UPS</label>
+                        <select class="form-select" id="editEspecialidadUPS" name="upsId" required>
+                            <option value="">Seleccione una UPS</option>
+                            @foreach (var ups in Model.UPS.Where(u => u.Activa))
+                            {
+                                <option value="@ups.UPSId">@ups.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEspecialidadDuracion" class="form-label">Duración (minutos)</label>
+                        <input type="number" class="form-control" id="editEspecialidadDuracion" name="duracionMinutos" min="1" max="480" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
