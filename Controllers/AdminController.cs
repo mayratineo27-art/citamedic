@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using PostaCitasWeb.Data;
+using PostaCitasWeb.Services;
 
 namespace PostaCitasWeb.Controllers
 {
@@ -23,6 +24,7 @@ namespace PostaCitasWeb.Controllers
         private readonly IBaseRepository<ProgramacionOperativa> _programacionRepository;
         private readonly IBaseRepository<Paciente> _pacienteRepository;
         private readonly AppDbContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public AdminController(
             IBaseRepository<UPS> upsRepository,
@@ -31,7 +33,8 @@ namespace PostaCitasWeb.Controllers
             IBaseRepository<Medico> medicoRepository,
             IBaseRepository<ProgramacionOperativa> programacionRepository,
             IBaseRepository<Paciente> pacienteRepository,
-            AppDbContext context)
+            AppDbContext context,
+            IDateTimeProvider dateTimeProvider)
         {
             _upsRepository = upsRepository;
             _especialidadRepository = especialidadRepository;
@@ -40,6 +43,7 @@ namespace PostaCitasWeb.Controllers
             _programacionRepository = programacionRepository;
             _pacienteRepository = pacienteRepository;
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         // ==========================================
@@ -493,12 +497,46 @@ namespace PostaCitasWeb.Controllers
                     return RedirectToAction(nameof(Programacion));
                 }
 
+                var targetDate = DateOnly.FromDateTime(fecha);
+                var today = _dateTimeProvider.Today;
+                var ahora = _dateTimeProvider.Now;
+
+                // Restricción: No se pueden programar fechas pasadas
+                if (targetDate < today)
+                {
+                    TempData["ErrorMessage"] = "No se pueden configurar programaciones para fechas pasadas.";
+                    return RedirectToAction(nameof(Programacion));
+                }
+
+                // Restricción: Si es para hoy, debe configurarse antes del inicio de reservas (06:00 a.m. para mañana, 01:00 p.m. para tarde)
+                if (targetDate == today)
+                {
+                    if (model.Turno == (int)Turno.Manana)
+                    {
+                        var horaLimiteConfig = new TimeSpan(6, 0, 0);
+                        if (ahora.TimeOfDay >= horaLimiteConfig)
+                        {
+                            TempData["ErrorMessage"] = "No se puede configurar una programación para el turno mañana de hoy después de las 06:00 a.m. (plazo de configuración vencido).";
+                            return RedirectToAction(nameof(Programacion));
+                        }
+                    }
+                    else if (model.Turno == (int)Turno.Tarde)
+                    {
+                        var horaLimiteConfig = new TimeSpan(13, 0, 0);
+                        if (ahora.TimeOfDay >= horaLimiteConfig)
+                        {
+                            TempData["ErrorMessage"] = "No se puede configurar una programación para el turno tarde de hoy después de las 01:00 p.m. (plazo de configuración vencido).";
+                            return RedirectToAction(nameof(Programacion));
+                        }
+                    }
+                }
+
                 var nuevaProgramacion = new ProgramacionOperativa
                 {
                     EspecialidadId = model.EspecialidadId,
                     MedicoId = model.MedicoId,
                     Turno = (Turno)model.Turno,
-                    Fecha = DateOnly.FromDateTime(fecha),
+                    Fecha = targetDate,
                     CuposTotal = model.CuposTotal,
                     DuracionMinutos = model.DuracionMinutos,
                     Habilitada = model.Habilitada,

@@ -68,6 +68,16 @@ namespace PostaCitasWeb.Controllers
                 .ThenBy(p => p.Turno)
                 .ToListAsync();
 
+            // Filtrar programaciones de hoy que ya expiraron (después de las 8 a.m. para mañana y de las 3 p.m. para tarde)
+            var ahora = _dateTimeProvider.Now;
+            var horaActual = ahora.TimeOfDay;
+            programaciones = programaciones.Where(p => 
+                p.Fecha > _dateTimeProvider.Today || 
+                (p.Fecha == _dateTimeProvider.Today && 
+                 ((p.Turno == Turno.Manana && horaActual <= new TimeSpan(8, 0, 0)) ||
+                  (p.Turno == Turno.Tarde && horaActual <= new TimeSpan(15, 0, 0))))
+            ).ToList();
+
             var model = new PacienteDashboardViewModel
             {
                 Paciente = paciente,
