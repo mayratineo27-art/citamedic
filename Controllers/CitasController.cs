@@ -281,9 +281,34 @@ namespace PostaCitasWeb.Controllers
                 return Json(new { success = false, message = "Las reservas web no están disponibles los domingos (RN37)." });
             }
 
+            var ahora = _dateTimeProvider.Now;
+            var horaActual = ahora.TimeOfDay;
+
             var allSlots = new List<SlotDisponible>();
             foreach (var date in targetDates)
             {
+                if (date == localToday)
+                {
+                    if (targetTurno == Turno.Manana)
+                    {
+                        var horaInicioReserva = new TimeSpan(6, 0, 0);
+                        var horaFinReserva = new TimeSpan(8, 0, 0);
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            continue; // Fuera del horario de reserva
+                        }
+                    }
+                    else if (targetTurno == Turno.Tarde)
+                    {
+                        var horaInicioReserva = new TimeSpan(13, 0, 0);
+                        var horaFinReserva = new TimeSpan(15, 0, 0);
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            continue; // Fuera del horario de reserva
+                        }
+                    }
+                }
+
                 var slotsForDate = await _slotRepository.GetSlotsByEspecialidadAndTurnoAndDateAsync(especialidadId, targetTurno, date);
                 allSlots.AddRange(slotsForDate);
             }

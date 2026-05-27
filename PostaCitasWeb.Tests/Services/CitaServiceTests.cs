@@ -228,6 +228,168 @@ namespace PostaCitasWeb.Tests.Services
             _historialRepositoryMock.Verify(x => x.AddAsync(It.IsAny<HistorialEstadoCita>()), Times.Once);
         }
 
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoMananaAndBeforeWindow_ReturnsFailure()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Manana }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+
+            // Simular las 05:30 a.m. (fuera del rango de 06:00 a 08:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 5, 30, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Contain("El plazo de reserva para el turno mañana de hoy ha finalizado o aún no ha comenzado");
+        }
+
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoMananaAndDuringWindow_ReturnsSuccess()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Manana, EspecialidadId = 2 }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+            _citaRepositoryMock.Setup(x => x.HasActiveCitaOnDateAsync(1, slot.Programacion.Fecha)).ReturnsAsync(false);
+
+            // Simular las 07:15 a.m. (dentro del rango de 06:00 a 08:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 7, 15, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoMananaAndAfterWindow_ReturnsFailure()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Manana }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+
+            // Simular las 08:15 a.m. (fuera del rango de 06:00 a 08:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 8, 15, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Contain("El plazo de reserva para el turno mañana de hoy ha finalizado o aún no ha comenzado");
+        }
+
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoTardeAndBeforeWindow_ReturnsFailure()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Tarde }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+
+            // Simular las 12:00 p.m. (fuera del rango de 13:00 a 15:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 12, 0, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Contain("El plazo de reserva para el turno tarde de hoy ha finalizado o aún no ha comenzado");
+        }
+
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoTardeAndDuringWindow_ReturnsSuccess()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Tarde, EspecialidadId = 2 }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+            _citaRepositoryMock.Setup(x => x.HasActiveCitaOnDateAsync(1, slot.Programacion.Fecha)).ReturnsAsync(false);
+
+            // Simular las 14:00 p.m. (dentro del rango de 13:00 a 15:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 14, 0, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ReserveCitaAsync_WhenSameDayTurnoTardeAndAfterWindow_ReturnsFailure()
+        {
+            // Arrange
+            var paciente = new Paciente { PacienteId = 1 };
+            var slot = new SlotDisponible
+            {
+                SlotId = 10,
+                CuposDisponibles = 5,
+                Programacion = new ProgramacionOperativa { Fecha = new DateOnly(2026, 5, 27), Turno = Turno.Tarde }
+            };
+
+            _pacienteRepositoryMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(paciente);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(10)).ReturnsAsync(slot);
+
+            // Simular las 15:30 p.m. (fuera del rango de 13:00 a 15:00)
+            _dateTimeProviderMock.Setup(d => d.Now).Returns(new DateTime(2026, 5, 27, 15, 30, 0));
+            _dateTimeProviderMock.Setup(d => d.Today).Returns(new DateOnly(2026, 5, 27));
+
+            // Act
+            var result = await _sut.ReserveCitaAsync(1, 10, OrigenReserva.Web);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Contain("El plazo de reserva para el turno tarde de hoy ha finalizado o aún no ha comenzado");
+        }
+
         #endregion
 
         #region CancelCitaAsync Tests

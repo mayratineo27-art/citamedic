@@ -83,6 +83,36 @@ namespace PostaCitasWeb.Services
                 if (slot == null || slot.Programacion == null)
                     return CitaResult.CreateFailure("El slot o la programación asociada no existe.");
 
+                // Validar ventana de reserva para citas del mismo día (RN37 / Regla de Horario de Reserva)
+                var ahora = _dateTimeProvider.Now;
+                var fechaHoy = _dateTimeProvider.Today;
+
+                if (slot.Programacion.Fecha == fechaHoy)
+                {
+                    if (slot.Programacion.Turno == Turno.Manana)
+                    {
+                        var horaInicioReserva = new TimeSpan(6, 0, 0);
+                        var horaFinReserva = new TimeSpan(8, 0, 0);
+                        var horaActual = ahora.TimeOfDay;
+
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            return CitaResult.CreateFailure("El plazo de reserva para el turno mañana de hoy ha finalizado o aún no ha comenzado (horario permitido: 06:00 a.m. a 08:00 a.m.).");
+                        }
+                    }
+                    else if (slot.Programacion.Turno == Turno.Tarde)
+                    {
+                        var horaInicioReserva = new TimeSpan(13, 0, 0);
+                        var horaFinReserva = new TimeSpan(15, 0, 0);
+                        var horaActual = ahora.TimeOfDay;
+
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            return CitaResult.CreateFailure("El plazo de reserva para el turno tarde de hoy ha finalizado o aún no ha comenzado (horario permitido: 01:00 p.m. a 03:00 p.m.).");
+                        }
+                    }
+                }
+
                 if (slot.CuposDisponibles <= 0)
                     return CitaResult.CreateFailure("No hay cupos disponibles en este horario.");
 

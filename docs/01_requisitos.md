@@ -104,9 +104,12 @@ Permitir que el paciente consulte su perfil desde su dashboard.
 
 Visualizar:
 
-- Datos personales.
-- Estado SIS.
-- Posta asociada.
+- Nombres y Apellidos
+- Dni
+- Nro. Historia Clínica
+- Seguro de Salud SIS
+- Establecimiento asignado
+- Dirección domiciliaria
 
 Prioridad:
 Media
