@@ -169,22 +169,22 @@
 
    SPRINT 2 (Lógica de Negocio)
    ────────────────────────────
-   [████████████░░░░░░░░░░░░░░░░░░░░]  50%
+   [████████████████████████████████] 100%
 
    ✅ Tarea 2.5 - Repositorios ..................... COMPLETADA
    ✅ Tarea 2.2 - AuthService (Inicio) ............ COMPLETADA
    ✅ Tarea 2.2 - CitaService (Core) ............. COMPLETADA
-   ⏳ Tarea 2.3 - Controladores ................... PENDIENTE (S3)
-   ⏳ Tarea 2.4 - DTOs & ViewModels ............... PENDIENTE (S3)
+   ✅ Tarea 2.3 - Controladores ................... COMPLETADA
+   ✅ Tarea 2.4 - DTOs & ViewModels ............... COMPLETADA
 
 
-   SPRINT 3 (Controladores)
+   SPRINT 3 (Controladores, Vistas y Seguridad)
    ────────────────────────
-   [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%
+   [████████████████████████████████] 100%
 
-   ⏳ AuthController ............................ PENDIENTE
-   ⏳ CitaController ............................ PENDIENTE
-   ⏳ TriajeController .......................... PENDIENTE
+   ✅ AuthController ............................ COMPLETADA
+   ✅ CitaController ............................ COMPLETADA
+   ✅ TriajeController .......................... COMPLETADA
 
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                      💡 CASOS DE USO IMPLEMENTADOS                           │

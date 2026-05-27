@@ -38,19 +38,19 @@ Objetivo: Desarrollar los servicios e implementar las pruebas unitarias para ase
 Sprint 3: Controladores, Vistas y Seguridad (Épicas 1 y 3)
 Objetivo: Exponer la lógica probada a través de interfaces web para los pacientes y admisión.
 
-[ ] 3.1 Configurar Cookie Authentication y Autorización por Roles en Program.cs.
+[x] 3.1 Configurar Cookie Authentication y Autorización por Roles en Program.cs.
 
-[ ] 3.2 Implementar AuthController y vistas Razor asociadas (Login, Solicitud de acceso, Recuperación).
+[x] 3.2 Implementar AuthController y vistas Razor asociadas (Login, Solicitud de acceso, Recuperación).
 
-[ ] 3.3 Implementar DisponibilidadController y vistas para Admisión (habilitar programación).
+[x] 3.3 Implementar DisponibilidadController y vistas para Admisión (habilitar programación).
 
-[ ] 3.4 Implementar CitasController y vista de consulta de especialidades/slots disponibles (filtrando sobrecupos).
+[x] 3.4 Implementar CitasController y vista de consulta de especialidades/slots disponibles (filtrando sobrecupos).
 
-[ ] 3.5 Implementar flujo de Reserva Web (POST) y generación de la vista del Ticket.
+[x] 3.5 Implementar flujo de Reserva Web (POST) y generación de la vista del Ticket.
 
-[ ] 3.6 Implementar funcionalidad de registro presencial exclusivo para rol Admisión en CitasController.
+[x] 3.6 Implementar funcionalidad de registro presencial exclusivo para rol Admisión en CitasController.
 
-[ ] 3.7 Integrar validaciones de frontend (Data Annotations y jQuery Validation) en los formularios Razor.
+[x] 3.7 Integrar validaciones de frontend (Data Annotations y jQuery Validation) en los formularios Razor.
 
 Sprint 4: Triaje, Trazabilidad y MVP Complementario (Épicas 4 y 5)
 Objetivo: Cerrar el flujo operativo en la clínica y habilitar seguimiento.

@@ -570,3 +570,34 @@ El ticket electrónico simula un recibo médico físico premium:
 - **Código Hash**: Estilo `monospace` extragrande, letter-spacing amplio.
 - **Datos Estructurados**: Grid de dos columnas con bordes inferiores divisorios ligeros.
 - **`@@media print`**: CSS dedicado que oculta botones, márgenes, navegadores y sombras (`box-shadow: none !important;`) garantizando una impresión limpia en hoja A4/A5 o guardado como PDF nativo (CU11).
+
+---
+
+## 19. Portal de Admisión (`Views/Admision/Index.cshtml`)
+
+### 19.1 Diseño Funcional (Recepción)
+- **Dashboard Orientado a Tareas**: Destaca atajos para "Habilitar Programaciones", "Registro Presencial" y "Consulta de Pacientes".
+- **Sistema de Color**: Emplea tonos que transmiten orden (índigo o gris cálido) diferenciándolo de los colores clínicos (verde/teal).
+- **Tablas de Trabajo**: Diseño optimizado para visualizar grandes volúmenes de citas (fuente ligeramente más compacta, botones de acción en línea y badges de estado actualizados en tiempo real).
+- **Formularios de Búsqueda**: Inputs anchos en la cabecera para buscar rápidamente pacientes por DNI o número de historia clínica.
+
+---
+
+## 20. Portal de Enfermería (`Views/Enfermeria/Index.cshtml`)
+
+### 20.1 Registro Clínico Rápido (Triaje)
+- **Interfaz "Libre de Distracciones"**: Minimiza los elementos decorativos para priorizar los campos clínicos (Tensión Arterial, Temperatura, Peso, etc.).
+- **Indicadores Visuales**:
+  - Campos numéricos con validación visual (borde rojo si se excede el rango lógico).
+  - Alertas estilo banner (warning) cuando un triaje ya ha sido registrado (Prevención de duplicidad RN19).
+- **Lista de Citas (Cola de Pacientes)**: Paneles colapsables o tabla destacando las citas cuyo estado es `Pendiente`, usando badges parpadeantes o botones prominentes de "Registrar Triaje".
+
+---
+
+## 21. Portal del Médico (`Views/Medico/Index.cshtml` / `Views/Home/Index.cshtml`)
+
+### 21.1 Gestión de Consultas Diarias
+- **Vista de Agenda (Time-blocking)**: Visualización en formato de lista cronológica destacando los horarios y los pacientes citados.
+- **Estados Paciente**: Identificación rápida (Badge) indicando si el paciente ya pasó por Triaje y está `ListoAtencion`.
+- **Modales de Detalles Clínicos**: Al hacer clic en un paciente, un modal lateral (offcanvas) o centrado revela la información del ticket, motivo y signos vitales registrados en el triaje sin perder el contexto de la lista.
+- **Acciones Rápidas**: Botones limpios (`.btn-premium-outline`) para "Llamar Paciente", "Ver Historial" o "Atender", integrados armónicamente al esquema Clinic Calm Premium.
