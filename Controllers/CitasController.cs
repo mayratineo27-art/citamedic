@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PostaCitasWeb.Entities;
 using PostaCitasWeb.Models.ViewModels;
+using PostaCitasWeb.Repositories;
 using PostaCitasWeb.Services;
 using System;
 using System.Collections.Generic;
@@ -14,146 +15,89 @@ namespace PostaCitasWeb.Controllers
     [Authorize]
     public class CitasController : Controller
     {
-        private static readonly object _sync = new();
-        private static readonly List<Cita> _citas = new()
-        {
-            new Cita
-            {
-                CitaId = 1,
-                PacienteId = 1,
-                Paciente = new Paciente { PacienteId = 1, DNI = "44444444", Nombres = "Juan", ApellidoPaterno = "Pérez", ApellidoMaterno = "García", FechaNacimiento = new DateOnly(1990, 1, 1), TieneSIS = true },
-                EspecialidadId = 1,
-                Especialidad = new Especialidad { EspecialidadId = 1, Nombre = "Medicina General", UPSId = 1, DuracionMinutos = 20, Activa = true },
-                SlotId = 1,
-                Slot = new SlotDisponible
-                {
-                    SlotId = 1,
-                    ProgramacionId = 1,
-                    HoraInicio = new TimeOnly(8, 0),
-                    HoraFin = new TimeOnly(8, 20),
-                    CuposDisponibles = 1,
-                    CuposTotal = 10,
-                    Programacion = new ProgramacionOperativa
-                    {
-                        ProgramacionId = 1,
-                        EspecialidadId = 1,
-                        MedicoId = 1,
-                        Turno = Turno.Manana,
-                        Fecha = DateOnly.FromDateTime(DateTime.Today),
-                        CuposTotal = 10,
-                        DuracionMinutos = 20,
-                        Habilitada = true,
-                        CreadaPorUsuarioId = 1,
-                        Medico = new Medico { MedicoId = 1, Nombres = "Carlos", ApellidoPaterno = "Ramírez", ApellidoMaterno = string.Empty, CMP = "CMP001", Activo = true },
-                        Especialidad = new Especialidad { EspecialidadId = 1, Nombre = "Medicina General", UPSId = 1, DuracionMinutos = 20, Activa = true }
-                    }
-                },
-                EstadoCita = EstadoCita.Pendiente,
-                OrigenReserva = OrigenReserva.Web,
-                FechaReserva = DateTime.Today,
-                FechaUltimaActualizacion = DateTime.UtcNow
-            },
-            new Cita
-            {
-                CitaId = 2,
-                PacienteId = 1,
-                Paciente = new Paciente { PacienteId = 1, DNI = "44444444", Nombres = "Juan", ApellidoPaterno = "Pérez", ApellidoMaterno = "García", FechaNacimiento = new DateOnly(1990, 1, 1), TieneSIS = true },
-                EspecialidadId = 2,
-                Especialidad = new Especialidad { EspecialidadId = 2, Nombre = "Odontología", UPSId = 2, DuracionMinutos = 25, Activa = true },
-                SlotId = 2,
-                Slot = new SlotDisponible
-                {
-                    SlotId = 2,
-                    ProgramacionId = 1,
-                    HoraInicio = new TimeOnly(8, 20),
-                    HoraFin = new TimeOnly(8, 45),
-                    CuposDisponibles = 2,
-                    CuposTotal = 10,
-                    Programacion = new ProgramacionOperativa
-                    {
-                        ProgramacionId = 1,
-                        EspecialidadId = 2,
-                        MedicoId = 1,
-                        Turno = Turno.Manana,
-                        Fecha = DateOnly.FromDateTime(DateTime.Today),
-                        CuposTotal = 10,
-                        DuracionMinutos = 25,
-                        Habilitada = true,
-                        CreadaPorUsuarioId = 1,
-                        Medico = new Medico { MedicoId = 1, Nombres = "Carlos", ApellidoPaterno = "Ramírez", ApellidoMaterno = string.Empty, CMP = "CMP001", Activo = true },
-                        Especialidad = new Especialidad { EspecialidadId = 2, Nombre = "Odontología", UPSId = 2, DuracionMinutos = 25, Activa = true }
-                    }
-                },
-                EstadoCita = EstadoCita.EnTriaje,
-                OrigenReserva = OrigenReserva.Presencial,
-                FechaReserva = DateTime.Today.AddHours(8).AddMinutes(20),
-                FechaUltimaActualizacion = DateTime.UtcNow
-            }
-        };
-
         private readonly ICitaService _citaService;
         private readonly IEspecialidadService _especialidadService;
+        private readonly ICitaRepository _citaRepository;
+        private readonly IPacienteRepository _pacienteRepository;
+        private readonly ISlotRepository _slotRepository;
 
-        public CitasController(ICitaService citaService, IEspecialidadService especialidadService)
+        public CitasController(
+            ICitaService citaService,
+            IEspecialidadService especialidadService,
+            ICitaRepository citaRepository,
+            IPacienteRepository pacienteRepository,
+            ISlotRepository slotRepository)
         {
             _citaService = citaService ?? throw new ArgumentNullException(nameof(citaService));
             _especialidadService = especialidadService ?? throw new ArgumentNullException(nameof(especialidadService));
+            _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
+            _pacienteRepository = pacienteRepository ?? throw new ArgumentNullException(nameof(pacienteRepository));
+            _slotRepository = slotRepository ?? throw new ArgumentNullException(nameof(slotRepository));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            lock (_sync)
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
             {
-                return View(_citas.ToList());
+                return Challenge();
             }
+
+            IEnumerable<Cita> list;
+            if (User.IsInRole("Paciente"))
+            {
+                var paciente = await _pacienteRepository.GetByUsuarioIdAsync(userId);
+                if (paciente == null)
+                {
+                    list = Array.Empty<Cita>();
+                }
+                else
+                {
+                    list = await _citaService.GetCitasByPacienteAsync(paciente.PacienteId);
+                }
+            }
+            else
+            {
+                list = await _citaRepository.GetAllWithDetailsAsync();
+            }
+
+            return View(list);
         }
 
         [HttpGet]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            lock (_sync)
+            var allCitas = await _citaRepository.GetAllWithDetailsAsync();
+            var cita = allCitas.FirstOrDefault(c => c.CitaId == id);
+            if (cita == null)
             {
-                var cita = _citas.FirstOrDefault(c => c.CitaId == id);
-                if (cita == null)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-
-                return View(cita);
+                return RedirectToAction(nameof(Index));
             }
+
+            return View(cita);
         }
 
         [HttpGet]
-        public IActionResult Cancel(int id)
+        public async Task<IActionResult> Cancel(int id)
         {
-            lock (_sync)
-            {
-                var cita = _citas.FirstOrDefault(c => c.CitaId == id);
-                if (cita != null)
-                {
-                    cita.EstadoCita = EstadoCita.Cancelada;
-                    cita.FechaUltimaActualizacion = DateTime.UtcNow;
-                }
-            }
-
+            await _citaService.CancelCitaAsync(id, "Cancelación por el usuario");
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CancelConfirmed(int id)
+        public async Task<IActionResult> CancelConfirmed(int id)
         {
-            lock (_sync)
+            var result = await _citaService.CancelCitaAsync(id, "Cancelación por el usuario");
+            if (!result.Success)
             {
-                var cita = _citas.FirstOrDefault(c => c.CitaId == id);
-                if (cita != null)
-                {
-                    cita.EstadoCita = EstadoCita.Cancelada;
-                    cita.FechaUltimaActualizacion = DateTime.UtcNow;
-                }
+                TempData["ErrorMessage"] = result.Message;
             }
-
+            else
+            {
+                TempData["SuccessMessage"] = "Cita cancelada con éxito.";
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -161,32 +105,28 @@ namespace PostaCitasWeb.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var especialidades = await _especialidadService.GetAllAsync();
-
-            lock (_sync)
+            var cita = await _citaRepository.GetByIdAsync(id);
+            if (cita == null)
             {
-                var cita = _citas.FirstOrDefault(c => c.CitaId == id);
-                if (cita == null)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-
-                var model = new CitaEditViewModel
-                {
-                    CitaId = cita.CitaId,
-                    EspecialidadId = cita.EspecialidadId,
-                    Fecha = cita.FechaReserva.Date,
-                    EstadoCita = cita.EstadoCita,
-                    PacienteNombre = cita.Paciente?.Nombres ?? string.Empty,
-                    EspecialidadNombre = cita.Especialidad?.Nombre ?? string.Empty,
-                    Especialidades = especialidades.Select(e => new SelectListItem
-                    {
-                        Value = e.EspecialidadId.ToString(),
-                        Text = e.Nombre
-                    }).ToList()
-                };
-
-                return View(model);
+                return RedirectToAction(nameof(Index));
             }
+
+            var model = new CitaEditViewModel
+            {
+                CitaId = cita.CitaId,
+                EspecialidadId = cita.EspecialidadId,
+                Fecha = cita.FechaReserva.Date,
+                EstadoCita = cita.EstadoCita,
+                PacienteNombre = cita.Paciente?.Nombres ?? string.Empty,
+                EspecialidadNombre = cita.Especialidad?.Nombre ?? string.Empty,
+                Especialidades = especialidades.Select(e => new SelectListItem
+                {
+                    Value = e.EspecialidadId.ToString(),
+                    Text = e.Nombre
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -205,28 +145,21 @@ namespace PostaCitasWeb.Controllers
                 return View(model);
             }
 
-            lock (_sync)
+            var cita = await _citaRepository.GetByIdAsync(model.CitaId);
+            if (cita != null)
             {
-                var cita = _citas.FirstOrDefault(c => c.CitaId == model.CitaId);
-                if (cita != null)
-                {
-                    cita.EspecialidadId = model.EspecialidadId;
-                    cita.FechaReserva = model.Fecha;
-                    cita.FechaUltimaActualizacion = DateTime.UtcNow;
+                cita.EspecialidadId = model.EspecialidadId;
+                cita.FechaReserva = model.Fecha;
+                cita.FechaUltimaActualizacion = DateTime.UtcNow;
 
-                    var especialidad = especialidades.FirstOrDefault(e => e.EspecialidadId == model.EspecialidadId);
-                    if (especialidad != null)
-                    {
-                        cita.Especialidad = new Especialidad
-                        {
-                            EspecialidadId = especialidad.EspecialidadId,
-                            Nombre = especialidad.Nombre,
-                            UPSId = especialidad.UPSId,
-                            DuracionMinutos = especialidad.DuracionMinutos,
-                            Activa = especialidad.Activa
-                        };
-                    }
+                var especialidad = especialidades.FirstOrDefault(e => e.EspecialidadId == model.EspecialidadId);
+                if (especialidad != null)
+                {
+                    cita.Especialidad = especialidad;
                 }
+
+                _citaRepository.Update(cita);
+                await _citaRepository.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -270,7 +203,7 @@ namespace PostaCitasWeb.Controllers
                 EstadoCita = EstadoCita.Pendiente,
                 OrigenReserva = OrigenReserva.Web,
                 FechaUltimaActualizacion = DateTime.UtcNow,
-                Historial = new System.Collections.Generic.HashSet<HistorialEstadoCita>()
+                Historial = new HashSet<HistorialEstadoCita>()
             };
 
             var creada = await _citaService.CreateCitaAsync(cita);
@@ -287,6 +220,165 @@ namespace PostaCitasWeb.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult Reservar()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEspecialidades()
+        {
+            var list = await _especialidadService.GetAllAsync();
+            // RN07: El paciente no visualiza la UPS interna, solo Especialidades activas.
+            var result = list.Where(e => e.Activa).Select(e => new
+            {
+                especialidadId = e.EspecialidadId,
+                nombre = e.Nombre
+            }).ToList();
+
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSlots(int especialidadId, string turno)
+        {
+            Turno targetTurno;
+            if (string.Equals(turno, "manana", StringComparison.OrdinalIgnoreCase))
+            {
+                targetTurno = Turno.Manana;
+            }
+            else if (string.Equals(turno, "tarde", StringComparison.OrdinalIgnoreCase))
+            {
+                targetTurno = Turno.Tarde;
+            }
+            else
+            {
+                return BadRequest("Turno inválido.");
+            }
+
+            // Calcular fechas según RN37 y FA03
+            var localToday = DateTime.Today;
+            var dayOfWeek = localToday.DayOfWeek;
+            var targetDates = new List<DateOnly>();
+
+            if (dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday)
+            {
+                targetDates.Add(DateOnly.FromDateTime(localToday)); // Lunes a Viernes: Mismo día
+            }
+            else if (dayOfWeek == DayOfWeek.Saturday)
+            {
+                targetDates.Add(DateOnly.FromDateTime(localToday)); // Sábado: Mismo día (según FA03)
+                targetDates.Add(DateOnly.FromDateTime(localToday.AddDays(2))); // Sábado: Próximo lunes
+            }
+            else // Domingo
+            {
+                return Json(new { success = false, message = "Las reservas web no están disponibles los domingos (RN37)." });
+            }
+
+            var allSlots = new List<SlotDisponible>();
+            foreach (var date in targetDates)
+            {
+                var slotsForDate = await _slotRepository.GetSlotsByEspecialidadAndTurnoAndDateAsync(especialidadId, targetTurno, date);
+                allSlots.AddRange(slotsForDate);
+            }
+            
+            var result = allSlots.OrderBy(s => s.Programacion?.Fecha).ThenBy(s => s.HoraInicio).Select(s => new
+            {
+                slotId = s.SlotId,
+                horaInicio = s.HoraInicio.ToString(@"hh\:mm"),
+                horaFin = s.HoraFin.ToString(@"hh\:mm"),
+                cuposDisponibles = s.CuposDisponibles,
+                nombreMedico = s.Programacion?.Medico != null 
+                    ? $"{s.Programacion.Medico.Nombres} {s.Programacion.Medico.ApellidoPaterno}"
+                    : "Médico no asignado",
+                fecha = s.Programacion?.Fecha.ToString("dd/MM/yyyy") ?? string.Empty,
+                fechaLarga = s.Programacion?.Fecha.ToString("dd 'de' MMMM, yyyy") ?? string.Empty
+            }).ToList();
+
+            return Json(new { success = true, slots = result });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Confirmar([FromForm] ReservaCitaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Datos del formulario inválidos." });
+            }
+
+            int pacienteId = 0;
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return Json(new { success = false, message = "Usuario no autenticado." });
+            }
+
+            if (User.IsInRole("Paciente"))
+            {
+                var paciente = await _pacienteRepository.GetByUsuarioIdAsync(userId);
+                if (paciente == null)
+                {
+                    return Json(new { success = false, message = "No se encontró el perfil de paciente." });
+                }
+                pacienteId = paciente.PacienteId;
+            }
+            else if (model.PacienteDependienteId.HasValue)
+            {
+                pacienteId = model.PacienteDependienteId.Value;
+            }
+            else
+            {
+                return Json(new { success = false, message = "ID de paciente no especificado." });
+            }
+
+            var origen = User.IsInRole("Paciente") ? OrigenReserva.Web : OrigenReserva.Presencial;
+
+            var result = await _citaService.ReserveCitaAsync(pacienteId, model.SlotId, origen, userId);
+            if (!result.Success)
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = result.Message,
+                citaId = result.CitaId,
+                ticketCodigo = result.TicketCodigo
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Ticket(int id)
+        {
+            var allCitas = await _citaRepository.GetAllWithDetailsAsync();
+            var cita = allCitas.FirstOrDefault(c => c.CitaId == id);
+            if (cita == null || cita.Ticket == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = new TicketViewModel
+            {
+                Codigo = cita.Ticket.Codigo,
+                EspecialidadNombre = cita.Especialidad?.Nombre ?? string.Empty,
+                MedicoNombre = cita.Slot?.Programacion?.Medico != null 
+                    ? $"{cita.Slot.Programacion.Medico.Nombres} {cita.Slot.Programacion.Medico.ApellidoPaterno}"
+                    : "Médico no asignado",
+                FechaCita = cita.Slot?.Programacion != null ? cita.Slot.Programacion.Fecha : DateOnly.FromDateTime(cita.FechaReserva),
+                HoraCita = cita.Slot != null ? cita.Slot.HoraInicio : TimeOnly.FromDateTime(cita.FechaReserva),
+                Turno = cita.Slot?.Programacion?.Turno.ToString() ?? string.Empty,
+                FechaEmision = cita.Ticket.FechaEmision,
+                NombrePaciente = cita.Paciente != null 
+                    ? $"{cita.Paciente.Nombres} {cita.Paciente.ApellidoPaterno} {cita.Paciente.ApellidoMaterno}"
+                    : "Paciente no identificado"
+            };
+
+            return View(model);
         }
     }
 }

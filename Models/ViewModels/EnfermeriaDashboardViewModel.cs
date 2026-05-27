@@ -7,5 +7,7 @@ namespace PostaCitasWeb.Models.ViewModels
     {
         public IEnumerable<Cita> CitasEnEspera { get; set; } = new HashSet<Cita>();
         public IEnumerable<AvisoAtencionInmediata> AvisosPendientes { get; set; } = new HashSet<AvisoAtencionInmediata>();
+        public IEnumerable<AvisoAtencionInmediata> AvisosVisualizados { get; set; } = new HashSet<AvisoAtencionInmediata>();
+        public IEnumerable<AvisoAtencionInmediata> AvisosCerrados { get; set; } = new HashSet<AvisoAtencionInmediata>();
     }
 }

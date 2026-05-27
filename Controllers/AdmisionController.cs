@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PostaCitasWeb.Controllers
 {
-    [Authorize(Roles = "Admision")]
+    [Authorize(Roles = "Admision,Administrador")]
     public class AdmisionController : Controller
     {
         private readonly IBaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa> _programacionRepository;
@@ -24,6 +24,7 @@ namespace PostaCitasWeb.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewBag.AdmisionNombre = User.Identity?.Name ?? "Admisión";
             var programaciones = await _programacionRepository.GetAllAsync();
             var citas = await _citaRepository.GetAllAsync();
 
@@ -98,6 +99,94 @@ namespace PostaCitasWeb.Controllers
             };
 
             return View(model);
+        }
+
+        // ============= CU11: HABILITAR DISPONIBILIDAD =============
+
+        [HttpPost]
+        public async Task<IActionResult> HabilitarProgramacion(int id)
+        {
+            try
+            {
+                var programacion = await _programacionRepository.GetByIdAsync(id);
+                if (programacion == null)
+                {
+                    return Json(new { success = false, message = "Programación no encontrada." });
+                }
+
+                if (programacion.Fecha < DateOnly.FromDateTime(DateTime.UtcNow))
+                {
+                    return Json(new { success = false, message = "No se puede habilitar programaciones pasadas." });
+                }
+
+                programacion.Habilitada = true;
+                _programacionRepository.Update(programacion);
+                await _programacionRepository.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Disponibilidad habilitada exitosamente. Los pacientes ya pueden reservar." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al habilitar: {ex.Message}" });
+            }
+        }
+
+        // ============= CU12: AJUSTAR DISPONIBILIDAD (Deshabilitar) =============
+
+        [HttpPost]
+        public async Task<IActionResult> DeshabilitarProgramacion(int id)
+        {
+            try
+            {
+                var programacion = await _programacionRepository.GetByIdAsync(id);
+                if (programacion == null)
+                {
+                    return Json(new { success = false, message = "Programación no encontrada." });
+                }
+
+                programacion.Habilitada = false;
+                _programacionRepository.Update(programacion);
+                await _programacionRepository.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Disponibilidad deshabilitada. Los pacientes ya no verán esta programación." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al deshabilitar: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AjustarProgramacion(int programacionId, int nuevosCupos)
+        {
+            try
+            {
+                var programacion = await _programacionRepository.GetByIdAsync(programacionId);
+                if (programacion == null)
+                {
+                    return Json(new { success = false, message = "Programación no encontrada." });
+                }
+
+                if (programacion.Fecha < DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)))
+                {
+                    return Json(new { success = false, message = "Solo se pueden ajustar programaciones futuras." });
+                }
+
+                if (nuevosCupos <= 0)
+                {
+                    return Json(new { success = false, message = "Los cupos deben ser mayores a 0." });
+                }
+
+                programacion.CuposTotal = nuevosCupos;
+                _programacionRepository.Update(programacion);
+                await _programacionRepository.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Cupos ajustados a {nuevosCupos} exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al ajustar: {ex.Message}" });
+            }
         }
     }
 }

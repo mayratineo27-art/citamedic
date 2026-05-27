@@ -29,7 +29,6 @@ namespace PostaCitasWeb.Models.ViewModels
         [StringLength(15, MinimumLength = 9, ErrorMessage = "El celular debe tener entre 9 y 15 dígitos")]
         public string Celular { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Debe indicar si el usuario está activo")]
         public bool Activo { get; set; } = true;
     }
 

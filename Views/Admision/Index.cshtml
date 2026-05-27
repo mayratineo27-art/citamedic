@@ -1,167 +1,369 @@
 @model PostaCitasWeb.Models.ViewModels.AdmisionDashboardViewModel
-
 @{
-    ViewData["Title"] = "Panel de Admisión";
+    ViewData["Title"] = "Panel de Admisión — CITAMEDIC";
+    var nombre = ViewBag.AdmisionNombre as string ?? "Admisión";
+    var citasHoy        = (int)(ViewBag.TotalCitasHoy ?? 0);
+    var programaciones  = (int)(ViewBag.TotalProgramaciones ?? 0);
+    var habilitadas     = (int)(ViewBag.TotalProgramacionesHabilitadas ?? 0);
+    var presenciales    = (int)(ViewBag.TotalCitasPresenciales ?? 0);
+    var web             = (int)(ViewBag.TotalCitasWeb ?? 0);
 }
 
-<div class="container py-4">
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h1 class="h3 mb-1">Panel de Admisión</h1>
-            <p class="text-muted mb-0">Gestión de disponibilidad, citas presenciales y programación operativa.</p>
+<!-- Fuentes y FontAwesome -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    :root {
+        --navy:        #1D2D50;
+        --teal:        #2AAE8A;
+        --teal-light:  #e8f7f3;
+        --indigo:      #4f46e5;
+        --indigo-lt:   #e0e7ff;
+        --amber:       #d97706;
+        --amber-lt:    #fffbeb;
+        --purple:      #9333ea;
+        --purple-lt:   #fdf4ff;
+        --bg-main:     #f0f5f4;
+        --text-main:   #1D2D50;
+        --text-muted:  #64748b;
+        --border:      #e2e8f0;
+        --radius:      24px;
+        --shadow-sm:   0 4px 6px -1px rgba(29,45,80,0.02), 0 2px 4px -2px rgba(29,45,80,0.02);
+        --shadow-md:   0 10px 15px -3px rgba(29,45,80,0.05), 0 4px 6px -4px rgba(29,45,80,0.04);
+    }
+
+    body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); }
+
+    .adm-page { min-height: 100vh; padding: 2.5rem 3rem; max-width: 1400px; margin: 0 auto; }
+
+    /* ── Header ───────────────────────────── */
+    .adm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem; }
+    .welcome-title { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 2.35rem; color: var(--navy); margin: 0 0 0.25rem; line-height: 1.15; }
+    .welcome-subtitle { color: var(--text-muted); font-size: 1rem; margin: 0; }
+    .status-badge {
+        display: inline-flex; align-items: center; gap: 0.6rem;
+        background: #fff; border: 1px solid var(--border);
+        border-radius: 9999px; padding: 0.5rem 1.25rem;
+        box-shadow: var(--shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--navy);
+    }
+    .badge-dot { width: 8px; height: 8px; background: var(--teal); border-radius: 50%; animation: pulse-dot 1.6s infinite ease-out; }
+    @@keyframes pulse-dot {
+        0%  { box-shadow: 0 0 0 0   rgba(42,174,138,0.5); }
+        70% { box-shadow: 0 0 0 8px rgba(42,174,138,0); }
+        100%{ box-shadow: 0 0 0 0   rgba(42,174,138,0); }
+    }
+
+    /* ── Hero Banner ──────────────────────── */
+    .hero-banner {
+        background: linear-gradient(135deg, #0f4c81 0%, #083162 100%);
+        border-radius: var(--radius); padding: 2.25rem 3rem; margin-bottom: 2rem;
+        position: relative; overflow: hidden; color: white;
+        box-shadow: 0 10px 30px rgba(15,76,129,0.18);
+    }
+    .hero-banner::before { content:''; position: absolute; width: 280px; height: 280px; background: rgba(255,255,255,0.04); border-radius: 50%; top: -70px; right: -70px; }
+    .hero-logo { width: 50px; height: 50px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; margin-bottom: 1.1rem; position: relative; z-index: 2; }
+    .hero-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; position: relative; z-index: 2; }
+    .hero-subtitle { font-size: 0.9rem; opacity: 0.75; position: relative; z-index: 2; max-width: 560px; }
+    .hero-stats { display: flex; gap: 2rem; margin-top: 1.5rem; position: relative; z-index: 2; flex-wrap: wrap; }
+    .hero-stat-value { font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 800; color: #93c5fd; line-height: 1; }
+    .hero-stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; margin-top: 4px; }
+    .hero-ghost { position: absolute; right: -30px; bottom: -40px; font-size: 14rem; color: rgba(255,255,255,0.03); transform: rotate(-12deg); z-index: 1; pointer-events: none; }
+
+    /* ── KPI Cards ────────────────────────── */
+    .kpi-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.5rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1.25rem; }
+    .kpi-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+    .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--navy); line-height: 1; }
+    .kpi-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px; }
+
+    /* ── Section Label ────────────────────── */
+    .section-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.85rem; }
+
+    /* ── Action Cards ─────────────────────── */
+    .action-card {
+        background: white; border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.65rem 1.5rem; box-shadow: var(--shadow-sm);
+        display: flex; flex-direction: column; height: 100%;
+        transition: all 0.22s ease;
+    }
+    .action-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(42,174,138,0.3); }
+    .action-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+    .action-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem; color: var(--navy); margin-bottom: 0.4rem; }
+    .action-desc { font-size: 0.85rem; color: var(--text-muted); flex-grow: 1; line-height: 1.55; margin-bottom: 1.1rem; }
+
+    /* ── Buttons ──────────────────────────── */
+    .btn-prem         { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.875rem; border: none; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+    .btn-prem-teal    { background: var(--teal); color: white; }
+    .btn-prem-teal:hover  { background: #239475; color: white; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(42,174,138,0.2); }
+    .btn-prem-indigo  { background: var(--indigo); color: white; }
+    .btn-prem-indigo:hover { background: #4338ca; color: white; transform: translateY(-1px); }
+    .btn-prem-outline { background: white; color: var(--text-main); border: 1px solid var(--border); }
+    .btn-prem-outline:hover { background: var(--bg-main); color: var(--text-main); transform: translateY(-1px); }
+
+    /* ── Premium Card / Table ─────────────── */
+    .card-premium { background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.5rem; }
+    .card-header-premium { padding: 1.1rem 1.75rem; background: white; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .card-title-premium { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--navy); margin: 0; }
+
+    .table-premium { width: 100%; margin: 0; }
+    .table-premium th { font-weight: 700; color: var(--navy); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1.5px solid var(--border); }
+    .table-premium td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #334155; }
+    .table-premium tr:last-child td { border-bottom: none; }
+
+    /* ── Badges ───────────────────────────── */
+    .badge-dot-badge { padding: 0.28rem 0.65rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .b-pendiente   { background:#dbeafe; color:#1e40af; }
+    .b-habilitada  { background:#d1fae5; color:#065f46; }
+    .b-presencial  { background:var(--indigo-lt); color:var(--indigo); }
+    .b-web         { background:var(--teal-light); color:#0f766e; }
+    .b-cancelada   { background:#f1f5f9; color:#475569; }
+
+    /* ── Empty state ──────────────────────── */
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; display: block; }
+
+    @@media (max-width: 768px) {
+        .adm-page { padding: 1.5rem 1.25rem; }
+        .hero-banner { padding: 1.75rem 1.5rem; }
+        .welcome-title { font-size: 1.75rem; }
+    }
+</style>
+
+<div class="adm-page">
+
+    <!-- ═══ HEADER ═══════════════════════════════════════ -->
+    <header class="adm-header">
+        <div>
+            <h1 class="welcome-title" id="adm-greeting">
+                Hola, <span style="color:#2AAE8A; font-weight:700;">@nombre</span> 👋
+            </h1>
+            <p class="welcome-subtitle">Panel de Admisión — Posta de Salud Los Licenciados</p>
+        </div>
+        <div class="status-badge">
+            <span class="badge-dot"></span>
+            <i class="fa-solid fa-hospital-user" style="color:var(--teal);"></i>
+            Sesión Activa
+        </div>
+    </header>
+
+    <!-- ═══ HERO ══════════════════════════════════════════ -->
+    <div class="hero-banner mb-4">
+        <div class="hero-logo"><i class="fa-solid fa-calendar-days text-white"></i></div>
+        <h2 class="hero-title">Módulo de Admisión y Programación</h2>
+        <p class="hero-subtitle">Gestiona la disponibilidad de citas, registra atenciones presenciales y controla la programación operativa de la posta.</p>
+        <div class="hero-stats">
+            <div><div class="hero-stat-value">@citasHoy</div><div class="hero-stat-label">Citas hoy</div></div>
+            <div><div class="hero-stat-value">@programaciones</div><div class="hero-stat-label">Programaciones</div></div>
+            <div><div class="hero-stat-value">@habilitadas</div><div class="hero-stat-label">Habilitadas</div></div>
+            <div><div class="hero-stat-value">@presenciales</div><div class="hero-stat-label">Presenciales</div></div>
+        </div>
+        <i class="fa-solid fa-file-medical hero-ghost"></i>
+    </div>
+
+    <!-- ═══ KPIs ══════════════════════════════════════════ -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:var(--teal-light);">
+                    <i class="fa-solid fa-calendar-day" style="color:var(--teal);"></i>
+                </div>
+                <div><div class="kpi-value">@citasHoy</div><div class="kpi-label">Citas de hoy</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:var(--indigo-lt);">
+                    <i class="fa-solid fa-hospital-user" style="color:var(--indigo);"></i>
+                </div>
+                <div><div class="kpi-value">@presenciales</div><div class="kpi-label">Citas presenciales</div></div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:var(--amber-lt);">
+                    <i class="fa-solid fa-globe" style="color:var(--amber);"></i>
+                </div>
+                <div><div class="kpi-value">@web</div><div class="kpi-label">Citas web</div></div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
+    <!-- ═══ ACCIONES RÁPIDAS ═════════════════════════════ -->
+    <div class="section-label">Acciones rápidas</div>
+    <div class="row g-3 mb-4">
+
+        <!-- Nueva cita presencial -->
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">Citas de hoy</h6>
-                    <p class="display-6 mb-0">@(ViewBag.TotalCitasHoy ?? 0)</p>
+            <div class="action-card">
+                <div class="action-icon" style="background:var(--teal-light);">
+                    <i class="fa-solid fa-calendar-plus" style="color:var(--teal);"></i>
                 </div>
+                <div class="action-title">Registrar Cita Presencial</div>
+                <div class="action-desc">Buscar paciente, seleccionar especialidad, elegir horario y confirmar la reserva compartiendo stock con la web.</div>
+                <a asp-controller="Citas" asp-action="Create" class="btn-prem btn-prem-teal">
+                    <i class="fa-solid fa-plus"></i> Nueva cita
+                </a>
             </div>
         </div>
+
+        <!-- Habilitar disponibilidad -->
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">Programaciones</h6>
-                    <p class="display-6 mb-0">@(ViewBag.TotalProgramaciones ?? 0)</p>
+            <a href="@Url.Action("Programacion", "Admin")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-icon" style="background:var(--indigo-lt);">
+                    <i class="fa-solid fa-toggle-on" style="color:var(--indigo);"></i>
                 </div>
+                <div class="action-title">Habilitar Disponibilidad</div>
+                <div class="action-desc">Publicar cupos de una programación existente para que los pacientes puedan reservar desde la web o ventanilla.</div>
+                <span class="btn-prem btn-prem-indigo mt-auto" style="width:fit-content;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Ir a programación
+                </span>
             </div>
+            </a>
         </div>
+
+        <!-- Ajustar disponibilidad -->
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">Programaciones habilitadas</h6>
-                    <p class="display-6 mb-0">@(ViewBag.TotalProgramacionesHabilitadas ?? 0)</p>
+            <a href="@Url.Action("Programacion", "Admin")" class="text-decoration-none">
+            <div class="action-card">
+                <div class="action-icon" style="background:var(--amber-lt);">
+                    <i class="fa-solid fa-sliders" style="color:var(--amber);"></i>
                 </div>
+                <div class="action-title">Ajustar Disponibilidad</div>
+                <div class="action-desc">Modificar cupos o deshabilitar programaciones futuras por rotación, ausencia médica o reprogramación de jornada.</div>
+                <span class="btn-prem btn-prem-outline mt-auto" style="width:fit-content;">
+                    <i class="fa-solid fa-pencil"></i> Ajustar cupos
+                </span>
             </div>
+            </a>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">Citas presenciales</h6>
-                    <p class="display-6 mb-0">@(ViewBag.TotalCitasPresenciales ?? 0)</p>
+    <!-- ═══ TABLA CITAS ═══════════════════════════════════ -->
+    <div class="section-label">Vista general de citas</div>
+    <div class="card-premium">
+        <div class="card-header-premium">
+            <span class="card-title-premium">
+                <i class="fa-solid fa-list-check me-2" style="color:var(--teal);"></i>
+                Citas del sistema
+            </span>
+            <span class="badge-dot-badge b-presencial">@Model.CitasPresenciales.Count() registros</span>
+        </div>
+        <div>
+            @if (!Model.CitasPresenciales.Any())
+            {
+                <div class="empty-state">
+                    <i class="fa-regular fa-calendar-xmark"></i>
+                    <p class="mb-0 fw-semibold">No hay citas registradas.</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted">Citas web</h6>
-                    <p class="display-6 mb-0">@(ViewBag.TotalCitasWeb ?? 0)</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Gestionar Programación Operativa</h5>
-                    <p class="card-text">Seleccionar especialidad, médico, turno, duración y cupos para jornadas futuras.</p>
-                    <a asp-controller="Admision" asp-action="Index" class="btn btn-primary">Configurar</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Habilitar Disponibilidad</h5>
-                    <p class="card-text">Abrir cupos de una programación existente sin crear horarios nuevos.</p>
-                    <a asp-controller="Admision" asp-action="Index" class="btn btn-success">Publicar</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Ajustar Disponibilidad</h5>
-                    <p class="card-text">Modificar disponibilidad futura por rotación, ausencia o reprogramación.</p>
-                    <a asp-controller="Admision" asp-action="Index" class="btn btn-outline-secondary">Ajustar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-md-12">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Registrar Cita Presencial</h5>
-                    <p class="card-text">Buscar paciente, seleccionar especialidad, elegir horario y confirmar la reserva compartiendo stock con la web.</p>
-                    <a asp-controller="Citas" asp-action="Create" class="btn btn-success">Nueva cita</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
-            <strong>Vista general de citas</strong>
-        </div>
-        <div class="card-body p-0">
-            <table class="table table-striped mb-0 align-middle">
-                <thead>
-                    <tr>
-                        <th>Cita</th>
-                        <th>Paciente</th>
-                        <th>Especialidad</th>
-                        <th>Médico</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var cita in Model.CitasPresenciales)
-                    {
-                        var pacienteNombre = cita.Paciente?.Nombres ?? $"Paciente #{cita.PacienteId}";
-                        var especialidadNombre = cita.Especialidad?.Nombre ?? $"Especialidad #{cita.EspecialidadId}";
-                        var medicoNombre = cita.Slot?.Programacion?.Medico?.Nombres ?? $"Médico #{cita.Slot?.Programacion?.MedicoId ?? 0}";
+            }
+            else
+            {
+                <table class="table-premium">
+                    <thead>
                         <tr>
-                            <td>@cita.CitaId</td>
-                            <td>@pacienteNombre</td>
-                            <td>@especialidadNombre</td>
-                            <td>@medicoNombre</td>
-                            <td>@cita.EstadoCita</td>
+                            <th>#Cita</th>
+                            <th>Paciente</th>
+                            <th>Especialidad</th>
+                            <th>Médico</th>
+                            <th>Origen</th>
+                            <th>Estado</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in Model.CitasPresenciales)
+                        {
+                            var pNombre  = cita.Paciente?.Nombres ?? $"Paciente #{cita.PacienteId}";
+                            var espNombre = cita.Especialidad?.Nombre ?? $"#{cita.EspecialidadId}";
+                            var medNombre = cita.Slot?.Programacion?.Medico?.Nombres ?? "—";
+                            var origen    = cita.OrigenReserva.ToString();
+                            var origenClass = origen == "Presencial" ? "b-presencial" : "b-web";
+                            var estadoClass = cita.EstadoCita.ToString() switch {
+                                "Pendiente"       => "b-pendiente",
+                                "ListoAtencion"   => "b-habilitada",
+                                "Cancelada"       => "b-cancelada",
+                                _                 => "b-pendiente"
+                            };
+                            <tr>
+                                <td><span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--navy);">C-@cita.CitaId.ToString("D4")</span></td>
+                                <td style="font-weight:600;color:var(--navy);">@pNombre</td>
+                                <td>@espNombre</td>
+                                <td>@medNombre</td>
+                                <td><span class="badge-dot-badge @origenClass">@origen</span></td>
+                                <td><span class="badge-dot-badge @estadoClass">@cita.EstadoCita</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <strong>Gestión de slots / disponibilidad</strong>
+    <!-- ═══ TABLA PROGRAMACIONES ══════════════════════════ -->
+    <div class="section-label">Programaciones operativas</div>
+    <div class="card-premium">
+        <div class="card-header-premium">
+            <span class="card-title-premium">
+                <i class="fa-solid fa-table-list me-2" style="color:var(--indigo);"></i>
+                Slots / Disponibilidad
+            </span>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-striped mb-0 align-middle">
-                <thead>
-                    <tr>
-                        <th>Especialidad</th>
-                        <th>Médico</th>
-                        <th>Turno</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Programaciones)
-                    {
-                        var especialidadNombre = item.Especialidad?.Nombre ?? $"Especialidad #{item.EspecialidadId}";
-                        var medicoNombre = item.Medico?.Nombres ?? $"Médico #{item.MedicoId}";
+        <div>
+            @if (!Model.Programaciones.Any())
+            {
+                <div class="empty-state">
+                    <i class="fa-regular fa-calendar"></i>
+                    <p class="mb-0 fw-semibold">No hay programaciones registradas.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table-premium">
+                    <thead>
                         <tr>
-                            <td>@especialidadNombre</td>
-                            <td>@medicoNombre</td>
-                            <td>@item.Turno</td>
-                            <td>@(item.Habilitada ? "Habilitada" : "Pendiente")</td>
+                            <th>Especialidad</th>
+                            <th>Médico</th>
+                            <th>Turno</th>
+                            <th>Estado</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Programaciones)
+                        {
+                            var espNombre  = item.Especialidad?.Nombre ?? $"Especialidad #{item.EspecialidadId}";
+                            var medNombre2 = item.Medico?.Nombres ?? $"Médico #{item.MedicoId}";
+                            var estadoLbl  = item.Habilitada ? "Habilitada" : "Pendiente";
+                            var estadoCls  = item.Habilitada ? "b-habilitada" : "b-pendiente";
+                            <tr>
+                                <td style="font-weight:600;">@espNombre</td>
+                                <td>@medNombre2</td>
+                                <td>@item.Turno</td>
+                                <td><span class="badge-dot-badge @estadoCls">@estadoLbl</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
     </div>
+
+    <!-- ═══ FOOTER ════════════════════════════════════════ -->
+    <div class="text-center mt-5 pt-4" style="border-top:1px solid var(--border); font-size:0.72rem; color:var(--text-muted);">
+        <strong>PostaCitasWeb v1.0</strong> — Acceso permitido para roles <strong>Admisión</strong> y <strong>Administrador</strong>.
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const h = new Date().getHours();
+            const n = "@nombre";
+            const w = h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
+            document.getElementById('adm-greeting').innerHTML =
+                `${w}, <span style="color:#2AAE8A;font-weight:700;">${n}</span> 👋`;
+        })();
+    </script>
+}

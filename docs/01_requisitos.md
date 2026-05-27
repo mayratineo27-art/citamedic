@@ -26,28 +26,8 @@ Definir las funcionalidades y restricciones necesarias para implementar el siste
 
 # REQUISITOS FUNCIONALES
 
-# MÓDULO 1 — AUTENTICACIÓN
 
-## RF01 Solicitar credenciales
-
-Actor:
-Paciente
-
-Descripción:
-El paciente podrá solicitar acceso al sistema.
-
-Reglas:
-
-- Debe existir registro administrativo.
-- Se verifica identidad.
-- Se genera usuario.
-
-Prioridad:
-Alta
-
----
-
-## RF02 Iniciar sesión
+## RF01 Iniciar sesión
 
 Actor:
 Todos
@@ -60,7 +40,7 @@ Alta
 
 ---
 
-## RF03 Recuperar acceso
+## RF02 Recuperar acceso
 
 Actor:
 Paciente
@@ -92,7 +72,7 @@ Alta
 
 ---
 
-## RF04 Gestionar menores
+## RF03 Gestionar menores
 
 Actor:
 Responsable
@@ -114,12 +94,13 @@ Alta
 
 # MÓDULO 2 — PACIENTES
 
-## RF05 Consultar perfil
+## RF04 Consultar perfil
 
 Actor:
 Paciente
 
-Descripción:
+Descripción: 
+Permitir que el paciente consulte su perfil desde su dashboard.
 
 Visualizar:
 

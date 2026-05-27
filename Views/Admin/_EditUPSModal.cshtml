@@ -8,6 +8,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" asp-action="UpdateUPS">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="editUPSId" class="form-label">ID</label>
@@ -16,6 +17,10 @@
                     <div class="mb-3">
                         <label for="editUPSNombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="editUPSNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editUPSActiva" name="activa" value="true" checked>
+                        <label class="form-check-label" for="editUPSActiva">UPS Activa</label>
                     </div>
                 </div>
                 <div class="modal-footer">

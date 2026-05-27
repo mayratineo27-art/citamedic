@@ -57,541 +57,765 @@ Atención
 
 
 
-# CU02 Iniciar sesión
+CU01 Iniciar sesión
 
-Actor:
-Todos
+## Actor:
 
-Objetivo:
+Usuario
+
+## Actores especializados:
+
+Paciente
+Administrador
+Admisión
+Enfermería
+
+## Objetivo:
 
 Ingresar según rol.
 
-Flujo:
+## Precondiciones: 
 
-1. Ingresar credenciales.
-2. Validar.
-3. Redireccionar.
+- Usuario registrado.
+- Cuenta activa.
+- Credenciales existentes.
 
-Postcondición:
+## Flujo principal:
 
-Sesión iniciada.
+1. Abrir pantalla Login.
+2. Ingresar DNI.
+3. Ingresar contraseña.
+4. Seleccionar Ingresar.
+5. Sistema valida credenciales.
+6. Sistema identifica rol.
+7. Sistema redirige al panel correspondiente.
 
----
+## Flujos alternativos
 
-# CU03 Gestionar dependientes
+A1 Credenciales incorrectas
+5A.Sistema rechaza acceso.
 
-Actor:
-RESP
+Mostrar mensaje.
+A2 Cuenta inactiva
+5B.Mostrar restricción.
 
-Objetivo:
+A3 Contraseña olvidada
+3A.Seleccionar recuperar acceso.
 
-Administrar menores.
-
-Flujo:
-
-1. Seleccionar menor.
-2. Registrar relación.
-3. Confirmar.
-
-Alternativo:
-
-Dependiente ya registrado.
-
-Postcondición:
-
-Menor asociado.
-
----
-
-# CU04 Consultar especialidades
-
-Actor:
-PAC
-
-Objetivo:
-
-Visualizar oferta.
-
-Precondición:
+## Postcondiciones:
 
 Sesión iniciada.
 
+## Reglas asociadas
+
+RN01 Acceso controlado
+
+RN02 Gestión de cuenta
+
+RN03 Recuperación acceso
+
+## Requisitos asociados
+
+RF01 Autenticación
+
+RF02 Gestión acceso
+
+## Historia de usuario asociada
+HU01
+
+Como usuario
+
+quiero iniciar sesión
+
+para acceder al sistema.
+
+## Vista asociada
+Login
+
+## Prueba asociada
+
+CP01
+
+Validar acceso.
+
+##### MÓDULO PACIENTES
+
+
+## CU04 — Visualizar perfil
+
+## Objetivo
+
+Permitir al paciente consultar su información registrada y actualizar datos permitidos.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+La cuenta se encuentra habilitada.
+El paciente posee información registrada.
+
+## Flujo principal
+El paciente accede al módulo Perfil.
+El sistema recupera información registrada.
+El sistema muestra:
+Nombre.
+DNI.
+Número de historia clínica.
+Dirección.
+Teléfono.
+Establecimiento asignado.
+El paciente modifica información permitida.
+El sistema valida cambios.
+El sistema guarda actualización.
+## Flujos alternativos
+
+FA01 — Datos inválidos.
+
+El sistema rechaza actualización de número de celular.
+
+## Postcondiciones
+Información del perfil visualizada.
+Opcionalmente se actualiza:
+Número celular.
+Contraseña.
+
+## Reglas asociadas
+
+RN02 Gestión de cuenta
+RN02-A Recuperación de acceso
+RN35 Continuidad
+
+## CU05 — Consultar disponibilidad
+
+## Objetivo
+
+Permitir al paciente consultar horarios disponibles para una especialidad.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+Existe disponibilidad publicada para la jornada.
+
+## Flujo principal
+
+El paciente accede al módulo Disponibilidad.
+El sistema muestra listado de especialidades.
+El paciente selecciona especialidad.
+El sistema recupera disponibilidad.
+El sistema muestra tarjetas de atención.
+El paciente visualiza:
+Horario
+Médico asignado
+Cupos disponibles
+El paciente selecciona una tarjeta (opcional).
+
+## Flujos alternativos
+
+FA01 — Sin disponibilidad
+
+El sistema informa que no existen cupos disponibles.
+
+FA02 — Jornada cerrada
+
+El sistema informa que la reserva no se encuentra habilitada.
+
+## Postcondiciones
+
+Disponibilidad visualizada.
+El paciente podrá continuar con el registro de cita.
+
+## Reglas de negocio asociadas
+
+RN05 Publicación operativa
+
+RN07 Especialidades visibles
+
+RN08 Generación automática
+
+RN10 Orden de reserva
+
+RN17 Configuración administrativa
+
+RN27 Turnos
+
+RN28 Horario operativo
+
+RN29 Duración configurable
+
+RN37 Ventana estricta de reserva
+
+
+## CU06 — Registrar cita médica
+
+## Objetivo
+
+Permitir reservar una cita médica disponible.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+El paciente inició sesión.
+Existe disponibilidad publicada.
+El paciente no posee reserva activa para mismo horario.
+
+
+## Flujo principal
+El paciente accede al registro.
+El sistema muestra especialidades.
+El paciente selecciona especialidad.
+El sistema muestra los turnos, mañana y tarde.
+El usuario selecciona  turno.
+El sistema muestra las tarjetas disponibles asignadas al turno.(Las tarjetas contienen el horario por ejemplo: 9:00 - 9:15 y abajo Dr. Luis Quispe Mendoza, todo en la misma tarjeta)
+El paciente selecciona horario con el médico que atenderá.
+El sistema muestra un resumen de la reserva.
+El paciente confirma.
+El sistema registra reserva.
+El sistema genera ticket.
+## Flujos alternativos
+
+FA01 — Sin disponibilidad.
+
+El sistema informa cupos agotados.
+
+FA02 — El usuario intenta reservar una cita en otra especialidad.
+
+Reserva rechaza y muestra un mensaje aclarativo, indicando que solo puede reservar uno por ese día.
+
+FA03 - El usuario ingresa el día sábado a registrar una cita y el sistema muestra un mensaje indicando que puede realizar la reserva para ese día y el día lunes.
 Flujo:
-
-1. Abrir citas.
-2. Sistema muestra especialidades.
-
-Restricción:
-
-UPS no visibles.
-
-Postcondición:
-
-Especialidad seleccionada.
-
----
-
-# CU05 Consultar disponibilidad
-
-Actor:
-PAC
-
-Objetivo:
-
-Consultar cupos.
-
-Flujo:
-
-1. Elegir especialidad.
-2. Elegir turno.
-
-Sistema muestra:
-
-- Horarios
-- Médico
-- Cupos
-
-Postcondición:
-
-Disponibilidad visible.
-
----
-
-# CU06 Reservar cita
-
-Actor:
-PAC
-
-Objetivo:
-
-Reservar atención.
-
-Precondición:
-
-Disponibilidad existente.
-
-Flujo principal:
-
-1. Seleccionar especialidad.
-2. Seleccionar turno.
-3. Visualizar tarjetas.
-4. Seleccionar horario.
-5. Confirmar.
-6. Generar ticket.
-7. Descontar cupo.
-
-Flujo alternativo:
-
-6A Cupo agotado.
-
-Postcondición:
-
-Reserva creada.
-
----
-
-# CU07 Registrar cita presencial
-
-Actor:
-ADM
-
-Objetivo:
-
-Registrar reservas físicas.
-
-Precondiciones:
-
-Disponibilidad habilitada.
-
-Flujo:
-
-1. Buscar paciente.
-2. Seleccionar especialidad.
-3. Seleccionar horario.
-4. Confirmar.
-
-Sistema:
-
-- Descuenta cupo.
-
-Postcondición:
-
-Reserva registrada.
-
----
-
-# CU08 Cancelar cita
-
-Actor:
-PAC
-
-Objetivo:
-
-Liberar cupo.
-
-Precondiciones:
-
-Cita activa.
-
-Flujo:
-
-1. Seleccionar cancelar.
-2. Confirmar.
-3. Liberar cupo.
-
-Restricción:
-
-Solo antes del inicio del triaje.
-
-Postcondición:
-
-Disponibilidad actualizada.
-
----
-
-# CU09 Generar ticket
-
-Actor:
-Sistema
-
-Objetivo:
-
-Emitir comprobante.
-
-Contenido:
-
-- Número de atención
-- Especialidad
-- Médico
-- Hora
-- Fecha
-
-Postcondición:
-
+1. El usuario ingresa el día sábado a registrar una cita.
+2. El sistema muestra un mensaje (indicando que puede realizar la reserva para ese día y el día lunes) y las tarjetas para seleccionar sábado o lunes.
+3. El usuario selecciona el día sábado o lunes para registrar una cita.
+4. El sistema muestra las tarjetas disponibles asignadas al turno.(Las tarjetas contienen el horario por ejemplo: 9:00 - 9:15 y abajo Dr. Luis Quispe Mendoza, todo en la misma tarjeta) y el paciente selecciona horario con el médico que atenderá. 
+5. El sistema muestra un resumen de la reserva.
+6. El paciente confirma.
+7. El sistema registra reserva.
+8. El sistema genera ticket.
+
+## Postcondiciones
+
+Cita registrada.
 Ticket generado.
-
----
-
-# CU10 Configurar programación operativa
-
-Actor:
-ADMIN
-
-Objetivo:
-
-Configurar jornadas.
-
-Flujo:
-
-1. Seleccionar especialidad.
-2. Asociar médico.
-3. Configurar turno.
-4. Configurar duración.
-5. Configurar cupos.
-
-Restricción:
-
-No modificar atención iniciada.
-
-Postcondición:
-
-Programación disponible.
-
----
-
-# CU11 Habilitar disponibilidad
-
-Actor:
-ADM
-
-Objetivo:
-
-Abrir cupos.
-
-Precondiciones:
-
-Programación existente.
-
-Flujo:
-
-1. Consultar programación.
-2. Confirmar apertura.
-3. Publicar disponibilidad.
-
-Restricción:
-
-No crear horarios nuevos.
-
-Postcondición:
-
-Disponibilidad habilitada.
-
----
-
-# CU12 Ajustar disponibilidad
-
-Actor:
-ADM
-
-Objetivo:
-
-Actualizar cupos futuros.
-
-Motivos:
-
-- Rotación
-- Ausencia
-- Reprogramación
-
-Restricción:
-
-Solo jornadas futuras.
-
-Postcondición:
-
 Disponibilidad actualizada.
+Estado asistencia:
+
+## Reglas asociadas
+
+RN04 Stock compartido
+RN07 Especialidades visibles
+RN10 Orden de reserva
+RN11 Reserva de cita
+RN12 Ticket obligatorio
+RN31 Integridad
+RN37 Ventana estricta de reserva
+
+## CU07 — Visualizar historial de citas
+
+##  Objetivo
+
+Permitir consultar citas realizadas.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+
+## Flujo principal
+
+El paciente abre Historial.
+El sistema recupera citas.
+El sistema muestra:
+Fecha.
+Especialidad.
+Médico.
+Estado asistencia.
+Estado atención.
+
+## Flujos alternativos
+
+FA01 — Sin historial.
+
+Mostrar lista vacía.
+
+## Reglas asociadas
+
+RN30 Seguimiento
+RN38 Estados de asistencia
+
+## Postcondiciones
+
+Historial visualizado.
+
+## CU08 — Visualizar triajes registrados
+
+## Objetivo
+
+Consultar registros operativos asociados a citas.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+
+Existe al menos una cita con triaje.
+
+## Flujo principal
+El paciente abre Mis Triajes.
+El sistema obtiene citas.
+El sistema recupera triajes asociados.
+El sistema muestra:
+Fecha.
+Peso.
+Talla.
+Temperatura.
+Presión.
+Observación.
+## Flujos alternativos
+
+FA01 — Sin triajes.
+
+Mostrar mensaje informativo.
+
+## Postcondiciones
+
+Triajes visualizados.
+
+## Reglas asociadas
+
+RN22 Registro básico
+RN23 Historial limitado
+RN30 Seguimiento
+
+## CU09 — Cancelar cita médica
+
+## Objetivo
+
+Cancelar una cita reservada.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+Existe cita activa.
+La hora actual se encuentra dentro del periodo permitido.
+
+## Flujo principal
+El sistema actualiza la vista y luego de haberse reservado la cita cuando ingresas a resrvar cita te aparecen dos opciones : detalle de cita y cancelar cita.
+El paciente hace clic en cancelar cita.
+El sistema verifica que no se haya iniciado triaje.
+El sistema muestra ventana de confirmación.
+El paciente confirma cancelación.
+El sistema libera cupo.
+El sistema actualiza estado.
+
+## Flujos alternativos
+
+FA01 — Triaje iniciado.
+
+Cancelar deshabilitado y muestra el mensaje en letras plomas de por qué ya no se puede cancelar.
+
+## Postcondiciones
+
+Cita cancelada.
+Cupo liberado.
+Estado actualizado:
+Cancelada
+
+## Reglas asociadas
+
+RN13 Restricción de cancelación
+RN14 Liberación de cupo
+RN36 Inicio de triaje
+RN38 Estados de asistencia
+
+## CU10 — Visualizar detalle de cita
+
+## Objetivo
+
+Consultar información detallada.
+
+## Actor principal
+
+Paciente
+
+## Precondiciones
+
+El paciente inició sesión.
+Existe cita registrada.
+
+## Flujo principal
+
+El paciente selecciona el botón de reservar cita.
+El sistema muestra dos opciones : "detalle de cita" y "cancelar cita".
+El paciente selecciona la opción "detalle de cita".
+El sistema muestra el ticket.
+Especialidad.
+Horario.
+Médico.
+Estado.
+Número de atención.
+
+## Flujos alternativos
+
+FA01 — Cita inexistente.
+
+Mostrar mensaje.
+
+## Postcondiciones
+
+Detalle visualizado y descargar en pdf.
+
+## Reglas asociadas
+
+RN12 Ticket obligatorio
+RN30 Seguimiento
+
+
+## CU11 — Visualizar y descargar ticket
+
+## Objetivo
+
+Permitir visualizar y descargar el ticket de una cita registrada.
+
+## Precondiciones:
+
+El paciente inició sesión.
+Existe cita registrada.
+
+## Flujo principal
+
+1 Seleccionar cita
+2 Visualizar ticket o Descargar PDF
+
+## RN asociada:
+
+RN12 Ticket obligatorio
+
+
+## CU12 - Registrar aviso de atención inmediata
+
+### Objetivo
+Permitir al paciente registrar y enviar un aviso de atención inmediata para alertar al personal de enfermería sobre una necesidad urgente.
+
+### Actor principal
+Paciente
+
+### Precondiciones
+El paciente inició sesión.
+
+### Flujo principal
+1. El paciente accede al módulo o pestaña "Atención Inmediata".
+2. El paciente ingresa el motivo o malestar de su solicitud (máximo 300 caracteres).
+3. El paciente hace clic en "Enviar Solicitud a Enfermería".
+4. El sistema valida que el motivo no esté vacío y no supere los 300 caracteres.
+5. El sistema registra el aviso en estado `Pendiente`.
+6. El sistema muestra un mensaje de éxito indicando que el aviso ha sido registrado y que enfermería ha sido notificada.
+
+### Flujos alternativos
+FA01 — Datos de motivo inválidos:
+El paciente intenta enviar un motivo vacío o que excede el límite de 300 caracteres.
+El sistema muestra un mensaje de alerta y no permite el registro.
+
+### Postcondiciones
+- Aviso de atención inmediata registrado en estado `Pendiente`.
+- El aviso se refleja automáticamente en la vista de solicitudes de atención del personal de enfermería.
+
+### Reglas asociadas
+- RN24 Aviso informativo
+- RN25 Sin prioridad automática
+- RN26 Visualización restringida
+
+### Requisitos funcionales asociados
+- RF20 Registrar aviso de atención inmediata
+- RF21 Visualizar avisos
+
+
+##### MÓDULO ENFERMERÍA
 
 ---
 
-# CU13 Registrar triaje
+## CU13 — Buscar paciente por DNI
 
-Actor:
-ENF
+### Actor principal
 
-Objetivo:
+Enfermera
 
-Registrar evaluación inicial.
+### Objetivo
 
-Precondición:
+Recuperar automáticamente información del paciente para registrar el triaje.
 
-Paciente presente.
+### Precondiciones
 
-Flujo:
+- Enfermera autenticada.
+- Paciente con cita activa.
 
-1. Buscar cita.
-2. Registrar:
+### Flujo principal
 
-- Peso
-- Talla
-- Temperatura
-- Presión
+1. Abrir módulo Nuevo Triaje.
+2. Ingresar DNI.
+3. Seleccionar Buscar.
+4. El sistema recupera:
 
-3. Guardar.
+   - Nombre
+   - Apellidos
+   - Especialidad
+   - Médico
+   - Hora de atención
 
-Sistema:
+5. El formulario se completa automáticamente.
 
-Estado → En triaje
+### Flujos alternativos
 
-Postcondición:
+#### Paciente no encontrado
 
-Paciente preparado.
+Mostrar mensaje.
+
+#### Paciente sin cita activa
+
+Mostrar restricción.
+
+### Postcondiciones
+
+- Formulario precargado.
+
+### Reglas de negocio asociadas
+
+RN20 Registro exclusivo
+RN23 Historial limitado
+RN39 Cierre de jornada
+RN30 Seguimiento
+RN40 Precarga por DNI
+
+### Requisitos funcionales asociados
+
+- RF17 Buscar paciente.
+
+### Historia de usuario asociada
+
+- HU13 Buscar paciente por DNI.
 
 ---
 
-# CU14 Actualizar estado
+## CU14 — Registrar nuevo triaje
 
-Actor:
-ENF
+### Actor principal
 
-Objetivo:
+Enfermera
 
-Mantener trazabilidad.
+### Objetivo
 
-Estados:
+Registrar información previa a la atención médica.
 
-Pendiente
+### Precondiciones
 
-↓
+- Paciente identificado.
+- Cita activa.
 
+### Flujo principal
+
+1. Sistema recupera datos del paciente.
+2. Completa:
+   - Peso
+   - Talla
+   - Presión arterial
+   - Temperatura
+   - Observaciones
+10. Selecciona Guardar.
+11. Sistema registra el triaje.
+12. Sistema actualiza el estado de la cita.
+
+## Postcondiciones
+Triaje registrado correctamente.
+Estado de asistencia actualizado a:
+Asistió
+Estado de atención actualizado a:
 En triaje
 
-↓
+### Reglas de negocio asociadas
 
-Listo atención
+RN19 Triaje obligatorio
+RN20 Registro exclusivo
+RN22 Registro básico
+RN30 Seguimiento
+RN36 Inicio de triaje
+RN38 Estados de asistencia
+RN23 Historial limitado
+RN39 Cierre de jornada
+RN40 Precarga por DNI
 
-↓
+### Requisitos funcionales asociados
 
-No asistió
+- RF18 Registrar triaje.
 
-Postcondición:
+### Historia de usuario asociada
 
-Estado actualizado.
-
----
-
-# CU15 Consultar trazabilidad
-
-Actor:
-PAC
-
-Objetivo:
-
-Consultar avance.
-
-Flujo:
-
-1. Abrir cita.
-2. Ver estado.
-
-Postcondición:
-
-Seguimiento disponible.
+- HU14 Registrar triaje.
 
 ---
 
-# CU16 Registrar aviso de atención inmediata
+##  CU15 — Visualizar solicitudes de atención inmediata
 
-Actor:
-PAC
+### Actor principal
 
-Objetivo:
+Enfermera
 
-Comunicar intención de asistir.
+### Objetivo
 
-Flujo:
+Visualizar solicitudes enviadas por pacientes.
 
-1. Abrir aviso.
-2. Registrar motivo.
-3. Confirmar.
+### Precondiciones
 
-Sistema:
+- Enfermera autenticada.
 
-Notifica enfermería.
+### Flujo principal
 
-Restricción:
+1. Abrir panel de solicitudes.
 
-No genera cita.
+2. El sistema muestra:
 
-Postcondición:
+   - Paciente
+   - Hora
+   - Motivo
+   - Estado
 
-Aviso creado.
+3. Seleccionar solicitud.
 
----
+4. Revisar detalle.
 
-# CU17 Visualizar avisos
+### Estados permitidos
 
-Actor:
-ENF
-
-Objetivo:
-
-Visualizar panel.
-
-Estados:
-
+```
 Pendiente
-
-Visualizado
-
-Cerrado
-
-Postcondición:
-
-Aviso actualizado.
-
----
-
-# CU18: Gestionar Usuarios y Personal
-Actor Principal: Administrador (ADMIN)
-
-Objetivo: Registrar, buscar, editar y administrar el acceso y roles de los distintos actores del sistema (Pacientes, Médicos, Enfermeras, Personal de Admisión).
-
-Precondiciones: 1. El Administrador ha iniciado sesión correctamente en el sistema.
-2. El navegador se encuentra en la ruta base de administración (/Admin/Index).
-
-Flujo Principal (Escenario de Éxito)
-El Administrador selecciona la opción "Gestión de Usuarios" en el panel principal.
-
-El sistema renderiza la interfaz dinámica con la lista de usuarios existentes y el formulario de registro/edición.
-
-El Administrador introduce el DNI (8 dígitos) del usuario a registrar o modificar y hace clic en el botón "Buscar".
-
-El sistema realiza una consulta asíncrona en segundo plano (Fetch/AJAX):
-
-Verifica que el DNI no exista previamente en la base de datos local.
-
-Al no encontrarlo localmente, invoca al servicio de validación de identidad externo (Mock RENIEC).
-
-El sistema recibe la estructura de datos JSON, autocompleta automáticamente los campos "Nombres" y "Apellidos" en el formulario y los bloquea con el atributo de integridad readonly.
-
-El Administrador asigna el Rol del usuario mediante un menú desplegable (Paciente, Medico, Enfermeria, Admision) y completa los campos de contacto o credenciales (Correo, Contraseña).
-
-El Administrador hace clic en "Guardar".
-
-El sistema ejecuta las validaciones (Client-side y Server-side), procesa el cifrado de la contraseña (Hashing), persiste el registro en la base de datos y actualiza la tabla dinámica de forma asíncrona.
-
----
-
-# CU19 Configurar duración atención
-
-Actor:
-ADMIN
-
-Objetivo:
-
-Generar horarios.
-
-Ejemplo:
-
-Medicina
-
 ↓
+Visualizado
+↓
+Cerrado
+```
 
-20 minutos
+### Postcondiciones
 
-Sistema:
+- Solicitud revisada.
 
-Genera tarjetas.
+### Reglas de negocio asociadas
 
-Postcondición:
+RN30 Seguimiento
+RN32 Auditoría
+RN39 Cierre de jornada
+RN26 Visualización restringida
 
-Disponibilidad calculada.
+### Requisitos funcionales asociados
 
----
+- RF20 Visualizar solicitudes.
 
-# CU20 Gestionar sobrecupo
+### Historia de usuario asociada
 
-Actor:
-ADM
-
-Objetivo:
-
-Registrar excepción.
-
-Precondición:
-
-Sin disponibilidad.
-
-Flujo:
-
-1. Solicitar excepción.
-2. Confirmar.
-3. Registrar.
-
-Restricción:
-
-No visible paciente.
-
-Postcondición:
-
-Sobrecupo registrado.
+- HU15 Gestionar avisos.
 
 ---
 
-# RELACIONES
+## CU16 — Actualizar estado de solicitud
 
-CU06
-<<include>>
-CU05
+### Actor principal
 
-CU06
-<<include>>
-CU09
+Enfermera
 
-CU13
-<<include>>
-CU14
+### Objetivo
 
-CU11
-<<include>>
-CU10
+Registrar seguimiento de solicitudes.
+
+### Precondiciones
+
+- Solicitud existente.
+
+### Flujo principal
+
+1. Seleccionar solicitud.
+2. Actualizar estado.
+3. Guardar cambios.
+
+### Estados permitidos
+
+- Visualizado
+- Cerrado
+
+### Postcondiciones
+
+- Estado actualizado.
+
+### Reglas de negocio asociadas
+
+RN24 Aviso informativo
+RN25 Sin prioridad automática
+RN26 Visualización restringida
+RN33 Emergencias
+RN32 Auditoría
+
+### Requisitos funcionales asociados
+
+- RF21 Actualizar estado solicitud.
+
+### Historia de usuario asociada
+
+- HU16 Actualizar estado solicitud.
+
+
+
+
+# CU17 — Gestionar tablero Kanban de citas del día
+
+## Actor principal
+Enfermera
+
+## Objetivo
+Visualizar a todos los pacientes del día organizados en un tablero Kanban según su estado de triaje y atención, permitiendo avanzar su flujo con un solo clic.
+
+## Precondiciones
+- Enfermera autenticada.
+- Existen citas programadas para la fecha actual.
+
+## Flujo principal
+1. La enfermera ingresa al Panel de Enfermería.
+2. El sistema renderiza el tablero Kanban compuesto por 4 columnas:
+   - **Falta Triaje:** Citas en estado *Pendiente*.
+   - **En Triaje:** Citas en estado *En Triaje*.
+   - **Listo Atención:** Citas en estado *Listo para Atención*.
+   - **Finalizados:** Citas en estado *No Asistió* o *Cancelada*.
+3. En la columna **Falta Triaje**, el sistema muestra las tarjetas de los pacientes y un botón para "Registrar Triaje".
+4. En la columna **En Triaje**, el sistema muestra las tarjetas con botones de acción rápida: "Listo Atención" y "No Asistió".
+5. En la columna **Listo Atención**, el sistema muestra las tarjetas de los pacientes triados con un resumen de sus signos vitales (Peso, Talla, Temperatura, Presión arterial y observaciones).
+6. En la columna **Finalizados**, el sistema muestra el histórico de citas canceladas o marcadas como inasistencia.
+7. La enfermera puede presionar los botones de acción rápida para mover las tarjetas entre las columnas.
+8. El sistema actualiza el estado de la cita, registra el cambio en el historial de trazabilidad y refresca el tablero visual.
+
+## Postcondiciones
+- El tablero Kanban refleja el estado real y el flujo de los pacientes en la posta de salud.
+- Se mantiene el orden operativo y de atención de los pacientes.
+
+## Reglas de negocio asociadas
+- RN19 Triaje obligatorio
+- RN21 Estados permitidos
+- RN30 Seguimiento
+- RN38 Estados de asistencia
+
+## Requisitos funcionales asociados
+- RF18 Actualizar estado de atención
+- RNF07 Trazabilidad
+

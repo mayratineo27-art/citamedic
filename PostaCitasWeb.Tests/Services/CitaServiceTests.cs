@@ -86,5 +86,81 @@ namespace PostaCitasWeb.Tests.Services
             result.Should().BeFalse();
             _citaRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Cita>()), Times.Never);
         }
+
+        [Fact]
+        public async Task CancelCitaAsync_WhenValidAppointmentAndWithinTimeframe_ReturnsSuccess()
+        {
+            // Arrange
+            var citaId = 1;
+            var slotId = 10;
+            var cita = new Cita
+            {
+                CitaId = citaId,
+                SlotId = slotId,
+                EstadoCita = EstadoCita.Pendiente,
+                PacienteId = 5
+            };
+
+            var slot = new SlotDisponible
+            {
+                SlotId = slotId,
+                CuposDisponibles = 2,
+                Programacion = new ProgramacionOperativa
+                {
+                    Fecha = DateOnly.FromDateTime(DateTime.Now.AddDays(1)), // Tomorrow
+                    Turno = Turno.Manana
+                }
+            };
+
+            _citaRepositoryMock.Setup(x => x.GetByIdAsync(citaId)).ReturnsAsync(cita);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(slotId)).ReturnsAsync(slot);
+
+            // Act
+            var result = await _sut.CancelCitaAsync(citaId, "Test");
+
+            // Assert
+            result.Success.Should().BeTrue();
+            cita.EstadoCita.Should().Be(EstadoCita.Cancelada);
+            slot.CuposDisponibles.Should().Be(3);
+            _citaRepositoryMock.Verify(x => x.Update(cita), Times.Once);
+            _slotRepositoryMock.Verify(x => x.Update(slot), Times.Once);
+        }
+
+        [Fact]
+        public async Task CancelCitaAsync_WhenPastTimeframe_ReturnsFailure()
+        {
+            // Arrange
+            var citaId = 1;
+            var slotId = 10;
+            var cita = new Cita
+            {
+                CitaId = citaId,
+                SlotId = slotId,
+                EstadoCita = EstadoCita.Pendiente,
+                PacienteId = 5
+            };
+
+            var slot = new SlotDisponible
+            {
+                SlotId = slotId,
+                CuposDisponibles = 2,
+                Programacion = new ProgramacionOperativa
+                {
+                    Fecha = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), // Yesterday
+                    Turno = Turno.Manana
+                }
+            };
+
+            _citaRepositoryMock.Setup(x => x.GetByIdAsync(citaId)).ReturnsAsync(cita);
+            _slotRepositoryMock.Setup(x => x.GetByIdWithProgramacionAsync(slotId)).ReturnsAsync(slot);
+
+            // Act
+            var result = await _sut.CancelCitaAsync(citaId, "Test");
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Contain("Ha pasado el horario de cancelación");
+            cita.EstadoCita.Should().Be(EstadoCita.Pendiente); // unmodified
+        }
     }
 }

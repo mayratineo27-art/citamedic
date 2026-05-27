@@ -1,0 +1,388 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #008B8B;">Gestión de Usuarios</h2>
+            <p class="text-muted mb-0">Administración interna del personal y pacientes</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    <div class="modern-card p-4 mb-4">
+        <form id="formUsuarioIndex" method="post" class="mb-0">
+            @Html.AntiForgeryToken()
+            <h5 class="mb-4 border-bottom pb-2">Registrar Nuevo Usuario</h5>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="DNI" class="form-label fw-bold">DNI</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="DNI" name="DNI" maxlength="8" placeholder="8 dígitos" required>
+                        <button type="button" class="btn btn-teal" id="btnBuscarDni">🔍 Buscar</button>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="Nombres" class="form-label fw-bold">Nombres</label>
+                    <input type="text" class="form-control bg-light" id="Nombres" name="Nombres" readonly>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="Apellidos" class="form-label fw-bold">Apellidos</label>
+                    <input type="text" class="form-control bg-light" id="Apellidos" name="Apellidos" readonly>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="NombreUsuario" class="form-label fw-bold">Nombre Usuario</label>
+                    <input type="text" class="form-control" id="NombreUsuario" name="NombreUsuario" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="Rol" class="form-label fw-bold">Rol</label>
+                    <select class="form-select" id="Rol" name="Rol" required>
+                        <option value="">Seleccione...</option>
+                        <option value="0">Paciente</option>
+                        <option value="1">Admisión</option>
+                        <option value="2">Enfermería</option>
+                        <option value="3">Administrador</option>
+                        <option value="4">Médico</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="Celular" class="form-label fw-bold">Celular</label>
+                    <input type="text" class="form-control" id="Celular" name="Celular" required>
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-teal w-100" id="btnGuardarUsuario">Guardar Usuario</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="Password" class="form-label fw-bold">Contraseña</label>
+                    <input type="password" class="form-control" id="Password" name="Password" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="ConfirmPassword" class="form-label fw-bold">Confirmar</label>
+                    <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" required>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modern-card p-4">
+        <h5 class="mb-4 border-bottom pb-2">Usuarios Registrados</h5>
+        @if (Model.Usuarios.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>DNI</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Celular</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var usuario in Model.Usuarios)
+                        {
+                            <tr>
+                                <td>@usuario.DNI</td>
+                                <td>@usuario.NombreUsuario</td>
+                                <td><span class="badge bg-secondary">@usuario.Rol</span></td>
+                                <td>@usuario.Celular</td>
+                                <td>
+                                    @if (usuario.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="abrirEditarUsuario(@usuario.UsuarioId)">Editar</button>
+                                    @if (usuario.Activo)
+                                    {
+                                        <form method="post" asp-action="DeleteUsuario" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@usuario.UsuarioId">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Desactivar este usuario?')">Desactivar</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form method="post" asp-action="ActivateUsuario" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@usuario.UsuarioId">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Activar este usuario?')">Activar</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No hay usuarios registrados.</div>
+        }
+    </div>
+</div>
+
+<!-- Modal para Editar Perfil de Usuario (CU17) -->
+<div class="modal fade" id="editUsuarioModal" tabindex="-1" aria-labelledby="editUsuarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUsuarioModalLabel" style="color: #008B8B; font-weight: bold;">Editar Perfil de Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditUsuario" method="post" class="mb-0">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="editUsuarioId" name="usuarioId">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="editDNI" class="form-label fw-bold">DNI</label>
+                            <input type="text" class="form-control bg-light" id="editDNI" name="DNI" readonly>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="editNombreUsuario" class="form-label fw-bold">Nombre de Usuario / Nombre Completo</label>
+                            <input type="text" class="form-control" id="editNombreUsuario" name="NombreUsuario" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="editRol" class="form-label fw-bold">Rol</label>
+                            <select class="form-select bg-light" id="editRol" name="Rol" disabled>
+                                <option value="0">Paciente</option>
+                                <option value="1">Admisión</option>
+                                <option value="2">Enfermería</option>
+                                <option value="3">Administrador</option>
+                                <option value="4">Médico</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="editCelular" class="form-label fw-bold">Celular</label>
+                            <input type="text" class="form-control" id="editCelular" name="Celular" required>
+                        </div>
+                        <div class="col-md-4 mb-3 d-flex align-items-center">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="editActivo" name="Activo" value="true">
+                                <label class="form-check-label fw-bold" for="editActivo">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3 mt-2">
+                        <h6 class="fw-bold mb-3" style="color: #008B8B;">Restablecer Contraseña (Opcional)</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editPassword" class="form-label fw-bold">Nueva Contraseña</label>
+                                <input type="password" class="form-control" id="editPassword" name="Password" placeholder="Dejar en blanco para no cambiar">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editConfirmPassword" class="form-label fw-bold">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="editConfirmPassword" name="ConfirmPassword" placeholder="Dejar en blanco para no cambiar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-teal" id="btnActualizarUsuario">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const btnBuscarDni = document.getElementById('btnBuscarDni');
+        const inputDni = document.getElementById('DNI');
+        const inputNombres = document.getElementById('Nombres');
+        const inputApellidos = document.getElementById('Apellidos');
+        const formUsuario = document.getElementById('formUsuarioIndex');
+        const btnGuardarUsuario = document.getElementById('btnGuardarUsuario');
+
+        if (btnBuscarDni) {
+            btnBuscarDni.addEventListener('click', async function () {
+                const dni = inputDni.value.trim();
+                if (!dni || dni.length !== 8 || !/^\d{8}$/.test(dni)) {
+                    alert('Por favor ingrese 8 dígitos numéricos válidos.');
+                    return;
+                }
+                try {
+                    const response = await fetch(`/Admin/BuscarDni?dni=${dni}`);
+                    const data = await response.json();
+                    if (data.success && data.existe) {
+                        inputNombres.value = data.nombres || '';
+                        inputApellidos.value = data.apellidos || '';
+                        inputNombres.readOnly = true;
+                        inputApellidos.readOnly = true;
+                        inputNombres.classList.add('bg-light');
+                        inputApellidos.classList.add('bg-light');
+                    } else {
+                        alert(data.message || 'DNI no encontrado. Por favor, registre los datos manualmente.');
+                        inputNombres.value = '';
+                        inputApellidos.value = '';
+                        inputNombres.readOnly = false;
+                        inputApellidos.readOnly = false;
+                        inputNombres.classList.remove('bg-light');
+                        inputApellidos.classList.remove('bg-light');
+                    }
+                } catch (error) {
+                    alert('Error en la consulta. Intente nuevamente.');
+                }
+            });
+        }
+
+        if (btnGuardarUsuario) {
+            btnGuardarUsuario.addEventListener('click', async function (e) {
+                e.preventDefault();
+                if (!formUsuario.checkValidity()) {
+                    formUsuario.reportValidity();
+                    return;
+                }
+                if (document.getElementById('Password').value !== document.getElementById('ConfirmPassword').value) {
+                    alert('Las contraseñas no coinciden.');
+                    return;
+                }
+                const usuarioData = {
+                    DNI: document.getElementById('DNI').value,
+                    NombreUsuario: document.getElementById('NombreUsuario').value,
+                    Password: document.getElementById('Password').value,
+                    ConfirmPassword: document.getElementById('ConfirmPassword').value,
+                    Rol: parseInt(document.getElementById('Rol').value),
+                    Celular: document.getElementById('Celular').value,
+                    Activo: true
+                };
+                try {
+                    const response = await fetch('/Admin/GuardarUsuario', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(usuarioData)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message || 'Usuario guardado exitosamente.');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        alert(result.message || 'Error al guardar el usuario.');
+                    }
+                } catch (error) {
+                    alert('Error en la solicitud.');
+                }
+            });
+        }
+
+        async function abrirEditarUsuario(usuarioId) {
+            try {
+                const response = await fetch(`/Admin/ObtenerUsuario?id=${usuarioId}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('editUsuarioId').value = data.usuarioId;
+                    document.getElementById('editDNI').value = data.dni;
+                    document.getElementById('editNombreUsuario').value = data.nombreUsuario;
+                    document.getElementById('editRol').value = data.rol;
+                    document.getElementById('editCelular').value = data.celular || '';
+                    document.getElementById('editActivo').checked = data.activo;
+                    
+                    // Limpiar contraseñas
+                    document.getElementById('editPassword').value = '';
+                    document.getElementById('editConfirmPassword').value = '';
+
+                    const inputNombre = document.getElementById('editNombreUsuario');
+                    const checkboxActivo = document.getElementById('editActivo');
+
+                    // Reglas de edición por Rol (Paciente: Celular, Password editables. Estado/Nombre bloqueados.)
+                    if (data.rol === 0) { // Paciente
+                        inputNombre.readOnly = true;
+                        inputNombre.classList.add('bg-light');
+                        checkboxActivo.disabled = true;
+                    } else { // Médico, Enfermería, Admisión, Administrador
+                        // Se mantiene el NombreUsuario del staff como solo lectura en este panel para mantener integridad con las otras tablas
+                        inputNombre.readOnly = true;
+                        inputNombre.classList.add('bg-light');
+                        checkboxActivo.disabled = false;
+                    }
+
+                    // Mostrar modal
+                    const modal = new bootstrap.Modal(document.getElementById('editUsuarioModal'));
+                    modal.show();
+                } else {
+                    alert(data.message || 'Error al obtener datos del usuario.');
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor.');
+            }
+        }
+
+        const btnActualizarUsuario = document.getElementById('btnActualizarUsuario');
+        if (btnActualizarUsuario) {
+            btnActualizarUsuario.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const form = document.getElementById('formEditUsuario');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const password = document.getElementById('editPassword').value;
+                const confirmPassword = document.getElementById('editConfirmPassword').value;
+                if (password || confirmPassword) {
+                    if (password.length < 8) {
+                        alert('La nueva contraseña debe tener al menos 8 caracteres.');
+                        return;
+                    }
+                    if (password !== confirmPassword) {
+                        alert('Las contraseñas no coinciden.');
+                        return;
+                    }
+                }
+
+                const id = document.getElementById('editUsuarioId').value;
+                const model = {
+                    DNI: document.getElementById('editDNI').value,
+                    NombreUsuario: document.getElementById('editNombreUsuario').value,
+                    Rol: parseInt(document.getElementById('editRol').value),
+                    Celular: document.getElementById('editCelular').value,
+                    Activo: document.getElementById('editActivo').checked,
+                    Password: password,
+                    ConfirmPassword: confirmPassword
+                };
+
+                try {
+                    const response = await fetch(`/Admin/EditarUsuario?usuarioId=${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(model)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message || 'Usuario actualizado exitosamente.');
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Error al actualizar usuario.');
+                    }
+                } catch (error) {
+                    alert('Error en la solicitud al servidor.');
+                }
+            });
+        }
+    </script>
+}

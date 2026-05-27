@@ -356,6 +356,7 @@ classDiagram
         +int MedicoId PK
         +string Nombres
         +string ApellidoPaterno
+        +string ApellidoMaterno
         +string CMP
         +bool Activo
     }

@@ -1,0 +1,121 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Gestión de UPS";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #008B8B; font-family: 'Segoe UI', sans-serif;">Gestión de UPS</h2>
+            <p class="text-muted mb-0">Unidades Productoras de Servicios (Interno)</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="modern-card p-4 mb-4">
+        <h5 class="mb-4 border-bottom pb-2">Registrar Nueva UPS</h5>
+        <form method="post" asp-action="CreateUPS" class="mb-0">
+            @Html.AntiForgeryToken()
+            <div class="row align-items-end">
+                <div class="col-md-8 mb-3">
+                    <label for="upsNombre" class="form-label fw-bold">Nombre de la UPS</label>
+                    <input type="text" class="form-control" id="upsNombre" name="Nombre" placeholder="Ej: Consulta Externa" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button type="submit" class="btn btn-teal w-100">Crear UPS</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modern-card p-4">
+        <h5 class="mb-4 border-bottom pb-2">UPS Registradas en el Sistema</h5>
+        @if (Model.UPS.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre de la Unidad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ups in Model.UPS)
+                        {
+                            <tr>
+                                <td class="fw-medium">@ups.Nombre</td>
+                                <td>
+                                    @if (ups.Activa)
+                                    {
+                                        <span class="badge bg-success">Activa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactiva</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editUPSModal" onclick="loadUPSData(@ups.UPSId, '@ups.Nombre', @(ups.Activa ? "true" : "false"))">Editar</button>
+                                        @if (ups.Activa)
+                                        {
+                                            <form method="post" asp-action="DeleteUPS" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@ups.UPSId">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Desactivar esta UPS?')">Desactivar</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-action="ActivateUPS" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@ups.UPSId">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Activar esta UPS?')">Activar</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No hay Unidades Productoras de Servicios (UPS) registradas.</div>
+        }
+    </div>
+</div>
+
+<partial name="_EditUPSModal" />
+
+@section Scripts {
+    <script>
+        function loadUPSData(id, nombre, activa) {
+            const editId = document.getElementById('editUPSId');
+            const editNombre = document.getElementById('editUPSNombre');
+            const editActiva = document.getElementById('editUPSActiva');
+            if (editId) editId.value = id;
+            if (editNombre) editNombre.value = nombre;
+            if (editActiva) editActiva.checked = activa;
+        }
+    </script>
+}

@@ -21,7 +21,10 @@ namespace PostaCitasWeb.Repositories
         {
             return await _dbSet
                 .Where(c => c.PacienteId == pacienteId)
+                .Include(c => c.Especialidad)
                 .Include(c => c.Slot)
+                    .ThenInclude(s => s.Programacion)
+                    .ThenInclude(p => p.Medico)
                 .Include(c => c.Ticket)
                 .Include(c => c.Triaje)
                 .ToListAsync();
@@ -58,13 +61,18 @@ namespace PostaCitasWeb.Repositories
 
         public async Task<bool> HasActiveCitaInSlotAsync(int pacienteId, int slotId)
         {
-            // RN31: Verifica que no exista más de una cita activa para el mismo paciente y slot
-            var estadosActivos = new[] { EstadoCita.Pendiente, EstadoCita.EnTriaje, EstadoCita.ListoAtencion };
-
             return await _dbSet.AnyAsync(c =>
                 c.PacienteId == pacienteId &&
                 c.SlotId == slotId &&
-                estadosActivos.Contains(c.EstadoCita));
+                c.EstadoCita != EstadoCita.Cancelada);
+        }
+
+        public async Task<bool> HasActiveCitaOnDateAsync(int pacienteId, DateOnly date)
+        {
+            return await _dbSet.AnyAsync(c =>
+                c.PacienteId == pacienteId &&
+                c.Slot.Programacion.Fecha == date &&
+                c.EstadoCita != EstadoCita.Cancelada);
         }
 
         public async Task<IEnumerable<Cita>> GetAllWithDetailsAsync()

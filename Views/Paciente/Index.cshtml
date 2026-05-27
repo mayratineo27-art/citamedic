@@ -1,54 +1,1737 @@
 @model PostaCitasWeb.Models.ViewModels.PacienteDashboardViewModel
 
 @{
-    ViewData["Title"] = "Panel del Paciente";
+    ViewData["Title"] = "Portal del Paciente - Posta Los Licenciados";
 }
 
-<div class="container py-4">
-    <div class="card shadow-sm mb-4">
-        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <h1 class="h3 mb-1">Panel del Paciente</h1>
-                <p class="text-muted mb-0">Consulta tus citas programadas y agenda una nueva cita.</p>
-            </div>
-            <a asp-controller="Citas" asp-action="Create" class="btn btn-success">
-                Agendar Nueva Cita
-            </a>
-        </div>
-    </div>
+<!-- Google Fonts & FontAwesome -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <strong>Mis Citas Programadas</strong>
+<!-- CSS Variables & Premium Layout Styles -->
+<style>
+    :root {
+        --navy: #1D2D50;
+        --teal: #2AAE8A;
+        --teal-light: #e8f7f3;
+        --bg-main: #f0f5f4;
+        --bg-sidebar: #ffffff;
+        --text-main: #1D2D50;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --radius: 24px;
+        --shadow-sm: 0 4px 6px -1px rgba(29, 45, 80, 0.02), 0 2px 4px -2px rgba(29, 45, 80, 0.02);
+        --shadow-md: 0 10px 15px -3px rgba(29, 45, 80, 0.04), 0 4px 6px -4px rgba(29, 45, 80, 0.04);
+        --shadow-lg: 0 20px 25px -5px rgba(29, 45, 80, 0.06), 0 10px 10px -5px rgba(29, 45, 80, 0.03);
+        --green-hero-start: #0a6b59;
+        --green-hero-end: #044136;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+    }
+
+    /* Layout Wrapper */
+    .portal-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .portal-sidebar {
+        width: 290px;
+        background-color: var(--bg-sidebar);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem 1.5rem;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        z-index: 100;
+        transition: all 0.3s ease;
+    }
+
+    /* Brand Header Mockup style */
+    .sidebar-brand-mock {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding-bottom: 1.75rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1.25rem;
+    }
+    .brand-logo-mock {
+        width: 46px;
+        height: 46px;
+        background-color: var(--teal);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+    .brand-text-mock {
+        display: flex;
+        flex-direction: column;
+    }
+    .brand-title {
+        color: var(--navy);
+        font-weight: 800;
+        font-size: 1.15rem;
+        line-height: 1;
+        letter-spacing: 0.5px;
+        font-family: 'Outfit', sans-serif;
+    }
+    .brand-subtitle {
+        color: var(--teal);
+        font-weight: 700;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 3px;
+    }
+
+    /* Profile Active Card mockup style */
+    .profile-card-mock {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+        background-color: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        margin-bottom: 1.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .profile-icon-mock {
+        width: 38px;
+        height: 38px;
+        border: 1.5px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 1rem;
+        background-color: #f8fafc;
+    }
+    .profile-text-mock {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        max-width: 140px;
+    }
+    .profile-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+    }
+    .profile-name {
+        font-size: 0.85rem;
+        font-weight: 750;
+        color: var(--navy);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .profile-arrow {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+
+    .menu-section-header {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+        padding-left: 0.75rem;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .menu-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        color: var(--navy);
+        font-weight: 600;
+        font-size: 0.925rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+    }
+
+    .menu-link:hover {
+        color: var(--teal);
+        background-color: var(--teal-light);
+    }
+
+    .menu-link.active {
+        color: white;
+        background: linear-gradient(135deg, var(--green-hero-start) 0%, var(--green-hero-end) 100%);
+        font-weight: 700;
+        box-shadow: 0 6px 16px rgba(10, 107, 89, 0.2);
+    }
+
+    .menu-link i {
+        font-size: 1.05rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .logout-btn-mock {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.925rem;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+    }
+    .logout-btn-mock:hover {
+        color: #ef4444;
+        background-color: #fee2e2;
+    }
+
+    /* Content Area */
+    .portal-main {
+        flex-grow: 1;
+        padding: 2.5rem 3rem;
+        max-width: calc(100% - 290px);
+        overflow-y: auto;
+    }
+
+    /* Welcome Header */
+    .welcome-header {
+        margin-bottom: 2.25rem;
+    }
+
+    .welcome-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 400;
+        color: var(--navy);
+        font-size: 2.35rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .welcome-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Status Pill mockup style */
+    .status-pill {
+        background-color: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 9999px;
+        padding: 0.5rem 1.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .status-pulse {
+        width: 8px;
+        height: 8px;
+        background-color: var(--teal);
+        border-radius: 50%;
+        position: relative;
+    }
+    .status-pulse::after {
+        content: '';
+        position: absolute;
+        top: -4px; left: -4px; right: -4px; bottom: -4px;
+        border: 2px solid var(--teal);
+        border-radius: 50%;
+        animation: pulse-ring 1.5s infinite ease-out;
+        opacity: 0;
+    }
+    @@keyframes pulse-ring {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+
+    /* Cards & Components */
+    .card-premium {
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .card-header-premium {
+        padding: 1.25rem 1.75rem;
+        background-color: white;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title-premium {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin: 0;
+        color: var(--navy);
+    }
+
+    .card-body-premium {
+        padding: 1.75rem;
+    }
+
+    /* Next Appointment Card (Green Hero mockup style) */
+    .card-next-appointment {
+        background: linear-gradient(135deg, var(--green-hero-start) 0%, var(--green-hero-end) 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 10px 25px rgba(10, 107, 89, 0.12);
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .badge-premium-status {
+        padding: 0.45rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.725rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        letter-spacing: 0.5px;
+    }
+
+    /* Premium Pill Button for Hero card booking CTA */
+    .btn-premium-pill {
+        background-color: white;
+        color: var(--green-hero-start);
+        font-weight: 700;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.75rem 1.75rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        font-size: 0.925rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+    .btn-premium-pill:hover {
+        background-color: #f2faf8;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        color: var(--green-hero-end);
+    }
+
+    /* Dynamic tab panels */
+    .tab-panel-custom {
+        display: none;
+        animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .tab-panel-custom.active {
+        display: block;
+    }
+
+    @@keyframes slideUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Badges for status */
+    .badge-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.65rem;
+        border-radius: 9999px;
+        font-size: 0.725rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .badge-dot-Pendiente { background-color: #dbeafe; color: #1e40af; }
+    .badge-dot-EnTriaje { background-color: #fef3c7; color: #92400e; }
+    .badge-dot-ListoAtencion { background-color: #d1fae5; color: #065f46; }
+    .badge-dot-NoAsistio { background-color: #fee2e2; color: #991b1b; }
+    .badge-dot-Cancelada { background-color: #f1f5f9; color: #475569; }
+
+    /* Tables */
+    .table-premium {
+        width: 100%;
+        margin-bottom: 0;
+    }
+    .table-premium th {
+        font-weight: 700;
+        color: var(--navy);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        background-color: #f8fafc;
+        border-bottom: 1.5px solid var(--border);
+    }
+    .table-premium td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.925rem;
+        color: #334155;
+    }
+
+    /* Buttons */
+    .btn-premium {
+        background-color: var(--teal);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        padding: 0.65rem 1.25rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    .btn-premium:hover {
+        background-color: #239475;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(42, 174, 138, 0.18);
+    }
+
+    .btn-premium-light {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.65rem 1.25rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    .btn-premium-light:hover {
+        background-color: white;
+        color: var(--green-hero-start);
+        transform: translateY(-1px);
+    }
+
+    .btn-premium-outline {
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text-main);
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 0.65rem 1.25rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .btn-premium-outline:hover {
+        background-color: var(--bg-main);
+        border-color: #cbd5e1;
+        color: var(--text-main);
+    }
+
+    .btn-premium-danger {
+        background-color: #ef4444;
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        padding: 0.65rem 1.25rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .btn-premium-danger:hover:not(:disabled) {
+        background-color: #dc2626;
+        color: white;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);
+    }
+    .btn-premium-danger:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+        border: 1px solid var(--border);
+    }
+
+    .shortcut-card-mock {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .shortcut-card-mock:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--teal);
+    }
+    .shortcut-icon-mock {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .add-family-btn {
+        width: 36px;
+        height: 36px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .add-family-btn:hover {
+        border-color: var(--teal);
+        background-color: var(--teal-light);
+        color: var(--teal);
+    }
+
+    .heartbeat-anim {
+        animation: heartbeat 1.2s infinite;
+    }
+    @@keyframes heartbeat {
+        0% { transform: scale(1); }
+        14% { transform: scale(1.15); }
+        28% { transform: scale(1); }
+        42% { transform: scale(1.15); }
+        70% { transform: scale(1); }
+    }
+
+    /* Info Grid for Profile */
+    .profile-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background-color: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .info-label {
+        font-size: 0.725rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.35rem;
+    }
+
+    .info-value {
+        font-weight: 700;
+        color: var(--navy);
+        font-size: 1.05rem;
+    }
+
+    /* Disclaimer */
+    .warning-disclaimer {
+        font-size: 0.725rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 2.5rem;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 991.98px) {
+        .portal-wrapper {
+            flex-direction: column;
+        }
+        .portal-sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem 1.5rem;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-brand-mock {
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .profile-card-mock {
+            margin-bottom: 1.25rem;
+        }
+        .sidebar-menu {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            overflow-y: visible;
+        }
+        .menu-link {
+            width: auto;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+        }
+        .sidebar-footer {
+            margin-top: 1.25rem;
+            padding-top: 0.75rem;
+        }
+        .portal-main {
+            max-width: 100%;
+            padding: 1.75rem 1.5rem;
+        }
+    }
+</style>
+
+<!-- Hidden form for anti-forgery token -->
+<form id="antiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<div class="portal-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="portal-sidebar">
+        <!-- Brand Header Mockup -->
+        <a asp-controller="Paciente" asp-action="Index" class="sidebar-brand-mock text-decoration-none">
+            <div class="brand-logo-mock text-white">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <div class="brand-text-mock">
+                <div class="brand-title">CITAMEDIC</div>
+                <div class="brand-subtitle">Portal Salud</div>
+            </div>
+        </a>
+
+        <!-- Active Profile Badge -->
+        <div class="profile-card-mock">
+            <div class="profile-icon-mock">
+                <i class="fa-regular fa-user"></i>
+            </div>
+            <div class="profile-text-mock">
+                <span class="profile-label">Perfil Activo</span>
+                <span class="profile-name">@Model.Paciente.Nombres @Model.Paciente.ApellidoPaterno</span>
+            </div>
+            <div class="profile-arrow"><i class="fa-solid fa-chevron-right text-xs"></i></div>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-striped mb-0 align-middle">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Especialidad</th>
-                        <th>Médico</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var cita in Model.MisCitas)
+
+        <div class="menu-section-header">Menú Principal</div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <button class="menu-link active" onclick="switchTab('tab-inicio', this)">
+                    <i class="fa-solid fa-house"></i> Inicio
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-mis-citas', this)">
+                    <i class="fa-solid fa-calendar-check"></i> Mis Citas
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-especialidades', this)">
+                    <i class="fa-solid fa-stethoscope"></i> Especialidades
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-medicos', this)">
+                    <i class="fa-solid fa-user-doctor"></i> Médicos y Horarios
+                </button>
+            </li>
+            <li>
+                <a asp-controller="Citas" asp-action="Reservar" class="menu-link text-decoration-none">
+                    <i class="fa-solid fa-calendar-plus text-teal"></i> Reservar Cita
+                </a>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-triajes', this)">
+                    <i class="fa-solid fa-heart-pulse"></i> Triajes
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-perfil', this)">
+                    <i class="fa-solid fa-user-gear"></i> Mi Perfil
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-notificaciones', this)">
+                    <i class="fa-solid fa-bell"></i> Notificaciones
+                </button>
+            </li>
+            <li>
+                <button class="menu-link" onclick="switchTab('tab-aviso-inmediato', this)">
+                    <i class="fa-solid fa-circle-exclamation text-danger"></i> Atención Inmediata
+                </button>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <form asp-controller="Auth" asp-action="Logout" method="post" id="logoutForm" class="d-none">
+                @Html.AntiForgeryToken()
+            </form>
+            <button onclick="document.getElementById('logoutForm').submit()" class="logout-btn-mock">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN PORTAL AREA -->
+    <main class="portal-main">
+        
+        <!-- HEADER -->
+        <header class="d-flex justify-content-between align-items-center mb-4 welcome-header">
+            <div>
+                <h2 class="welcome-title text-navy font-bold" id="welcome-greeting">Hola, <span style="color: #0a846e; font-weight: 700;">@Model.Paciente.Nombres</span></h2>
+                <p class="welcome-subtitle text-muted mb-0">¿Cómo te sientes hoy?</p>
+            </div>
+            <!-- Status Pill -->
+            <div class="status-pill d-flex align-items-center gap-2">
+                <i class="fa-solid fa-heart-pulse text-teal heartbeat-anim" style="font-size: 0.95rem; color: #2AAE8A;"></i>
+                <span class="fw-bold" style="color: var(--navy); font-size: 0.85rem;">Todo en orden</span>
+            </div>
+        </header>
+
+        <!-- PESTAÑA 1: INICIO -->
+        <div id="tab-inicio" class="tab-panel-custom active">
+            <!-- TARJETA PRINCIPAL (Next Appointment Card Logic) -->
+            @{
+                var activeCitas = Model.MisCitas.Where(c => c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Pendiente 
+                                                         || c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.EnTriaje 
+                                                         || c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.ListoAtencion)
+                                               .OrderBy(c => c.Slot?.Programacion?.Fecha)
+                                               .ThenBy(c => c.Slot?.HoraInicio)
+                                               .ToList();
+                var nextCita = activeCitas.FirstOrDefault();
+            }
+
+            <div class="row">
+                <!-- Columna Principal -->
+                <div class="col-lg-8 mb-4">
+                    @if (nextCita != null)
                     {
-                        var especialidadNombre = cita.Especialidad?.Nombre ?? $"Especialidad #{cita.EspecialidadId}";
-                        var medicoNombre = cita.Slot?.Programacion?.Medico?.Nombres ?? $"Médico #{cita.Slot?.Programacion?.MedicoId ?? 0}";
-                        <tr>
-                            <td>@cita.FechaReserva.ToString("dd/MM/yyyy")</td>
-                            <td>@especialidadNombre</td>
-                            <td>@medicoNombre</td>
-                            <td>@cita.EstadoCita</td>
-                            <td>
-                                <a asp-controller="Citas" asp-action="Details" asp-route-id="@cita.CitaId" class="btn btn-sm btn-outline-primary">Ver detalle</a>
-                            </td>
-                        </tr>
+                        var especNombre = nextCita.Especialidad?.Nombre ?? "Medicina General";
+                        var docNombre = nextCita.Slot?.Programacion?.Medico != null
+                            ? $"{nextCita.Slot.Programacion.Medico.Nombres} {nextCita.Slot.Programacion.Medico.ApellidoPaterno}"
+                            : "Médico de Guardia";
+                        var horaStr = nextCita.Slot != null ? nextCita.Slot.HoraInicio.ToString(@"hh\:mm") : "08:00";
+                        var fechaStr = nextCita.Slot?.Programacion != null 
+                            ? nextCita.Slot.Programacion.Fecha.ToString("dd/MM/yyyy") 
+                            : nextCita.FechaReserva.ToString("dd/MM/yyyy");
+
+                        // Check cancel limit (RN36)
+                        bool canCancel = nextCita.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Pendiente;
+                        if (canCancel && nextCita.Slot?.Programacion != null)
+                        {
+                            var now = DateTime.Now;
+                            var cancelLimitTime = nextCita.Slot.Programacion.Turno == PostaCitasWeb.Entities.Turno.Manana
+                                ? new TimeSpan(7, 40, 0)
+                                : new TimeSpan(14, 40, 0);
+
+                            if (nextCita.Slot.Programacion.Fecha == DateOnly.FromDateTime(now) && now.TimeOfDay > cancelLimitTime)
+                            {
+                                canCancel = false;
+                            }
+                        }
+
+                        <div class="card-premium card-next-appointment p-5 mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div style="position: relative; z-index: 2; width: 100%;">
+                                    <div class="mb-3">
+                                        <span class="badge-premium-status">
+                                            <i class="fa-solid fa-circle-dot text-xs"></i> PRÓXIMA CITA - @nextCita.EstadoCita
+                                        </span>
+                                    </div>
+                                    <h3 class="font-bold text-white mb-3" style="font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 700;">Tienes una cita programada</h3>
+                                    
+                                    <div class="row g-3 py-3 border-top border-bottom border-light border-opacity-10 my-3 text-sm">
+                                        <div class="col-md-3">
+                                            <span class="opacity-75 d-block text-xs uppercase font-bold mb-1">Especialidad</span>
+                                            <span class="fw-bold text-white font-medium text-base">@especNombre</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="opacity-75 d-block text-xs uppercase font-bold mb-1">Médico Asignado</span>
+                                            <span class="fw-bold text-white font-medium text-base">@docNombre</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="opacity-75 d-block text-xs uppercase font-bold mb-1">Fecha Programada</span>
+                                            <span class="fw-bold text-white font-medium text-base">@fechaStr</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="opacity-75 d-block text-xs uppercase font-bold mb-1">Hora de Atención</span>
+                                            <span class="fw-bold text-white font-medium text-base">@horaStr hrs</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button onclick="verTicket(@nextCita.CitaId, '@especNombre', '@docNombre', '@fechaStr', '@horaStr', '@nextCita.EstadoCita.ToString()', '@(nextCita.Ticket?.Codigo ?? "Generando...")')" class="btn-premium-pill">
+                                            <i class="fa-solid fa-ticket me-1"></i> Ver Detalles / Ticket
+                                        </button>
+                                        @if (canCancel)
+                                        {
+                                            <button onclick="confirmarCancelacion(@nextCita.CitaId)" class="btn btn-link text-white text-decoration-none ms-2" style="font-weight: 600;">
+                                                <i class="fa-solid fa-calendar-xmark me-1"></i> Cancelar Cita
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                                <div style="font-size: 14rem; color: rgba(255, 255, 255, 0.04); position: absolute; right: -20px; bottom: -40px; pointer-events: none; transform: rotate(-10deg);">
+                                    <i class="fa-regular fa-calendar-check"></i>
+                                </div>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                    else
+                    {
+                        <!-- Sin cita programada (Diseño mockup) -->
+                        <div class="card-premium card-next-appointment p-5 mb-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div style="position: relative; z-index: 2;">
+                                    <span class="badge-premium-status mb-3">
+                                        <i class="fa-regular fa-clock me-1"></i> PRÓXIMA CITA
+                                    </span>
+                                    <h3 class="font-bold text-white mb-2" style="font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 700;">No tienes citas programadas para hoy.</h3>
+                                    <p class="text-sm opacity-90 mb-4" style="max-width: 500px; font-size: 0.95rem;">Mantén tu salud al día programando tus chequeos preventivos.</p>
+                                    <div>
+                                        <a asp-controller="Citas" asp-action="Reservar" class="btn-premium-pill">
+                                            Agendar Ahora <i class="fa-solid fa-chevron-right ms-2 text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14rem; color: rgba(255, 255, 255, 0.04); position: absolute; right: -20px; bottom: -40px; pointer-events: none; transform: rotate(-10deg);">
+                                    <i class="fa-regular fa-calendar"></i>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- ACCESOS DIRECTOS -->
+                    <h3 class="fw-bold uppercase tracking-wider text-muted mb-3" style="font-size: 0.725rem; letter-spacing: 1px;">Accesos Directos</h3>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a asp-controller="Citas" asp-action="Reservar" class="shortcut-card-mock text-decoration-none">
+                                <div class="shortcut-icon-mock text-teal" style="background-color: var(--teal-light);">
+                                    <i class="fa-solid fa-calendar-plus"></i>
+                                </div>
+                                <div class="shortcut-text-mock text-start flex-grow-1">
+                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;">Reservar Cita</div>
+                                    <div class="text-xs text-muted">Agenda tu consulta médica online</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a onclick="switchTab('tab-mis-citas', document.querySelector('[onclick*=\'tab-mis-citas\']'))" class="shortcut-card-mock text-decoration-none">
+                                <div class="shortcut-icon-mock text-primary" style="background-color: #e0e7ff;">
+                                    <i class="fa-solid fa-calendar-check" style="color: #4f46e5;"></i>
+                                </div>
+                                <div class="shortcut-text-mock text-start flex-grow-1">
+                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;">Mis Citas</div>
+                                    <div class="text-xs text-muted">Consulta y descarga tus tickets</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a onclick="switchTab('tab-perfil', document.querySelector('[onclick*=\'tab-perfil\']'))" class="shortcut-card-mock text-decoration-none">
+                                <div class="shortcut-icon-mock text-warning" style="background-color: #fffbeb;">
+                                    <i class="fa-solid fa-user-gear" style="color: #d97706;"></i>
+                                </div>
+                                <div class="shortcut-text-mock text-start flex-grow-1">
+                                    <div class="fw-bold text-dark" style="font-size: 0.85rem;">Mi Perfil</div>
+                                    <div class="text-xs text-muted">Configura tus datos de contacto</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Lateral Derecha -->
+                <div class="col-lg-4 mb-4">
+                    <!-- Widget Mi Familia -->
+                    <div class="card-premium p-4 mb-4 bg-white shadow-sm border border-light" style="border-radius: var(--radius); min-height: 112px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-navy text-sm d-flex align-items-center gap-2" style="font-size: 0.85rem; font-family: 'Outfit', sans-serif;">
+                                <i class="fa-solid fa-users text-teal"></i> Mi Familia
+                            </span>
+                            <span class="badge bg-opacity-10 rounded-pill px-2 py-1 text-uppercase font-bold" style="background-color: #e0e7ff; color: #4f46e5; font-size: 0.65rem; letter-spacing: 0.5px; cursor: pointer;" onclick="alert('Función de agregar familiares disponible próximamente en Admisión')">VER TODOS</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mt-3">
+                            <span class="text-xs text-muted">Sin familiares registrados</span>
+                            <div class="add-family-btn d-flex align-items-center justify-content-center" onclick="alert('Función de agregar familiares disponible próximamente en Admisión')">
+                                <i class="fa-solid fa-plus text-muted text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Widget Último Pulso -->
+                    <div class="card-premium p-3.5 mb-4 bg-white shadow-sm border border-light" style="border-radius: var(--radius); min-height: 112px; display: flex; align-items: center; justify-content: space-between;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="pulse-icon-mock d-flex align-items-center justify-content-center rounded-circle" style="width: 48px; height: 48px; background-color: #fee2e2; color: #ef4444; flex-shrink: 0;">
+                                <i class="fa-solid fa-heart-pulse heartbeat-anim fa-lg"></i>
+                            </div>
+                            <div>
+                                <span class="d-block uppercase text-muted font-bold tracking-wider" style="font-size: 0.65rem; letter-spacing: 0.5px; margin-bottom: 2px;">Último Pulso</span>
+                                <div class="fw-extrabold text-dark d-flex align-items-baseline" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif; font-weight: 800; line-height: 1;">
+                                    72 <span class="text-muted fw-bold text-xs ms-1">BPM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-success" style="font-size: 0.8rem;">Normal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer de la Posta -->
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mt-2" style="border-radius: 16px; background-color: #fffbeb; color: #b45309; padding: 1.25rem;">
+                <i class="fa-solid fa-triangle-exclamation mt-1" style="font-size: 1.2rem;"></i>
+                <div>
+                    <strong class="d-block mb-1 text-sm">Aviso de Atención Médica Primaria (RN33 / RN35)</strong>
+                    <span class="text-xs">El sistema web de la Posta Los Licenciados sirve exclusivamente para programar citas de atención médica ambulatoria. Ante urgencias o emergencias médicas de riesgo vital, diríjase inmediatamente a la sala de emergencias más cercana. La historia clínica física sigue siendo el documento oficial de su atención.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 2: ESPECIALIDADES -->
+        <div id="tab-especialidades" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Nuestras Especialidades Médicas</h3>
+                    <a asp-controller="Citas" asp-action="Reservar" class="btn-premium btn-sm">
+                        <i class="fa-solid fa-calendar-plus"></i> Reservar
+                    </a>
+                </div>
+                <div class="card-body-premium">
+                    <div class="row g-4">
+                        @foreach (var esp in Model.Especialidades.Where(e => e.Activa))
+                        {
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3 h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="w-2.5 h-2.5 rounded-circle" style="width:10px; height:10px; background-color: var(--teal); display:inline-block;"></span>
+                                            <h4 class="h6 font-bold m-0 text-dark">@esp.Nombre</h4>
+                                        </div>
+                                        <p class="text-xs text-muted mb-3">Atención profesional configurada en módulos ambulatorios con una duración estimada de @esp.DuracionMinutos minutos por paciente.</p>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center text-xs mt-2 pt-2 border-top">
+                                        <span class="text-muted">Estado: <strong class="text-success">Activa</strong></span>
+                                        <a asp-controller="Citas" asp-action="Reservar" class="text-teal font-bold text-decoration-none">Agendar <i class="fa-solid fa-chevron-right text-xs"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 3: PANEL MÉDICOS (Referential list of doctors/schedules) -->
+        <div id="tab-medicos" class="tab-panel-custom">
+            <!-- Banner disclaimer (FA02) -->
+            <div class="alert alert-info border-0 shadow-sm d-flex align-items-start gap-3 mb-4" style="border-radius: 12px; background-color: #f0fdfa; color: #0f766e;">
+                <i class="fa-solid fa-circle-info mt-1" style="font-size: 1.25rem;"></i>
+                <div>
+                    <strong class="d-block mb-1">Información de Programación (Rotación Operativa - RN18)</strong>
+                    <span class="text-xs">Los turnos y médicos detallados a continuación corresponden a la planificación semanal de referencia de la Posta Los Licenciados. Dicha asignación puede variar según la disponibilidad operativa diaria o la rotación de los profesionales.</span>
+                </div>
+            </div>
+
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Programación Referencial de Médicos</h3>
+                </div>
+                <div class="card-body-premium p-0">
+                    @if (Model.Programaciones == null || !Model.Programaciones.Any())
+                    {
+                        <!-- Sin Programación Publicada (FA01) -->
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-calendar-xmark fa-3x mb-3 text-gray-300"></i>
+                            <p class="mb-0 fw-semibold">No existen jornadas de atención programadas actualmente.</p>
+                            <span class="text-xs text-muted">Consulte de forma presencial en admisión o intente más tarde.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <!-- Table columns: Médico | Especialidad | Días | Turno -->
+                            <table class="table table-premium align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Médico</th>
+                                        <th>Especialidad</th>
+                                        <th>Fecha / Día</th>
+                                        <th>Turno Disponible</th>
+                                        <th class="pe-4 text-end">Agendar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var prog in Model.Programaciones)
+                                    {
+                                        var diaSemana = prog.Fecha.ToString("dddd").ToUpper();
+                                        var fechaFormateada = prog.Fecha.ToString("dd/MM/yyyy");
+                                        var turnoStr = prog.Turno == PostaCitasWeb.Entities.Turno.Manana ? "Mañana (08:00 - 13:30)" : "Tarde (15:00 - 19:00)";
+                                        var turnoIcon = prog.Turno == PostaCitasWeb.Entities.Turno.Manana ? "fa-sun text-yellow-500" : "fa-cloud-sun text-orange-500";
+                                        
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-semibold">@(prog.Medico != null ? $"{prog.Medico.Nombres} {prog.Medico.ApellidoPaterno} {prog.Medico.ApellidoMaterno}" : "Médico de Guardia")</div>
+                                                <div class="text-xs text-muted">CMP: @(prog.Medico?.CMP ?? "N/A")</div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold text-teal-800 px-2 py-1 rounded" style="font-size: 0.8rem; background-color: var(--teal-light); color: var(--teal);">
+                                                    @(prog.Especialidad?.Nombre ?? "Medicina General")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-medium text-sm">@fechaFormateada</div>
+                                                <div class="text-xs text-muted">@diaSemana</div>
+                                            </td>
+                                            <td>
+                                                <span class="text-sm"><i class="fa-solid @turnoIcon me-1"></i> @turnoStr</span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <a asp-controller="Citas" asp-action="Reservar" class="btn-premium btn-sm">
+                                                    <i class="fa-solid fa-calendar-plus"></i> Reservar
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 4: MIS CITAS (Historial / Activas completo) -->
+        <div id="tab-mis-citas" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Control de Citas Programadas</h3>
+                </div>
+                <div class="card-body-premium p-0">
+                    @if (!Model.MisCitas.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-calendar-xmark fa-3x mb-3 text-gray-300"></i>
+                            <p class="mb-0">No tienes citas médicas registradas en tu historial.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-premium align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Fecha / Hora</th>
+                                        <th>Especialidad</th>
+                                        <th>Médico</th>
+                                        <th>Estado</th>
+                                        <th class="pe-4 text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cita in Model.MisCitas.OrderByDescending(c => c.FechaReserva))
+                                    {
+                                        var especNombre = cita.Especialidad?.Nombre ?? "Medicina General";
+                                        var docNombre = cita.Slot?.Programacion?.Medico != null
+                                            ? $"{cita.Slot.Programacion.Medico.Nombres} {cita.Slot.Programacion.Medico.ApellidoPaterno}"
+                                            : "Médico de Guardia";
+                                        var horaStr = cita.Slot != null ? cita.Slot.HoraInicio.ToString(@"hh\:mm") : "08:00";
+                                        var fechaStr = cita.Slot?.Programacion != null 
+                                            ? cita.Slot.Programacion.Fecha.ToString("dd/MM/yyyy") 
+                                            : cita.FechaReserva.ToString("dd/MM/yyyy");
+
+                                        // Cancel logic
+                                        bool puedeCancelar = cita.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Pendiente;
+                                        if (puedeCancelar && cita.Slot?.Programacion != null)
+                                        {
+                                            var now = DateTime.Now;
+                                            var limit = cita.Slot.Programacion.Turno == PostaCitasWeb.Entities.Turno.Manana
+                                                ? new TimeSpan(7, 40, 0)
+                                                : new TimeSpan(14, 40, 0);
+
+                                            if (cita.Slot.Programacion.Fecha == DateOnly.FromDateTime(now) && now.TimeOfDay > limit)
+                                            {
+                                                puedeCancelar = false;
+                                            }
+                                        }
+
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-semibold">@fechaStr</div>
+                                                <div class="text-xs text-muted">@horaStr hrs</div>
+                                            </td>
+                                            <td>@especNombre</td>
+                                            <td>@docNombre</td>
+                                            <td>
+                                                <span class="badge-dot badge-dot-@cita.EstadoCita.ToString()">
+                                                    <i class="fa-solid fa-circle-dot"></i> @cita.EstadoCita
+                                                </span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <button onclick="verTicket(@cita.CitaId, '@especNombre', '@docNombre', '@fechaStr', '@horaStr', '@cita.EstadoCita.ToString()', '@(cita.Ticket?.Codigo ?? "N/A")')" class="btn-premium-outline btn-sm">
+                                                    <i class="fa-solid fa-ticket"></i> Ticket
+                                                </button>
+                                                @if (puedeCancelar)
+                                                {
+                                                    <button onclick="confirmarCancelacion(@cita.CitaId)" class="btn-premium-danger btn-sm ms-2">
+                                                        Cancelar
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 5: HISTORIAL -->
+        <div id="tab-historial" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Historial de Consultas Médicas Finalizadas (CU07)</h3>
+                </div>
+                <div class="card-body-premium p-0">
+                    @{
+                        var historyCitas = Model.MisCitas.Where(c => c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.NoAsistio 
+                                                                    || c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Cancelada 
+                                                                    || c.EstadoCita == PostaCitasWeb.Entities.EstadoCita.ListoAtencion)
+                                                         .OrderByDescending(c => c.FechaReserva).ToList();
+                    }
+
+                    @if (!historyCitas.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-folder-open fa-3x mb-3 text-gray-300"></i>
+                            <p class="mb-0">No posees citas finalizadas en el historial.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-premium align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Fecha Consulta</th>
+                                        <th>Especialidad</th>
+                                        <th>Médico</th>
+                                        <th>Estado Asistencia</th>
+                                        <th class="pe-4 text-end">Ficha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cita in historyCitas)
+                                    {
+                                        var especNombre = cita.Especialidad?.Nombre ?? "Medicina General";
+                                        var docNombre = cita.Slot?.Programacion?.Medico != null
+                                            ? $"{cita.Slot.Programacion.Medico.Nombres} {cita.Slot.Programacion.Medico.ApellidoPaterno}"
+                                            : "Médico de Guardia";
+                                        var horaStr = cita.Slot != null ? cita.Slot.HoraInicio.ToString(@"hh\:mm") : "08:00";
+                                        var fechaStr = cita.Slot?.Programacion != null 
+                                            ? cita.Slot.Programacion.Fecha.ToString("dd/MM/yyyy") 
+                                            : cita.FechaReserva.ToString("dd/MM/yyyy");
+                                        
+                                        // Estado de Asistencia (RN38)
+                                        var asisStr = cita.EstadoCita == PostaCitasWeb.Entities.EstadoCita.Cancelada ? "Cancelada" :
+                                                      cita.EstadoCita == PostaCitasWeb.Entities.EstadoCita.NoAsistio ? "Faltó" : "Asistió";
+                                        
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-semibold">@fechaStr</div>
+                                                <div class="text-xs text-muted">@horaStr hrs</div>
+                                            </td>
+                                            <td>@especNombre</td>
+                                            <td>@docNombre</td>
+                                            <td>
+                                                <span class="badge-dot badge-dot-@cita.EstadoCita.ToString()">
+                                                    <i class="fa-solid fa-circle-user"></i> @asisStr
+                                                </span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <button onclick="verTicket(@cita.CitaId, '@especNombre', '@docNombre', '@fechaStr', '@horaStr', '@cita.EstadoCita.ToString()', '@(cita.Ticket?.Codigo ?? "N/A")')" class="btn-premium-outline btn-sm">
+                                                    <i class="fa-solid fa-eye"></i> Ver Ficha
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 6: TRIAJES -->
+        <div id="tab-triajes" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Controles de Triaje de Enfermería (CU08 / RN22)</h3>
+                </div>
+                <div class="card-body-premium p-0">
+                    @{
+                        var triajes = Model.MisCitas.Where(c => c.Triaje != null)
+                                                   .OrderByDescending(c => c.Triaje!.FechaRegistro).ToList();
+                    }
+
+                    @if (!triajes.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-weight-scale fa-3x mb-3 text-gray-300"></i>
+                            <p class="mb-0 fw-semibold">No se han registrado controles operativos de triaje.</p>
+                            <span class="text-xs text-muted">Enfermería tomará tus signos vitales al presentarte en la posta 20 minutos antes de tu cita.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-premium align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Fecha Cita</th>
+                                        <th>Signos Vitales</th>
+                                        <th>Temperatura</th>
+                                        <th>Presión Arterial</th>
+                                        <th class="pe-4">Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cita in triajes)
+                                    {
+                                        var t = cita.Triaje!;
+                                        var fechaStr = cita.Slot?.Programacion != null 
+                                            ? cita.Slot.Programacion.Fecha.ToString("dd/MM/yyyy") 
+                                            : t.FechaRegistro.ToString("dd/MM/yyyy");
+                                        
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-semibold">@fechaStr</div>
+                                                <div class="text-xs text-muted">Espec: @(cita.Especialidad?.Nombre ?? "Medicina")</div>
+                                            </td>
+                                            <td>
+                                                <div>Peso: <span class="fw-bold">@t.Peso.ToString("0.0") kg</span></div>
+                                                <div class="text-xs text-muted">Talla: @t.Talla.ToString("0.00") m</div>
+                                            </td>
+                                            <td>
+                                                <span class="badge rounded bg-opacity-10 px-2 py-1 @(t.Temperatura >= 38 ? "bg-danger text-danger font-bold" : "bg-teal-500 text-teal-700")" style="background-color: @(t.Temperatura >= 38 ? "#fee2e2" : "var(--teal-light)");">
+                                                    @t.Temperatura.ToString("0.0") °C
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="font-medium">@t.PresionSistolica/@t.PresionDiastolica <span class="text-xs text-muted">mmHg</span></span>
+                                            </td>
+                                            <td class="pe-4">
+                                                <span class="text-muted text-xs">@(string.IsNullOrWhiteSpace(t.Observacion) ? "Sin observaciones de enfermería" : t.Observacion)</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 7: PERFIL -->
+        <div id="tab-perfil" class="tab-panel-custom">
+            <div class="row">
+                <!-- Ficha de Datos Personales (CU04) -->
+                <div class="col-lg-7 mb-4">
+                    <div class="card-premium h-100">
+                        <div class="card-header-premium">
+                            <h3 class="card-title-premium"><i class="fa-solid fa-id-card text-teal me-2"></i>Ficha de Afiliación</h3>
+                        </div>
+                        <div class="card-body-premium">
+                            <div class="profile-info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Nombres y Apellidos</div>
+                                    <div class="info-value">@Model.Paciente.Nombres @Model.Paciente.ApellidoPaterno @Model.Paciente.ApellidoMaterno</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">DNI</div>
+                                    <div class="info-value">@Model.Paciente.DNI</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Nro. Historia Clínica (RN34)</div>
+                                    <div class="info-value">HC-@Model.Paciente.PacienteId.ToString("D6")</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Seguro de Salud (SIS)</div>
+                                    <div class="info-value">
+                                        @if (Model.Paciente.TieneSIS)
+                                        {
+                                            <span class="text-success fw-bold"><i class="fa-solid fa-circle-check"></i> Asegurado Activo (SIS)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted"><i class="fa-solid fa-circle-minus"></i> Particular / Sin SIS</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Establecimiento Asignado</div>
+                                    <div class="info-value">Posta de Salud Los Licenciados</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Dirección Domiciliaria</div>
+                                    <div class="info-value text-muted" style="font-size: 0.9rem;">Av. Los Licenciados s/n - Ayacucho</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Configuración de cuenta -->
+                <div class="col-lg-5 mb-4">
+                    <div class="card-premium h-100">
+                        <div class="card-header-premium">
+                            <h3 class="card-title-premium"><i class="fa-solid fa-user-shield text-teal me-2"></i>Seguridad de Cuenta (RN02)</h3>
+                        </div>
+                        <div class="card-body-premium">
+                            <form id="formUpdatePerfil" onsubmit="actualizarPerfil(event)">
+                                <div class="mb-3">
+                                    <label for="celular" class="form-label fw-bold text-sm text-gray-700">Número de Celular</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-phone text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="celular" name="celular" value="@Model.Paciente.Usuario?.Celular" required>
+                                    </div>
+                                </div>
+
+                                <div class="my-4 border-top border-light"></div>
+
+                                <h4 class="h6 fw-bold mb-3" style="color: var(--teal);"><i class="fa-solid fa-key me-2"></i>Cambiar Contraseña</h4>
+                                
+                                <div class="mb-3">
+                                    <label for="password" class="form-label fw-bold text-sm text-gray-700">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Mínimo 8 caracteres">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label fw-bold text-sm text-gray-700">Confirmar Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="******">
+                                </div>
+
+                                <div class="d-grid mt-4">
+                                    <button type="submit" class="btn-premium py-2.5 justify-content-center">
+                                        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 9: ATENCIÓN INMEDIATA -->
+        <div id="tab-aviso-inmediato" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium"><i class="fa-solid fa-circle-exclamation text-danger me-2"></i>Solicitar Atención Inmediata</h3>
+                </div>
+                <div class="card-body-premium">
+                    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-4" style="border-radius: 12px; background-color: #fffbeb; color: #b45309; padding: 1.25rem;">
+                        <i class="fa-solid fa-circle-info mt-1" style="font-size: 1.25rem;"></i>
+                        <div>
+                            <strong class="d-block mb-1">Información Importante (RN24 / RN25)</strong>
+                            <span class="text-xs">
+                                El aviso de atención inmediata sirve para comunicar al personal de enfermería su presencia en la posta con una necesidad prioritaria.
+                                **Atención:** Este aviso es de carácter puramente operativo, **no genera una cita médica** (RN24) y **no altera el orden automático de atención** (RN25).
+                            </span>
+                        </div>
+                    </div>
+
+                    <form id="formAvisoInmediato" onsubmit="enviarAvisoInmediato(event)">
+                        <div class="mb-3">
+                            <label for="motivoAviso" class="form-label fw-bold text-sm text-gray-700">Describa brevemente su malestar o motivo de urgencia</label>
+                            <textarea class="form-control" id="motivoAviso" name="motivo" rows="4" maxlength="300" placeholder="Ej. Dolor abdominal intenso, fiebre alta, etc. (Máximo 300 caracteres)" required style="border-radius: 12px; padding: 0.75rem; border: 1px solid var(--border);"></textarea>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn-premium btn-danger py-2.5 justify-content-center" style="background: #ef4444; border: none; border-radius: 12px;">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Enviar Solicitud a Enfermería
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 8: NOTIFICACIONES -->
+        <div id="tab-notificaciones" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium">Buzón de Notificaciones</h3>
+                </div>
+                <div class="card-body-premium">
+                    <div class="alert alert-light border d-flex gap-3 align-items-center p-3 mb-0" style="border-radius: 12px;">
+                        <i class="fa-solid fa-bell-slash text-muted fa-lg"></i>
+                        <div>
+                            <span class="d-block fw-bold text-sm text-gray-700">No tienes nuevas notificaciones</span>
+                            <span class="text-xs text-muted">Te notificaremos cuando confirmes citas o se registre tu triaje en el sistema.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimers Generales del Proyecto -->
+        <div class="warning-disclaimer">
+            <p class="mb-1"><strong>PostaCitasWeb v1.0</strong> – Sistema Spec-Driven Development (SpecDD)</p>
+            <p class="mb-0">Este portal cumple con las restricciones de privacidad de datos (RN07: No se visualizan UPS de médicos ni detalles de configuración interna administrativa). Las recetas y resultados clínicos no se almacenan en este servidor (RN23 / RN34).</p>
+        </div>
+
+    </main>
+</div>icos no se almacenan en este servidor (RN23 / RN34).</p>
+        </div>
+
+    </main>
+</div>
+
+<!-- MODAL TICKET DETALLE -->
+<div class="modal fade" id="modalTicket" tabindex="-1" aria-labelledby="modalTicketLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-custom">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title font-bold text-gray-800" id="modalTicketLabel">Ficha del Ticket Electrónico</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="ticket-view text-center mb-4">
+                    <span class="ticket-title d-block"><i class="fa-solid fa-circle-check"></i> CITA EN PROCESO</span>
+                    <span class="text-xs text-muted">Código único de validación en Admisión</span>
+                    <div>
+                        <span class="ticket-code" id="t-code">TC-2026-XXXXX</span>
+                    </div>
+
+                    <div class="text-start bg-white p-3 rounded shadow-sm border border-light text-sm mt-3" style="font-size: 0.9rem;">
+                        <div class="row py-2 border-bottom">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-user me-1 text-teal-500"></i> Paciente:</div>
+                            <div class="col-7 fw-bold text-end text-dark">@Model.Paciente.Nombres @Model.Paciente.ApellidoPaterno</div>
+                        </div>
+                        <div class="row py-2 border-bottom">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-stethoscope me-1 text-teal-500"></i> Especialidad:</div>
+                            <div class="col-7 fw-bold text-end text-dark" id="t-espec"></div>
+                        </div>
+                        <div class="row py-2 border-bottom">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-user-doctor me-1 text-teal-500"></i> Médico:</div>
+                            <div class="col-7 fw-bold text-end text-dark" id="t-medico"></div>
+                        </div>
+                        <div class="row py-2 border-bottom">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-calendar me-1 text-teal-500"></i> Fecha Cita:</div>
+                            <div class="col-7 fw-bold text-end text-dark" id="t-fecha"></div>
+                        </div>
+                        <div class="row py-2 border-bottom">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-clock me-1 text-teal-500"></i> Horario:</div>
+                            <div class="col-7 fw-bold text-end text-dark" id="t-hora"></div>
+                        </div>
+                        <div class="row py-2">
+                            <div class="col-5 text-muted"><i class="fa-solid fa-circle-info me-1 text-teal-500"></i> Estado Cita:</div>
+                            <div class="col-7 fw-bold text-end text-dark" id="t-estado"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a id="t-print-btn" href="#" target="_blank" class="btn-premium py-2.5 justify-content-center">
+                        <i class="fa-solid fa-print"></i> Descargar Ticket (PDF)
+                    </a>
+                    <button type="button" class="btn-premium-outline justify-content-center py-2.5" data-bs-dismiss="modal">
+                        Cerrar Ventana
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- MODAL CANCELAR CONFIRMACIÓN -->
+<div class="modal fade" id="modalCancelar" tabindex="-1" aria-labelledby="modalCancelarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-body p-4 text-center">
+                <div class="w-12 h-12 bg-red-100 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; background-color: #fee2e2;">
+                    <i class="fa-solid fa-triangle-exclamation text-danger fa-2x"></i>
+                </div>
+                <h5 class="fw-bold text-gray-800 mb-2">¿Cancelar esta cita?</h5>
+                <p class="text-xs text-muted mb-4">Esta acción no se puede deshacer y liberará tu cupo asignado para otros pacientes.</p>
+
+                <input type="hidden" id="cancelCitaId">
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button type="button" class="btn-premium-outline w-100 py-2.5 justify-content-center text-sm" data-bs-dismiss="modal">
+                            Mantener cita
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" onclick="ejecutarCancelacion()" class="btn-premium-danger w-100 py-2.5 justify-content-center text-sm">
+                            Sí, Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Dynamic Greetings (Time of day)
+        function updateWelcomeGreeting() {
+            const hour = new Date().getHours();
+            let greetingWord = "Hola";
+            const name = "@Model.Paciente.Nombres" || "Paciente";
+            
+            if (hour >= 6 && hour < 12) {
+                greetingWord = "Buenos días";
+            } else if (hour >= 12 && hour < 19) {
+                greetingWord = "Buenas tardes";
+            } else {
+                greetingWord = "Buenas noches";
+            }
+            
+            document.getElementById('welcome-greeting').innerHTML = `${greetingWord}, <span style="color: #0a846e; font-weight: 700;">${name}</span> 👋`;
+        }
+
+        // Initialize greeting
+        updateWelcomeGreeting();
+
+        // Switch Active Tabs
+        function switchTab(tabId, buttonElement) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel-custom').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Deactivate all sidebar links
+            document.querySelectorAll('.menu-link').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show active panel & active sidebar link
+            const targetPanel = document.getElementById(tabId);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+            
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+        }
+
+        // View ticket details inside a modal
+        function verTicket(citaId, espec, medico, fecha, hora, estado, codigo) {
+            document.getElementById('t-code').innerText = codigo;
+            document.getElementById('t-espec').innerText = espec;
+            document.getElementById('t-medico').innerText = medico;
+            document.getElementById('t-fecha').innerText = fecha;
+            document.getElementById('t-hora').innerText = hora + ' hrs';
+            document.getElementById('t-estado').innerText = estado;
+            
+            // Wire print ticket PDF button link
+            document.getElementById('t-print-btn').href = `/Citas/Ticket/${citaId}`;
+
+            // Show details modal
+            const modal = new bootstrap.Modal(document.getElementById('modalTicket'));
+            modal.show();
+        }
+
+        // Open confirm cancellation modal
+        function confirmarCancelacion(citaId) {
+            document.getElementById('cancelCitaId').value = citaId;
+            const modal = new bootstrap.Modal(document.getElementById('modalCancelar'));
+            modal.show();
+        }
+
+        // Execute AJAC cita cancellation
+        async function ejecutarCancelacion() {
+            const id = document.getElementById('cancelCitaId').value;
+            const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+
+            // Close confirmation modal
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalCancelar'));
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            try {
+                const response = await fetch('/Paciente/CancelarCita', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({ citaId: id })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'La cita ha sido cancelada exitosamente.');
+                    location.reload();
+                } else {
+                    alert(result.message || 'No se pudo cancelar la cita.');
+                }
+            } catch (error) {
+                alert('Ocurrió un error al enviar la solicitud al servidor.');
+            }
+        }
+
+        // Update profile cell or password via AJAX Fetch POST
+        async function actualizarPerfil(event) {
+            event.preventDefault();
+            
+            const celular = document.getElementById('celular').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+
+            // Basic checks
+            if (celular.trim().length < 9 || celular.trim().length > 15 || isNaN(celular)) {
+                alert('El celular debe contener entre 9 y 15 dígitos numéricos.');
+                return;
+            }
+
+            if (password) {
+                if (password.length < 8) {
+                    alert('La contraseña debe tener al menos 8 caracteres.');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    alert('Las contraseñas no coinciden.');
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch('/Paciente/ActualizarPerfil', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        celular: celular,
+                        password: password,
+                        confirmPassword: confirmPassword
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'Datos actualizados con éxito.');
+                    // Empty passwords fields
+                    document.getElementById('password').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    alert(result.message || 'Error al actualizar el perfil.');
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor.');
+            }
+        }
+
+        async function enviarAvisoInmediato(event) {
+            event.preventDefault();
+            
+            const motivo = document.getElementById('motivoAviso').value;
+            const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+
+            if (motivo.trim().length === 0 || motivo.length > 300) {
+                alert('El motivo es obligatorio y no debe exceder los 300 caracteres.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Paciente/RegistrarAviso', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        motivo: motivo
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'Aviso registrado exitosamente.');
+                    document.getElementById('motivoAviso').value = '';
+                    switchTab('tab-inicio', document.querySelector('[onclick*="tab-inicio"]'));
+                } else {
+                    alert(result.message || 'Error al enviar el aviso de atención inmediata.');
+                }
+            } catch (error) {
+                alert('Error al conectar con el servidor.');
+            }
+        }
+    </script>
+}

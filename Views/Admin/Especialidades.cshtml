@@ -1,0 +1,144 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Especialidades Médicas";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #008B8B; font-family: 'Segoe UI', sans-serif;">Especialidades</h2>
+            <p class="text-muted mb-0">Configuración de especialidades y duración de atención</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="modern-card p-4 mb-4">
+        <h5 class="mb-4 border-bottom pb-2">Registrar Especialidad</h5>
+        <form method="post" asp-action="CreateEspecialidad" class="mb-0">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="especialidadNombre" class="form-label fw-bold">Nombre de la Especialidad</label>
+                    <input type="text" class="form-control" id="especialidadNombre" name="Nombre" placeholder="Ej: Cardiología" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="especialidadUPS" class="form-label fw-bold">Asignar UPS</label>
+                    <select class="form-select" id="especialidadUPS" name="UPSId" required>
+                        <option value="">Seleccione una UPS...</option>
+                        @foreach (var ups in Model.UPS.Where(u => u.Activa))
+                        {
+                            <option value="@ups.UPSId">@ups.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="especialidadDuracion" class="form-label fw-bold">Duración Base (minutos)</label>
+                    <input type="number" class="form-control" id="especialidadDuracion" name="DuracionMinutos" min="1" max="480" placeholder="Ej: 20" required>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+                <button type="submit" class="btn btn-teal">Guardar Especialidad</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modern-card p-4">
+        <h5 class="mb-4 border-bottom pb-2">Especialidades Activas</h5>
+        @if (Model.Especialidades.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Especialidad</th>
+                            <th>UPS Asignada</th>
+                            <th>Duración (min)</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var espec in Model.Especialidades)
+                        {
+                            <tr>
+                                <td class="fw-medium text-dark">@espec.Nombre</td>
+                                <td class="text-muted">@espec.UPSNombre</td>
+                                <td><span class="badge bg-light text-dark border">@espec.DuracionMinutos min</span></td>
+                                <td>
+                                    @if (espec.Activa)
+                                    {
+                                        <span class="badge bg-success">Activa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactiva</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editEspecialidadModal" onclick="loadEspecialidadData(@espec.EspecialidadId, '@espec.Nombre', @espec.DuracionMinutos, @(espec.Activa ? "true" : "false"), @espec.UPSId)">Editar</button>
+                                        @if (espec.Activa)
+                                        {
+                                            <form method="post" asp-action="DeleteEspecialidad" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@espec.EspecialidadId">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Desactivar esta especialidad?')">Desactivar</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-action="ActivateEspecialidad" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@espec.EspecialidadId">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Activar esta especialidad?')">Activar</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No hay especialidades registradas en el sistema.</div>
+        }
+    </div>
+</div>
+
+<partial name="_EditEspecialidadModal" />
+
+@section Scripts {
+    <script>
+        function loadEspecialidadData(id, nombre, duracion, activa, upsId) {
+            const editId = document.getElementById('editEspecialidadId');
+            const editNombre = document.getElementById('editEspecialidadNombre');
+            const editDuracion = document.getElementById('editEspecialidadDuracion');
+            const editActiva = document.getElementById('editEspecialidadActiva');
+            const editUPS = document.getElementById('editEspecialidadUPS');
+
+            if (editId) editId.value = id;
+            if (editNombre) editNombre.value = nombre;
+            if (editDuracion) editDuracion.value = duracion;
+            if (editActiva) editActiva.checked = activa;
+            if (editUPS) editUPS.value = upsId;
+        }
+    </script>
+}

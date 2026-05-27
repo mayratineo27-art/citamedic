@@ -8,6 +8,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" asp-action="UpdateEspecialidad">
+                @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="editEspecialidadId" class="form-label">ID</label>
@@ -30,6 +31,10 @@
                     <div class="mb-3">
                         <label for="editEspecialidadDuracion" class="form-label">Duración (minutos)</label>
                         <input type="number" class="form-control" id="editEspecialidadDuracion" name="duracionMinutos" min="1" max="480" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editEspecialidadActiva" name="activa" value="true" checked>
+                        <label class="form-check-label" for="editEspecialidadActiva">Especialidad Activa</label>
                     </div>
                 </div>
                 <div class="modal-footer">

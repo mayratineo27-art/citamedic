@@ -1,0 +1,213 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Programación Operativa";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #008B8B;">Programación Operativa</h2>
+            <p class="text-muted mb-0">Configuración de turnos y habilitación de citas</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    <div class="modern-card p-4 mb-4">
+        <h5 class="mb-4 border-bottom pb-2">Crear Nueva Programación</h5>
+        <form method="post" asp-action="CreateProgramacion" class="mb-0">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="progEspecialidad" class="form-label fw-bold">Especialidad</label>
+                    <select class="form-select" id="progEspecialidad" name="EspecialidadId" required>
+                        <option value="">Seleccione especialidad...</option>
+                        @foreach (var espec in Model.Especialidades.Where(e => e.Activa))
+                        {
+                            <option value="@espec.EspecialidadId">@espec.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="progMedico" class="form-label fw-bold">Médico</label>
+                    <select class="form-select" id="progMedico" name="MedicoId" required>
+                        <option value="">Seleccione médico...</option>
+                        @foreach (var medico in Model.Medicos.Where(m => m.Activo))
+                        {
+                            <option value="@medico.MedicoId">@medico.NombreCompleto</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="progTurno" class="form-label fw-bold">Turno</label>
+                    <select class="form-select" id="progTurno" name="Turno" required>
+                        <option value="0">Mañana</option>
+                        <option value="1">Tarde</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="progFecha" class="form-label fw-bold">Fecha</label>
+                    <input type="date" class="form-control" id="progFecha" name="Fecha" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="progCupos" class="form-label fw-bold">Cupos Iniciales</label>
+                    <input type="number" class="form-control" id="progCupos" name="CuposTotal" min="1" max="100" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="progDuracion" class="form-label fw-bold">Duración (min)</label>
+                    <input type="number" class="form-control" id="progDuracion" name="DuracionMinutos" min="1" max="480" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="progHabilitada" name="Habilitada" value="true">
+                    <label class="form-check-label text-muted" for="progHabilitada">
+                        Habilitar programación inmediatamente para reservación de pacientes
+                    </label>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-teal">Crear Programación</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modern-card p-4">
+        <h5 class="mb-4 border-bottom pb-2">Programaciones Registradas</h5>
+        @if (Model.ProgramacionesOperativas.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Especialidad</th>
+                            <th>Médico</th>
+                            <th>Turno</th>
+                            <th>Fecha</th>
+                            <th>Cupos</th>
+                            <th>Duración</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var prog in Model.ProgramacionesOperativas)
+                        {
+                            <tr>
+                                <td>@prog.EspecialidadNombre</td>
+                                <td>@prog.MedicoNombre</td>
+                                <td><span class="badge bg-light text-dark border">@prog.Turno</span></td>
+                                <td>@prog.Fecha</td>
+                                <td class="fw-bold">@prog.CuposTotal</td>
+                                <td>@prog.DuracionMinutos min</td>
+                                <td>
+                                    @if (prog.Habilitada)
+                                    {
+                                        <span class="badge bg-success">Habilitada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Deshabilitada</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        @if (!prog.Habilitada)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-success" onclick="habilitarProgramacion(@prog.ProgramacionId_Key)">Habilitar</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-warning" onclick="deshabilitarProgramacion(@prog.ProgramacionId_Key)">Deshabilitar</button>
+                                        }
+                                        <button type="button" class="btn btn-sm btn-outline-info" onclick="abrirAjusteCupos(@prog.ProgramacionId_Key, @prog.CuposTotal)">Ajustar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No hay programaciones registradas en el sistema.</div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function habilitarProgramacion(programacionId) {
+            if (!confirm('¿Deseas habilitar esta programación?\nLos pacientes podrán ver y reservar citas.')) return;
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const formData = new FormData();
+                formData.append('id', programacionId);
+                formData.append('__RequestVerificationToken', token);
+                const response = await fetch('/Admision/HabilitarProgramacion', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(result.message || 'Error al habilitar programación.');
+                }
+            } catch (error) {
+                alert('Error en la solicitud al servidor.');
+            }
+        }
+
+        async function deshabilitarProgramacion(programacionId) {
+            if (!confirm('¿Deseas deshabilitar esta programación?\nLos pacientes ya no verán ni podrán reservar.')) return;
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const formData = new FormData();
+                formData.append('id', programacionId);
+                formData.append('__RequestVerificationToken', token);
+                const response = await fetch('/Admision/DeshabilitarProgramacion', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(result.message || 'Error al deshabilitar programación.');
+                }
+            } catch (error) {
+                alert('Error en la solicitud al servidor.');
+            }
+        }
+
+        function abrirAjusteCupos(programacionId, cuposActuales) {
+            const nuevosCupos = prompt(`Ingresa los nuevos cupos (actual: ${cuposActuales}):\n\n(Mínimo: 1, Máximo: 100)`, cuposActuales.toString());
+            if (nuevosCupos === null) return;
+            const cupos = parseInt(nuevosCupos);
+            if (isNaN(cupos) || cupos < 1 || cupos > 100) {
+                alert('Por favor ingresa un valor numérico entre 1 y 100.');
+                return;
+            }
+            ajustarCupos(programacionId, cupos);
+        }
+
+        async function ajustarCupos(idProg, nuevosCupos) {
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const formData = new FormData();
+                formData.append('programacionId', idProg);
+                formData.append('nuevosCupos', nuevosCupos);
+                formData.append('__RequestVerificationToken', token);
+                const response = await fetch('/Admision/AjustarProgramacion', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(result.message || 'Error al ajustar cupos.');
+                }
+            } catch (error) {
+                alert('Error en la solicitud al servidor.');
+            }
+        }
+    </script>
+}

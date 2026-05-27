@@ -134,6 +134,9 @@ namespace PostaCitasWeb.Data
                 PostaAsociadaId = null,
                 ResponsableId = null
             });
+
+            modelBuilder.Entity<Usuario>().HasData(SeedData.GetSeedUsuarios().ToArray());
+            modelBuilder.Entity<Paciente>().HasData(SeedData.GetSeedPacientes().ToArray());
         }
     }
 }

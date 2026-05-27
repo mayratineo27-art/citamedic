@@ -1,0 +1,42 @@
+@model AdminDashboardViewModel
+
+<div class="modal fade" id="editMedicoModal" tabindex="-1" aria-labelledby="editMedicoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMedicoModalLabel">Editar Médico</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-action="UpdateMedico">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="editMedicoId" name="medicoId">
+                    <div class="mb-3">
+                        <label for="editMedicoNombres" class="form-label fw-bold">Nombres</label>
+                        <input type="text" class="form-control" id="editMedicoNombres" name="nombres" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMedicoApellidoPaterno" class="form-label fw-bold">Apellido Paterno</label>
+                        <input type="text" class="form-control" id="editMedicoApellidoPaterno" name="apellidoPaterno" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMedicoApellidoMaterno" class="form-label fw-bold">Apellido Materno</label>
+                        <input type="text" class="form-control" id="editMedicoApellidoMaterno" name="apellidoMaterno">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMedicoCMP" class="form-label fw-bold">N° Colegiatura (CMP)</label>
+                        <input type="text" class="form-control" id="editMedicoCMP" name="cmp" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editMedicoActivo" name="activo" value="true" checked>
+                        <label class="form-check-label" for="editMedicoActivo">Médico Activo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-teal">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

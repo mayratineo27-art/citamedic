@@ -1,335 +1,790 @@
-﻿<!DOCTYPE html>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>PostaCitasWeb – Reserva de Cita</title>
+    <title>PostaCitasWeb – Reserva de Citas</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- FontAwesome -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    
+    <!-- Fuentes: Outfit y Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Clinic Calm Premium Custom CSS -->
     <style>
-        :root{--teal:#0d9488;--teal-light:#ccfbf1;--blue:#1d4ed8;--gray-slot:#e5e7eb;}
-        body{font-family:'Segoe UI',sans-serif;background:#f0fdf9;}
-        .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;transition:all .3s;}
-        .step-line{flex:1;height:2px;background:#d1fae5;margin:0 4px;}
-        .card-slot{cursor:pointer;transition:all .2s;border:2px solid #e2e8f0;}
-        .card-slot:hover:not(.disabled){border-color:#0d9488;background:#f0fdfa;transform:translateY(-2px);box-shadow:0 4px 12px rgba(13,148,136,.15);}
-        .card-slot.selected{border-color:#0d9488;background:#ccfbf1;}
-        .card-slot.disabled{opacity:.55;cursor:not-allowed;background:#f9fafb;}
-        .espec-card{cursor:pointer;transition:all .2s;border:2px solid #e2e8f0;}
-        .espec-card:hover{border-color:#0d9488;background:#f0fdfa;}
-        .espec-card.selected{border-color:#0d9488;background:#ccfbf1;}
-        .turno-btn{transition:all .2s;border:2px solid #e2e8f0;}
-        .turno-btn.active{background:#0d9488;color:#fff;border-color:#0d9488;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:1rem;}
-        .fade-in{animation:fadeIn .3s ease;}
-        @@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .badge-step{background:#0d9488;color:#fff;}
-        .badge-step-done{background:#d1fae5;color:#065f46;}
-        .badge-step-pending{background:#e5e7eb;color:#6b7280;}
-        .ticket-border{border:2px dashed #0d9488;}
+        :root {
+            --navy:        #1D2D50;
+            --teal:        #2AAE8A;
+            --teal-light:  #e8f7f3;
+            --rose:        #e11d48;
+            --amber:       #d97706;
+            --bg-main:     #f0f5f4;
+            --text-main:   #1D2D50;
+            --text-muted:  #64748b;
+            --border:      #e2e8f0;
+            --radius:      24px;
+            --shadow-sm:   0 4px 6px -1px rgba(29,45,80,0.02), 0 2px 4px -2px rgba(29,45,80,0.02);
+            --shadow-md:   0 10px 15px -3px rgba(29,45,80,0.05), 0 4px 6px -4px rgba(29,45,80,0.04);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Navbar & Header */
+        .navbar-custom {
+            background-color: var(--navy);
+            color: white;
+            box-shadow: 0 4px 12px rgba(29, 45, 80, 0.15);
+        }
+
+        .navbar-brand-custom {
+            color: white !important;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.15rem;
+        }
+
+        .nav-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .avatar-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: var(--teal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Alert/Banner rules */
+        .alert-custom {
+            background-color: white;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--teal);
+            color: var(--text-muted);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .alert-custom strong {
+            color: var(--navy);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        /* Steps Indicator */
+        .steps-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.5rem 0 2rem 0;
+            padding: 0 1.5rem;
+            position: relative;
+        }
+        .steps-bg-line {
+            position: absolute;
+            top: 18px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 2;
+            position: relative;
+            background: var(--bg-main);
+            padding: 0 10px;
+        }
+
+        .step-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .badge-step {
+            background-color: white;
+            color: var(--teal);
+            border-color: var(--teal);
+            box-shadow: 0 0 0 4px rgba(42, 174, 138, 0.1);
+        }
+        .badge-step + .step-label { color: var(--navy); }
+
+        .badge-step-done {
+            background-color: var(--teal);
+            color: white;
+            border-color: var(--teal);
+        }
+
+        .badge-step-pending {
+            background-color: white;
+            color: #94a3b8;
+            border-color: #cbd5e1;
+        }
+
+        /* Cards customization */
+        .card-custom {
+            background-color: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card-custom h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        /* Grid layout for specialties */
+        .espec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .espec-card {
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1.5px solid #e2e8f0;
+            background-color: white;
+            border-radius: 16px;
+            padding: 1.5rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: center;
+        }
+        
+        .espec-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.25s ease;
+        }
+
+        .espec-card:hover {
+            border-color: var(--teal);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .espec-card:hover .espec-icon {
+            background: var(--teal-light);
+            color: var(--teal) !important;
+        }
+
+        .espec-card.selected {
+            border-color: var(--teal);
+            background-color: var(--teal-light);
+            box-shadow: 0 8px 16px rgba(42, 174, 138, 0.15);
+        }
+        .espec-card.selected .espec-icon {
+            background: white;
+            color: var(--teal) !important;
+        }
+
+        /* Grid layout for shifts */
+        .turno-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .turno-btn {
+            transition: all 0.25s ease;
+            border: 1.5px solid #e2e8f0;
+            background-color: white;
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .turno-btn:hover {
+            border-color: var(--teal);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .turno-btn.active {
+            background-color: var(--teal) !important;
+            color: white !important;
+            border-color: var(--teal) !important;
+            box-shadow: 0 8px 16px rgba(42, 174, 138, 0.2);
+        }
+        .turno-btn.active .text-muted,
+        .turno-btn.active .text-dark,
+        .turno-btn.active i {
+            color: white !important;
+        }
+
+        /* Grid layout for slots */
+        .slots-grid-custom {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .card-slot {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid #e2e8f0;
+            background-color: white;
+            border-radius: 14px;
+            padding: 0.85rem;
+        }
+
+        .card-slot:hover:not(.disabled) {
+            border-color: var(--teal);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-slot.selected {
+            border-color: var(--teal);
+            background-color: var(--teal-light);
+            box-shadow: 0 4px 10px rgba(42,174,138,0.15);
+        }
+
+        .card-slot.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #f8fafc;
+            border-style: dashed;
+        }
+
+        /* Ticket styling */
+        .ticket-border-calm {
+            border: 2px dashed #cbd5e1;
+            background-color: #f8fafc;
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        /* Custom buttons styling */
+        .btn-teal-calm {
+            background-color: var(--teal);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-teal-calm:hover {
+            background-color: #239475;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 174, 138, 0.25);
+        }
+
+        .btn-navy-outline {
+            border: 1.5px solid var(--navy);
+            background: white;
+            color: var(--navy);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-navy-outline:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Utils */
+        .hidden { display: none !important; }
+        .text-xs { font-size: 0.75rem !important; }
+        .text-sm { font-size: 0.875rem !important; }
+        .font-semibold { font-weight: 600 !important; }
+        .font-bold { font-weight: 700 !important; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap !important; }
     </style>
 </head>
-<body class="min-h-screen pb-16">
+<body>
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center">
-                    <i class="fas fa-hospital text-white text-xs"></i>
+    <!-- AntiForgery Token Form -->
+    <form id="antiForgeryForm" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <!-- HEADER / NAVBAR -->
+    <header class="navbar-custom py-3 sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/Paciente/Index" class="navbar-brand-custom">
+                <i class="fa-solid fa-hospital-user"></i>
+                <span>Posta Los Licenciados</span>
+            </a>
+            <div class="nav-user-info text-white">
+                <div class="avatar-circle">
+                    @(User.Identity?.Name != null ? User.Identity.Name[0].ToString().ToUpper() : "P")
                 </div>
-                <span class="font-bold text-teal-700 text-sm">PostaCitasWeb</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-gray-500">
-                <div class="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center">
-                    <i class="fas fa-user text-teal-600 text-xs"></i>
-                </div>
-                <span class="font-medium text-gray-700">María López</span>
+                <span class="d-none d-sm-inline font-semibold">@User.Identity?.Name</span>
+                
+                <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post" style="display:none;">
+                    @Html.AntiForgeryToken()
+                </form>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();" class="text-white-50 opacity-75 text-decoration-none ms-2" style="font-weight: 500;">Salir</a>
             </div>
         </div>
     </header>
 
-    <!-- BANNER REGLAS -->
-    <div class="max-w-lg mx-auto px-4 mt-3">
-        <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex gap-3 items-start">
-            <i class="fas fa-circle-info text-blue-500 mt-0.5 flex-shrink-0"></i>
-            <p class="text-xs text-blue-700 leading-relaxed">
-                <strong>Recuerda:</strong> Las citas web solo están disponibles para el <strong>mismo día (Lun–Vie)</strong>. Los días <strong>Sábado</strong>, los cupos reservados corresponden al próximo <strong>Lunes</strong>.
-            </p>
+    <!-- MAIN BODY CONTAINER -->
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+
+                <!-- BANNER REGLAS (RN37) -->
+                <div class="alert alert-custom d-flex gap-3 align-items-start mb-4">
+                    <div style="background: var(--teal-light); color: var(--teal); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 4px;">
+                        <i class="fas fa-circle-info fa-lg"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block mb-1">Información de Disponibilidad</strong>
+                        <span style="line-height: 1.5; display: inline-block;">Las citas web están disponibles para el <strong>día siguiente hábil</strong>. Si reservas un viernes o sábado, tu cita se programará para el próximo lunes. Los domingos el sistema de reserva no está activo.</span>
+                    </div>
+                </div>
+
+                <!-- STEPS INDICATOR -->
+                <div class="steps-container">
+                    <div class="steps-bg-line"></div>
+                    <div class="step-item">
+                        <div id="dot1" class="step-dot badge-step">1</div>
+                        <span class="step-label">Especialidad</span>
+                    </div>
+                    <div class="step-item">
+                        <div id="dot2" class="step-dot badge-step-pending">2</div>
+                        <span class="step-label">Turno</span>
+                    </div>
+                    <div class="step-item">
+                        <div id="dot3" class="step-dot badge-step-pending">3</div>
+                        <span class="step-label">Horario</span>
+                    </div>
+                    <div class="step-item">
+                        <div id="dot4" class="step-dot badge-step-pending">4</div>
+                        <span class="step-label">Confirmar</span>
+                    </div>
+                </div>
+
+                <!-- PASO 1: ESPECIALIDAD -->
+                <section id="sec-especialidad" class="card-custom">
+                    <h2>
+                        <div style="background:var(--teal-light); color:var(--teal); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px;">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        Paso 1 — Selecciona la Especialidad
+                    </h2>
+                    <div class="espec-grid" id="especialidades">
+                        <div class="col-12 text-center text-muted py-4 text-sm font-semibold"><i class="fas fa-spinner fa-spin me-2"></i> Cargando especialidades...</div>
+                    </div>
+                </section>
+
+                <!-- PASO 2: TURNO -->
+                <section id="sec-turno" class="card-custom hidden">
+                    <h2>
+                        <div style="background:#fffbeb; color:#d97706; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px;">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        Paso 2 — Selecciona el Turno
+                    </h2>
+                    <div class="turno-grid">
+                        <button onclick="selectTurno('manana',this)" class="turno-btn">
+                            <div style="background:#fffbeb; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 12px;">
+                                <i class="fas fa-sun fa-lg" style="color:#d97706;"></i>
+                            </div>
+                            <div class="fw-bold text-dark" style="font-family:'Outfit',sans-serif; font-size:1.1rem;">Mañana</div>
+                            <div class="text-sm text-muted mt-1">08:00 – 13:30</div>
+                        </button>
+                        <button onclick="selectTurno('tarde',this)" class="turno-btn">
+                            <div style="background:#fff1f2; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 12px;">
+                                <i class="fas fa-cloud-sun fa-lg" style="color:#e11d48;"></i>
+                            </div>
+                            <div class="fw-bold text-dark" style="font-family:'Outfit',sans-serif; font-size:1.1rem;">Tarde</div>
+                            <div class="text-sm text-muted mt-1">15:00 – 19:00</div>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- PASO 3: SLOTS / HORARIOS -->
+                <section id="sec-slots" class="card-custom hidden">
+                    <h2>
+                        <div style="background:#e0e7ff; color:#4f46e5; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        Paso 3 — Elige tu Horario
+                    </h2>
+                    <div id="slots-grid" class="slots-grid-custom"></div>
+                </section>
+
+                <!-- PASO 4: CONFIRMACIÓN (Modal inline) -->
+                <section id="modal" class="card-custom hidden">
+                    <div class="text-center mb-4">
+                        <div style="width: 64px; height: 64px; border-radius: 50%; background-color: var(--teal-light); display:flex; align-items:center; justify-content:center; margin: 0 auto 16px;">
+                            <i class="fas fa-calendar-check fa-xl" style="color:var(--teal);"></i>
+                        </div>
+                        <h3 style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--navy); font-size:1.4rem;">Confirma tu cita</h3>
+                        <p class="text-sm text-muted">Revisa los datos antes de confirmar la reserva</p>
+                    </div>
+
+                    <!-- RESUMEN TICKET -->
+                    <div class="ticket-border-calm mb-4">
+                        <div class="d-flex justify-content-between align-items-center text-sm py-2">
+                            <span class="text-muted font-semibold"><i class="fas fa-stethoscope me-2" style="color:var(--teal);"></i> Especialidad</span>
+                            <span id="m-espec" class="font-bold text-dark"></span>
+                        </div>
+                        <hr class="my-2" style="opacity: 0.1;">
+                        <div class="d-flex justify-content-between align-items-center text-sm py-2">
+                            <span class="text-muted font-semibold"><i class="fas fa-user-doctor me-2" style="color:var(--teal);"></i> Médico</span>
+                            <span id="m-medico" class="font-bold text-dark"></span>
+                        </div>
+                        <hr class="my-2" style="opacity: 0.1;">
+                        <div class="d-flex justify-content-between align-items-center text-sm py-2">
+                            <span class="text-muted font-semibold"><i class="fas fa-clock me-2" style="color:var(--teal);"></i> Hora</span>
+                            <span id="m-hora" class="font-bold text-dark"></span>
+                        </div>
+                        <hr class="my-2" style="opacity: 0.1;">
+                        <div class="d-flex justify-content-between align-items-center text-sm py-2">
+                            <span class="text-muted font-semibold"><i class="fas fa-calendar me-2" style="color:var(--teal);"></i> Fecha</span>
+                            <span id="m-fecha" class="font-bold text-dark"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button onclick="closeModal()" class="btn-navy-outline w-100">
+                                <i class="fas fa-arrow-left me-2"></i> Cancelar
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button onclick="confirmar()" class="btn-teal-calm w-100">
+                                Confirmar Cita <i class="fas fa-check ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DETALLE TICKET GENERADO -->
+                <section id="modal-ticket" class="card-custom hidden text-center" style="border: 2px solid var(--teal);">
+                    <div style="width: 72px; height: 72px; border-radius: 50%; background-color: var(--teal); display:flex; align-items:center; justify-content:center; margin: 0 auto 20px; box-shadow: 0 8px 16px rgba(42, 174, 138, 0.3);">
+                        <i class="fas fa-check text-white fa-2x"></i>
+                    </div>
+                    <h3 style="font-family:'Outfit',sans-serif; font-weight:800; color:var(--navy); font-size:1.6rem; margin-bottom: 0.5rem;">¡Cita reservada!</h3>
+                    <p class="text-sm text-muted mb-4">Tu número de ticket electrónico es:</p>
+                    
+                    <div class="py-3 px-4 rounded-3 mx-auto mb-4" style="background-color: var(--navy); color: white; font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; letter-spacing: 3px; max-width: 320px; box-shadow: var(--shadow-md);">
+                        <span id="ticket-num">TC-XXXXX</span>
+                    </div>
+                    
+                    <p class="text-sm font-semibold mb-4" style="color: #475569; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        Presenta este número impreso o digital al llegar a la posta médica en Admisión.
+                    </p>
+                    
+                    <div class="row g-3 justify-content-center mx-auto" style="max-width: 380px;">
+                        <div class="col-6">
+                            <a href="/Paciente/Index" class="btn-navy-outline w-100 text-decoration-none d-inline-block">
+                                Mis Citas
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <button onclick="reiniciar()" class="btn-teal-calm w-100">
+                                Nueva Reserva
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
         </div>
     </div>
 
-    <!-- STEPS INDICATOR -->
-    <div class="max-w-lg mx-auto px-4 mt-4">
-        <div class="flex items-center justify-between">
-            <div class="flex flex-col items-center gap-1">
-                <div id="dot1" class="step-dot badge-step text-xs">1</div>
-                <span class="text-xs text-gray-500">Especialidad</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="flex flex-col items-center gap-1">
-                <div id="dot2" class="step-dot badge-step-pending text-xs">2</div>
-                <span class="text-xs text-gray-500">Turno</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="flex flex-col items-center gap-1">
-                <div id="dot3" class="step-dot badge-step-pending text-xs">3</div>
-                <span class="text-xs text-gray-500">Horario</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="flex flex-col items-center gap-1">
-                <div id="dot4" class="step-dot badge-step-pending text-xs">4</div>
-                <span class="text-xs text-gray-500">Confirmar</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <main class="max-w-lg mx-auto px-4 mt-5 space-y-5">
-
-        <!-- PASO 1: ESPECIALIDAD -->
-        <section id="sec-especialidad" class="bg-white rounded-2xl shadow-sm p-4 fade-in">
-            <h2 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <i class="fas fa-stethoscope text-teal-600"></i> Paso 1 — Selecciona la especialidad
-            </h2>
-            <div class="grid grid-cols-2 gap-3" id="especialidades">
-                <!-- Cards generadas por JS -->
-            </div>
-        </section>
-
-        <!-- PASO 2: TURNO -->
-        <section id="sec-turno" class="bg-white rounded-2xl shadow-sm p-4 fade-in hidden">
-            <h2 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <i class="fas fa-sun text-yellow-500"></i> Paso 2 — Selecciona el turno
-            </h2>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="selectTurno('manana',this)" class="turno-btn rounded-xl p-4 text-center bg-white">
-                    <i class="fas fa-sun text-yellow-400 text-xl mb-1 block"></i>
-                    <div class="font-bold text-gray-800 text-sm">Mañana</div>
-                    <div class="text-xs text-gray-500 mt-0.5">08:00 – 13:30</div>
-                </button>
-                <button onclick="selectTurno('tarde',this)" class="turno-btn rounded-xl p-4 text-center bg-white">
-                    <i class="fas fa-cloud-sun text-orange-400 text-xl mb-1 block"></i>
-                    <div class="font-bold text-gray-800 text-sm">Tarde</div>
-                    <div class="text-xs text-gray-500 mt-0.5">15:00 – 19:00</div>
-                </button>
-            </div>
-        </section>
-
-        <!-- PASO 3: SLOTS -->
-        <section id="sec-slots" class="bg-white rounded-2xl shadow-sm p-4 fade-in hidden">
-            <h2 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <i class="fas fa-clock text-teal-600"></i> Paso 3 — Elige tu horario
-            </h2>
-            <div id="slots-grid" class="grid grid-cols-2 gap-3"></div>
-        </section>
-
-    </main>
-
-    <!-- MODAL CONFIRMACIÓN -->
-    <div id="modal" class="modal-overlay hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 fade-in">
-            <div class="text-center mb-4">
-                <div class="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-calendar-check text-teal-600 text-2xl"></i>
-                </div>
-                <h3 class="text-base font-bold text-gray-800">Confirma tu cita</h3>
-                <p class="text-xs text-gray-500 mt-1">Revisa los datos antes de confirmar</p>
-            </div>
-
-            <!-- RESUMEN -->
-            <div class="ticket-border rounded-xl p-4 space-y-3 mb-5 bg-teal-50">
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-stethoscope w-4 text-teal-600"></i> Especialidad</span>
-                    <span id="m-espec" class="font-semibold text-gray-800 text-right"></span>
-                </div>
-                <div class="border-t border-teal-100"></div>
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-user-doctor w-4 text-teal-600"></i> Médico</span>
-                    <span id="m-medico" class="font-semibold text-gray-800 text-right"></span>
-                </div>
-                <div class="border-t border-teal-100"></div>
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-clock w-4 text-teal-600"></i> Hora</span>
-                    <span id="m-hora" class="font-semibold text-gray-800"></span>
-                </div>
-                <div class="border-t border-teal-100"></div>
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500 flex items-center gap-2"><i class="fas fa-calendar w-4 text-teal-600"></i> Fecha</span>
-                    <span id="m-fecha" class="font-semibold text-gray-800"></span>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-sm font-medium hover:bg-gray-50 transition">
-                    Cancelar
-                </button>
-                <button onclick="confirmar()" class="flex-1 py-2.5 rounded-xl bg-teal-600 text-white text-sm font-bold hover:bg-teal-700 transition">
-                    <i class="fas fa-check mr-1"></i> Confirmar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL TICKET GENERADO -->
-    <div id="modal-ticket" class="modal-overlay hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 fade-in text-center">
-            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-circle-check text-green-500 text-3xl"></i>
-            </div>
-            <h3 class="text-base font-bold text-gray-800 mb-1">¡Cita reservada!</h3>
-            <p class="text-xs text-gray-500 mb-4">Tu número de ticket es</p>
-            <div class="bg-teal-600 text-white rounded-xl py-3 px-6 text-2xl font-extrabold tracking-widest mb-4" id="ticket-num"></div>
-            <p class="text-xs text-gray-400 mb-5">Muestra este número en el módulo de admisión al llegar a la posta.</p>
-            <button onclick="reiniciar()" class="w-full py-3 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition">
-                <i class="fas fa-rotate-left mr-1"></i> Nueva reserva
-            </button>
-        </div>
-    </div>
-
+    <!-- JS LOGIC -->
     <script>
-        const especialidades = [
-        {id:'mg', nombre:'Medicina General', icon:'fa-user-doctor', color:'text-blue-500'},
-        {id:'od', nombre:'Odontología', icon:'fa-tooth', color:'text-purple-500'},
-        {id:'ob', nombre:'Obstetricia', icon:'fa-baby', color:'text-pink-500'},
-        {id:'pe', nombre:'Pediatría', icon:'fa-child', color:'text-yellow-500'},
-        {id:'nu', nombre:'Nutrición', icon:'fa-apple-whole', color:'text-green-500'},
-        {id:'ps', nombre:'Psicología', icon:'fa-brain', color:'text-indigo-500'},
-        ];
+        let state = { espec: null, especNombre: null, turno: null, slot: null, slotId: null, medico: null, fecha: null, fechaLarga: null };
 
-        const medicos = {
-        mg:['Dr. Flores','Dra. Quispe','Dr. Huanca'],
-        od:['Dra. Rojas','Dr. Ccama'],
-        ob:['Dra. Vargas','Dra. Huamán'],
-        pe:['Dr. Condori','Dra. Lima'],
-        nu:['Lic. Torres'],
-        ps:['Ps. Mendoza','Ps. Arce'],
-        };
+        async function cargarEspecialidades() {
+            try {
+                const response = await fetch('/Citas/GetEspecialidades');
+                const list = await response.json();
+                
+                const config = {
+                    'Medicina General': { icon: 'fa-user-doctor', color: '#4f46e5' },
+                    'Odontología': { icon: 'fa-tooth', color: '#2aae8a' },
+                    'Obstetricia': { icon: 'fa-baby', color: '#e11d48' },
+                    'Pediatría': { icon: 'fa-child', color: '#d97706' },
+                    'Nutrición': { icon: 'fa-apple-whole', color: '#0284c7' },
+                    'Psicología': { icon: 'fa-brain', color: '#7c3aed' }
+                };
 
-        const slots = {
-        manana:['08:00','08:20','08:40','09:00','09:20','09:40','10:00','10:20','10:40','11:00','11:20','11:40'],
-        tarde: ['15:00','15:20','15:40','16:00','16:20','16:40','17:00','17:20','17:40','18:00','18:20','18:40'],
-        };
-
-        // Agotados simulados
-        const agotados = {
-        manana:['08:00','08:20','09:40','10:20'],
-        tarde: ['15:00','16:00','17:20'],
-        };
-
-        let state = {espec:null, turno:null, slot:null, medico:null};
-
-        // Render especialidades
-        function renderEspecialidades(){
-        const c = document.getElementById('especialidades');
-        c.innerHTML = especialidades.map(e=>`
-        <div class="espec-card rounded-xl p-3 flex flex-col items-center gap-2 text-center"
-        onclick="selectEspecialidad('${e.id}',this)">
-        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-        <i class="fas ${e.icon} ${e.color}"></i>
-        </div>
-        <span class="text-xs font-semibold text-gray-700 leading-tight">${e.nombre}</span>
-        </div>
-        `).join('');
+                const c = document.getElementById('especialidades');
+                c.innerHTML = list.map(e => {
+                    const cfg = config[e.nombre] || { icon: 'fa-stethoscope', color: 'var(--teal)' };
+                    return `
+                    <div class="espec-card" onclick="selectEspecialidad(${e.especialidadId}, '${e.nombre}', this)">
+                        <div class="espec-icon" style="color: ${cfg.color};">
+                            <i class="fas ${cfg.icon}"></i>
+                        </div>
+                        <span style="font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:600; color:var(--navy); line-height:1.2;">${e.nombre}</span>
+                    </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Error cargando especialidades:", err);
+            }
         }
 
-        function selectEspecialidad(id, el){
-        document.querySelectorAll('.espec-card').forEach(c=>c.classList.remove('selected'));
-        el.classList.add('selected');
-        state.espec = id;
-        state.turno = null; state.slot = null; state.medico = null;
-        show('sec-turno');
-        hide('sec-slots');
-        document.querySelectorAll('.turno-btn').forEach(b=>b.classList.remove('active'));
-        setDot(2,'active'); setDot(3,'pending'); setDot(4,'pending');
-        smoothScroll('sec-turno');
+        function selectEspecialidad(id, nombre, el) {
+            document.querySelectorAll('.espec-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            state.espec = id;
+            state.especNombre = nombre;
+            state.turno = null; state.slot = null; state.slotId = null; state.medico = null;
+            show('sec-turno');
+            hide('sec-slots');
+            hide('modal');
+            document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
+            setDot(2, 'active'); setDot(3, 'pending'); setDot(4, 'pending');
+            smoothScroll('sec-turno');
         }
 
-        function selectTurno(turno, el){
-        document.querySelectorAll('.turno-btn').forEach(b=>b.classList.remove('active'));
-        el.classList.add('active');
-        state.turno = turno;
-        state.slot = null; state.medico = null;
-        renderSlots(turno);
-        show('sec-slots');
-        setDot(3,'active'); setDot(4,'pending');
-        smoothScroll('sec-slots');
+        function selectTurno(turno, el) {
+            document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            state.turno = turno;
+            state.slot = null; state.slotId = null; state.medico = null;
+            cargarSlots(state.espec, turno);
+            show('sec-slots');
+            hide('modal');
+            setDot(3, 'active'); setDot(4, 'pending');
+            smoothScroll('sec-slots');
         }
 
-        function renderSlots(turno){
-        const grid = document.getElementById('slots-grid');
-        const espec = especialidades.find(e=>e.id===state.espec);
-        const meds = medicos[state.espec];
-        const lista = slots[turno];
-        const agot = agotados[turno];
-        grid.innerHTML = lista.map((h,i)=>{
-        const ocupado = agot.includes(h);
-        const med = meds[i % meds.length];
-        return `<div class="card-slot ${ocupado?'disabled':''} rounded-xl p-3 bg-white"
-        onclick="${ocupado?'':'selectSlot(\''+h+'\',\''+med+'\',this)'}">
-        <div class="flex items-center gap-2 mb-1">
-        <i class="fas fa-clock text-xs ${ocupado?'text-gray-400':'text-teal-600'}"></i>
-        <span class="font-bold text-sm ${ocupado?'text-gray-400':'text-gray-800'}">${h}</span>
-        </div>
-        <div class="text-xs ${ocupado?'text-gray-400':'text-gray-500'} truncate">${med}</div>
-        ${ocupado?'<span class="inline-block mt-1 text-xs bg-gray-200 text-gray-500 rounded-full px-2 py-0.5">Agotado</span>':'<span class="inline-block mt-1 text-xs bg-teal-100 text-teal-700 rounded-full px-2 py-0.5">Disponible</span>'}
-        </div>`;
-        }).join('');
+        async function cargarSlots(especialidadId, turno) {
+            const grid = document.getElementById('slots-grid');
+            grid.innerHTML = '<div class="col-12 text-center text-muted py-4 text-sm font-semibold"><i class="fas fa-spinner fa-spin me-2"></i> Buscando horarios disponibles...</div>';
+            
+            try {
+                const response = await fetch(`/Citas/GetSlots?especialidadId=${especialidadId}&turno=${turno}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    grid.innerHTML = `<div class="col-12 text-center text-danger py-4 font-semibold"><i class="fas fa-circle-xmark me-2"></i> ${data.message}</div>`;
+                    return;
+                }
+
+                if (data.slots.length === 0) {
+                    grid.innerHTML = `<div class="col-12 text-center text-muted py-4 font-semibold"><i class="fas fa-calendar-xmark fa-2x mb-3 opacity-25 d-block"></i> No hay horarios programados u habilitados para esta fecha.</div>`;
+                    return;
+                }
+
+                // Agrupar slots por fecha
+                const slotsByDate = {};
+                data.slots.forEach(s => {
+                    if(!slotsByDate[s.fechaLarga]) slotsByDate[s.fechaLarga] = [];
+                    slotsByDate[s.fechaLarga].push(s);
+                });
+
+                let html = '';
+                for(const [fecha, slots] of Object.entries(slotsByDate)) {
+                    html += `<div style="grid-column: 1 / -1; margin-top: 1rem; margin-bottom: 0.5rem;">
+                                <h4 style="font-family:'Outfit',sans-serif; font-size:1rem; font-weight:700; color:var(--navy); border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem;">
+                                    <i class="fas fa-calendar-day me-2" style="color:var(--teal);"></i> ${fecha}
+                                </h4>
+                             </div>`;
+                    
+                    html += slots.map(s => {
+                        const ocupado = s.cuposDisponibles <= 0;
+                        return `
+                        <div class="card-slot ${ocupado ? 'disabled' : ''}"
+                             onclick="${ocupado ? '' : `selectSlot(${s.slotId}, '${s.horaInicio}', '${s.nombreMedico}', '${s.fecha}', '${s.fechaLarga}', this)`}">
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+                                <i class="fas fa-clock" style="font-size:0.8rem; color:${ocupado ? '#94a3b8' : 'var(--teal)'};"></i>
+                                <span style="font-family:'Outfit',sans-serif; font-weight:700; color:${ocupado ? '#94a3b8' : 'var(--navy)'}; font-size:1rem;">${s.horaInicio}</span>
+                            </div>
+                            <div class="truncate text-xs" style="color:${ocupado ? '#94a3b8' : '#64748b'}; font-weight:500; margin-bottom:0.4rem;">${s.nombreMedico}</div>
+                            ${ocupado 
+                                ? `<span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; background:#e2e8f0; color:#64748b; padding:0.2rem 0.5rem; border-radius:999px;">Agotado</span>` 
+                                : `<span style="display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; background:var(--teal-light); color:var(--teal); padding:0.2rem 0.5rem; border-radius:999px;">Disponible (${s.cuposDisponibles})</span>`
+                            }
+                        </div>
+                        `;
+                    }).join('');
+                }
+                grid.innerHTML = html;
+            } catch (err) {
+                console.error("Error cargando slots:", err);
+                grid.innerHTML = '<div class="col-12 text-center text-danger py-4 font-semibold"><i class="fas fa-triangle-exclamation me-2"></i> Error de conexión al cargar horarios.</div>';
+            }
         }
 
-        function selectSlot(hora, medico, el){
-        document.querySelectorAll('.card-slot').forEach(c=>c.classList.remove('selected'));
-        el.classList.add('selected');
-        state.slot = hora;
-        state.medico = medico;
-        setDot(4,'active');
-        openModal();
+        function selectSlot(slotId, hora, medico, fecha, fechaLarga, el) {
+            document.querySelectorAll('.card-slot').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            state.slotId = slotId;
+            state.slot = hora;
+            state.medico = medico;
+            state.fecha = fecha;
+            state.fechaLarga = fechaLarga;
+            setDot(4, 'active');
+            openModal();
         }
 
-        function openModal(){
-        const espec = especialidades.find(e=>e.id===state.espec);
-        document.getElementById('m-espec').textContent = espec.nombre;
-        document.getElementById('m-medico').textContent = state.medico;
-        document.getElementById('m-hora').textContent = state.slot + ' hrs';
-        const hoy = new Date();
-        const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-        const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-        document.getElementById('m-fecha').textContent = `${dias[hoy.getDay()]}, ${hoy.getDate()} ${meses[hoy.getMonth()]} ${hoy.getFullYear()}`;
-        document.getElementById('modal').classList.remove('hidden');
+        function openModal() {
+            document.getElementById('m-espec').textContent = state.especNombre;
+            document.getElementById('m-medico').textContent = state.medico;
+            document.getElementById('m-hora').textContent = state.slot + ' hrs';
+            document.getElementById('m-fecha').textContent = state.fechaLarga;
+            document.getElementById('modal').classList.remove('hidden');
+            smoothScroll('modal');
         }
 
-        function closeModal(){
-        document.getElementById('modal').classList.add('hidden');
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            setDot(4, 'pending');
         }
 
-        function confirmar(){
-        closeModal();
-        const ticket = 'T-' + Math.floor(1000 + Math.random()*9000);
-        document.getElementById('ticket-num').textContent = ticket;
-        document.getElementById('modal-ticket').classList.remove('hidden');
+        async function confirmar() {
+            closeModal();
+            
+            const form = document.getElementById('antiForgeryForm');
+            const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            const formData = new FormData();
+            formData.append('SlotId', state.slotId);
+            formData.append('__RequestVerificationToken', token);
+
+            try {
+                const response = await fetch('/Citas/Confirmar', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('ticket-num').textContent = result.ticketCodigo;
+                    
+                    // No ocultamos las secciones anteriores según solicitud,
+                    // Mostramos un mensaje de confirmación arriba
+                    const alertHtml = `
+                    <div id="success-alert" class="alert alert-success d-flex align-items-center mb-4" style="background-color: var(--teal-light); border-color: var(--teal); color: var(--navy); font-family: 'Outfit', sans-serif;">
+                        <i class="fas fa-check-circle fa-2x me-3" style="color: var(--teal);"></i>
+                        <div>
+                            <strong>¡Reserva Exitosa!</strong><br>
+                            <span class="text-sm">Su cita ha sido guardada correctamente. Por favor, desplácese hacia abajo para ver su ticket electrónico.</span>
+                        </div>
+                    </div>`;
+                    
+                    const container = document.querySelector('.col-lg-8.col-md-10.mx-auto');
+                    container.insertAdjacentHTML('afterbegin', alertHtml);
+
+                    // Muestra el ticket al final
+                    document.getElementById('modal-ticket').classList.remove('hidden');
+                    setDot(4, 'done');
+                    
+                    // Scroll suave hacia el mensaje de éxito (arriba)
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert("No se pudo reservar la cita: " + result.message);
+                }
+            } catch (err) {
+                console.error("Error confirmando cita:", err);
+                alert("Hubo un error de conexión al confirmar tu cita.");
+            }
         }
 
-        function reiniciar(){
-        document.getElementById('modal-ticket').classList.add('hidden');
-        state = {espec:null,turno:null,slot:null,medico:null};
-        hide('sec-turno'); hide('sec-slots');
-        document.querySelectorAll('.espec-card').forEach(c=>c.classList.remove('selected'));
-        document.querySelectorAll('.turno-btn').forEach(b=>b.classList.remove('active'));
-        setDot(1,'active'); setDot(2,'pending'); setDot(3,'pending'); setDot(4,'pending');
-        window.scrollTo({top:0,behavior:'smooth'});
+        function reiniciar() {
+            document.getElementById('modal-ticket').classList.add('hidden');
+            const alert = document.getElementById('success-alert');
+            if(alert) alert.remove();
+            
+            state = { espec: null, especNombre: null, turno: null, slot: null, slotId: null, medico: null, fecha: null, fechaLarga: null };
+            show('sec-especialidad');
+            hide('sec-turno'); hide('sec-slots');
+            document.querySelectorAll('.espec-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.turno-btn').forEach(b => b.classList.remove('active'));
+            setDot(1, 'active'); setDot(2, 'pending'); setDot(3, 'pending'); setDot(4, 'pending');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function show(id){document.getElementById(id).classList.remove('hidden');}
-        function hide(id){document.getElementById(id).classList.add('hidden');}
-        function smoothScroll(id){setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}),100);}
+        function show(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hide(id) { document.getElementById(id).classList.add('hidden'); }
+        function smoothScroll(id) { setTimeout(() => { const el = document.getElementById(id); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100); }
 
-        function setDot(n, st){
-        const dot = document.getElementById('dot'+n);
-        dot.className = 'step-dot text-xs ' + (st==='active'?'badge-step':st==='done'?'badge-step-done':'badge-step-pending');
+        function setDot(n, st) {
+            const dot = document.getElementById('dot' + n);
+            if (!dot) return;
+            if (st === 'active') {
+                dot.className = 'step-dot badge-step';
+            } else if (st === 'done') {
+                dot.className = 'step-dot badge-step-done';
+            } else {
+                dot.className = 'step-dot badge-step-pending';
+            }
         }
 
-        renderEspecialidades();
-        setDot(1,'active');
+        cargarEspecialidades();
+        setDot(1, 'active');
     </script>
 </body>
 </html>

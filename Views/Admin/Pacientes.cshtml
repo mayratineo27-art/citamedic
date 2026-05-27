@@ -1,0 +1,203 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Directorio de Pacientes";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #1E3A8A; font-family: 'Segoe UI', sans-serif;">Gestión de Pacientes</h2>
+            <p class="text-muted mb-0">Directorio local y padrón de la Posta Médica</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-4" style="border-color: #1E3A8A !important; border-radius: 12px; background-color: #F8FAFC;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Total Pacientes</h6>
+                            <h2 class="mb-0 fw-bold" style="color: #1E3A8A;">@ViewBag.TotalPacientes</h2>
+                        </div>
+                        <div class="fs-1 text-muted opacity-50">
+                            👥
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-4" style="border-color: #10B981 !important; border-radius: 12px; background-color: #F8FAFC;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Pacientes con SIS</h6>
+                            <h2 class="mb-0 fw-bold" style="color: #10B981;">@ViewBag.TotalSIS</h2>
+                        </div>
+                        <div class="fs-1 text-muted opacity-50">
+                            🛡️
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-4" style="border-color: #06B6D4 !important; border-radius: 12px; background-color: #F8FAFC;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Menores de Edad</h6>
+                            <h2 class="mb-0 fw-bold" style="color: #06B6D4;">@ViewBag.TotalMenores</h2>
+                        </div>
+                        <div class="fs-1 text-muted opacity-50">
+                            👶
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 16px;">
+        <h5 class="mb-3 fw-bold" style="color: #1E3A8A;">Buscar y Filtrar Pacientes</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">🔍</span>
+                    <input type="text" class="form-control border-start-0" id="searchDni" placeholder="Buscar por DNI o Nombres..." maxlength="30">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterSis">
+                    <option value="all">Todos los Seguros</option>
+                    <option value="sis">Solo con SIS</option>
+                    <option value="no-sis">Sin SIS</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterEdad">
+                    <option value="all">Todas las Edades</option>
+                    <option value="menores">Solo Menores de Edad</option>
+                    <option value="adultos">Solo Adultos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patients Directory Card -->
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
+        <h5 class="mb-4 fw-bold border-bottom pb-2" style="color: #1E3A8A;">Padrón Local de Pacientes</h5>
+        
+        @if (Model.Pacientes != null && Model.Pacientes.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="patientsTable">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th class="ps-3">DNI</th>
+                            <th>Nombres y Apellidos</th>
+                            <th>F. Nacimiento</th>
+                            <th>Grupo Edad</th>
+                            <th>Seguro</th>
+                            <th>Responsable</th>
+                            <th>Celular</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var paciente in Model.Pacientes)
+                        {
+                            <tr class="patient-row" 
+                                data-dni="@paciente.DNI" 
+                                data-fullname="@($"{paciente.Nombres} {paciente.ApellidoPaterno} {paciente.ApellidoMaterno}".ToLower())"
+                                data-sis="@(paciente.TieneSIS ? "sis" : "no-sis")"
+                                data-edad="@(paciente.EsMenor ? "menor" : "adulto")">
+                                <td class="ps-3 fw-bold text-secondary">@paciente.DNI</td>
+                                <td class="fw-semibold text-dark">
+                                    @paciente.Nombres @paciente.ApellidoPaterno @paciente.ApellidoMaterno
+                                </td>
+                                <td>@paciente.FechaNacimiento</td>
+                                <td>
+                                    @if (paciente.EsMenor)
+                                    {
+                                        <span class="badge rounded-pill bg-info text-dark">Menor de Edad</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-secondary">Adulto</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (paciente.TieneSIS)
+                                    {
+                                        <span class="badge rounded-pill text-white" style="background-color: #10B981;">SIS Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-light text-dark border">Particular</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@paciente.ResponsableNombre</td>
+                                <td>@paciente.Celular</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info py-4 mb-0 text-center">
+                <div class="fs-2 mb-2">📂</div>
+                <h5>No hay pacientes registrados en la base de datos de la Posta.</h5>
+                <p class="text-muted mb-0">Use el módulo de Usuarios para registrar un nuevo perfil de Paciente.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const searchDni = document.getElementById('searchDni');
+        const filterSis = document.getElementById('filterSis');
+        const filterEdad = document.getElementById('filterEdad');
+        const patientRows = document.querySelectorAll('.patient-row');
+
+        function filterPatients() {
+            const query = searchDni.value.trim().toLowerCase();
+            const sisFilter = filterSis.value;
+            const edadFilter = filterEdad.value;
+
+            patientRows.forEach(row => {
+                const dni = row.getAttribute('data-dni');
+                const fullname = row.getAttribute('data-fullname');
+                const hasSis = row.getAttribute('data-sis');
+                const edad = row.getAttribute('data-edad');
+
+                const matchesQuery = dni.includes(query) || fullname.includes(query);
+                
+                let matchesSis = true;
+                if (sisFilter === 'sis') matchesSis = (hasSis === 'sis');
+                if (sisFilter === 'no-sis') matchesSis = (hasSis === 'no-sis');
+
+                let matchesEdad = true;
+                if (edadFilter === 'menores') matchesEdad = (edad === 'menor');
+                if (edadFilter === 'adultos') matchesEdad = (edad === 'adulto');
+
+                if (matchesQuery && matchesSis && matchesEdad) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchDni) searchDni.addEventListener('input', filterPatients);
+        if (filterSis) filterSis.addEventListener('change', filterPatients);
+        if (filterEdad) filterEdad.addEventListener('change', filterPatients);
+    </script>
+}

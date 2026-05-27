@@ -1,0 +1,95 @@
+@model PostaCitasWeb.Models.ViewModels.TicketViewModel
+@{
+    ViewData["Title"] = "Ticket de Cita";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <!-- Contenedor del Ticket (Estilo recibo médico premium) -->
+            <div class="modern-card p-4 text-center border-top border-5 border-teal shadow-lg position-relative" style="border-top-color: #008B8B !important; background-color: #fff;">
+                
+                <!-- Icono de Éxito -->
+                <div class="d-inline-flex justify-content-center align-items-center bg-light rounded-circle p-3 mb-3" style="width: 70px; height: 70px;">
+                    <span style="font-size: 2rem;">✅</span>
+                </div>
+                
+                <h3 class="fw-bold mb-1" style="color: #008B8B; font-family: 'Segoe UI', sans-serif;">¡Cita Agendada!</h3>
+                <p class="text-muted small">Tu reserva se completó exitosamente. Por favor presenta este ticket al llegar.</p>
+                
+                <!-- Borde dentado/dashed del ticket -->
+                <div class="my-4" style="border-top: 2px dashed #ced4da;"></div>
+                
+                <span class="text-muted small d-block mb-1">CÓDIGO DE TICKET</span>
+                <div class="py-2 px-3 bg-light rounded mb-4" style="border: 1px solid #e3e6f0;">
+                    <h2 class="fw-extrabold tracking-widest text-dark m-0" style="font-family: monospace; font-size: 2.2rem; letter-spacing: 2px;">@Model.Codigo</h2>
+                </div>
+                
+                <!-- Detalles del Ticket -->
+                <div class="text-start bg-light p-3 rounded mb-4" style="border: 1px solid #e3e6f0; font-size: 0.95rem;">
+                    <div class="row py-2 border-bottom">
+                        <div class="col-5 text-muted">Paciente:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.NombrePaciente</div>
+                    </div>
+                    <div class="row py-2 border-bottom">
+                        <div class="col-5 text-muted">Especialidad:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.EspecialidadNombre</div>
+                    </div>
+                    <div class="row py-2 border-bottom">
+                        <div class="col-5 text-muted">Médico:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.MedicoNombre</div>
+                    </div>
+                    <div class="row py-2 border-bottom">
+                        <div class="col-5 text-muted">Fecha Cita:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.FechaCita.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div class="row py-2 border-bottom">
+                        <div class="col-5 text-muted">Hora Cita:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.HoraCita.ToString(@"hh\:mm") hrs</div>
+                    </div>
+                    <div class="row py-2">
+                        <div class="col-5 text-muted">Turno:</div>
+                        <div class="col-7 fw-bold text-dark text-end">@Model.Turno</div>
+                    </div>
+                </div>
+                
+                <div class="small text-muted mb-4">
+                    Emitido el: @Model.FechaEmision.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")
+                </div>
+                
+                <!-- Acciones -->
+                <div class="d-grid gap-2">
+                    <button onclick="window.print()" class="btn btn-teal">
+                        🖨️ Imprimir Ticket
+                    </button>
+                    <a asp-controller="Paciente" asp-action="Index" class="btn btn-outline-secondary">
+                        Ir a mis citas
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        /* Ocultar barra de navegación y pie de página en impresión */
+        header, footer, nav, .btn, a {
+            display: none !important;
+        }
+        body {
+            background: #fff !important;
+        }
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .modern-card {
+            box-shadow: none !important;
+            border: none !important;
+        }
+    }
+</style>

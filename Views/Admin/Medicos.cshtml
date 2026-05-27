@@ -1,0 +1,144 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Personal Médico";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: #008B8B; font-family: 'Segoe UI', sans-serif;">Personal Médico</h2>
+            <p class="text-muted mb-0">Gestión de profesionales de la salud y CMP</p>
+        </div>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="modern-card p-4 mb-4">
+        <h5 class="mb-4 border-bottom pb-2">Registrar Nuevo Médico</h5>
+        <form method="post" asp-action="CreateMedico" class="mb-0">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="medicoNombres" class="form-label fw-bold">Nombres</label>
+                    <input type="text" class="form-control" id="medicoNombres" name="Nombres" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medicoApellidoP" class="form-label fw-bold">Apellido Paterno</label>
+                    <input type="text" class="form-control" id="medicoApellidoP" name="ApellidoPaterno" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medicoApellidoM" class="form-label fw-bold">Apellido Materno</label>
+                    <input type="text" class="form-control" id="medicoApellidoM" name="ApellidoMaterno">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medicoCMP" class="form-label fw-bold">N° Colegiatura (CMP)</label>
+                    <input type="text" class="form-control" id="medicoCMP" name="CMP" placeholder="Ej: 12345" required>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+                <button type="submit" class="btn btn-teal">Registrar Médico</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="modern-card p-4">
+        <h5 class="mb-4 border-bottom pb-2">Directorio Médico</h5>
+        @if (Model.Medicos.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>CMP</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var medico in Model.Medicos)
+                        {
+                            <tr>
+                                <td class="fw-medium">@medico.Nombres</td>
+                                <td>@medico.ApellidoPaterno @medico.ApellidoMaterno</td>
+                                <td><span class="badge bg-secondary">@medico.CMP</span></td>
+                                <td>
+                                    @if (medico.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editMedicoModal" onclick="loadMedicoData(@medico.MedicoId, '@medico.Nombres', '@medico.ApellidoPaterno', '@medico.ApellidoMaterno', '@medico.CMP', @(medico.Activo ? "true" : "false"))">Editar</button>
+                                        @if (medico.Activo)
+                                        {
+                                            <form method="post" asp-action="DeleteMedico" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@medico.MedicoId">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Desactivar este médico del sistema?')">Desactivar</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-action="ActivateMedico" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@medico.MedicoId">
+                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Activar este médico en el sistema?')">Activar</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">No hay personal médico registrado.</div>
+        }
+    </div>
+</div>
+
+<partial name="_EditMedicoModal" />
+
+@section Scripts {
+    <script>
+        function loadMedicoData(id, nombres, apellidoPaterno, apellidoMaterno, cmp, activo) {
+            const editId = document.getElementById('editMedicoId');
+            const editNombres = document.getElementById('editMedicoNombres');
+            const editApellidoP = document.getElementById('editMedicoApellidoPaterno');
+            const editApellidoM = document.getElementById('editMedicoApellidoMaterno');
+            const editCMP = document.getElementById('editMedicoCMP');
+            const editActivo = document.getElementById('editMedicoActivo');
+
+            if (editId) editId.value = id;
+            if (editNombres) editNombres.value = nombres;
+            if (editApellidoP) editApellidoP.value = apellidoPaterno;
+            if (editApellidoM) editApellidoM.value = apellidoMaterno;
+            if (editCMP) editCMP.value = cmp;
+            if (editActivo) editActivo.checked = activo;
+        }
+    </script>
+}

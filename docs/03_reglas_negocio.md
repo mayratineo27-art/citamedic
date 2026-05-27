@@ -366,5 +366,23 @@ Turno tarde:
 ## RN37 Ventana estricta de reserva
 La fecha de la reserva web está estrictamente condicionada por el día de la solicitud:
 - **Lunes a Viernes:** El sistema solo permitirá reservar cupos correspondientes a la fecha actual (mismo día).
-- **Sábado:** El sistema solo permitirá reservar cupos correspondientes al día Lunes de la siguiente semana (fecha actual + 2 días).
+- **Sábado:** El sistema solo permitirá reservar cupos correspondientes al día sábado y Lunes de la siguiente semana (fecha actual + 2 días).
 - **Domingo:** El sistema no habilitará la reserva web.
+
+## RN38 Estados de asistencia
+
+Reservadacu
+Asistió
+No asistió
+Cancelada
+
+## RN39 — Cierre de jornada
+
+Descripción:
+
+Las citas que finalizaron el turno y no registraron triaje
+podrán marcarse como No asistió.
+
+## RN40 Precarga por DNI
+
+La búsqueda por DNI recuperará datos existentes.

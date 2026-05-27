@@ -326,6 +326,116 @@ namespace PostaCitasWeb.Data.Migrations
                             Nombres = "Juan",
                             TieneSIS = true,
                             UsuarioId = 5
+                        },
+                        new
+                        {
+                            PacienteId = 10,
+                            ApellidoMaterno = "García",
+                            ApellidoPaterno = "Pérez",
+                            DNI = "12345678",
+                            FechaNacimiento = new DateOnly(1985, 5, 10),
+                            Nombres = "Juan",
+                            TieneSIS = true,
+                            UsuarioId = 10
+                        },
+                        new
+                        {
+                            PacienteId = 11,
+                            ApellidoMaterno = "Martínez",
+                            ApellidoPaterno = "López",
+                            DNI = "87654321",
+                            FechaNacimiento = new DateOnly(1992, 8, 24),
+                            Nombres = "María",
+                            TieneSIS = false,
+                            UsuarioId = 11
+                        },
+                        new
+                        {
+                            PacienteId = 12,
+                            ApellidoMaterno = "Sánchez",
+                            ApellidoPaterno = "Rodríguez",
+                            DNI = "11223344",
+                            FechaNacimiento = new DateOnly(1978, 12, 3),
+                            Nombres = "Carlos",
+                            TieneSIS = true,
+                            UsuarioId = 12
+                        },
+                        new
+                        {
+                            PacienteId = 13,
+                            ApellidoMaterno = "Díaz",
+                            ApellidoPaterno = "Fernández",
+                            DNI = "99887766",
+                            FechaNacimiento = new DateOnly(1989, 4, 15),
+                            Nombres = "Ana",
+                            TieneSIS = true,
+                            UsuarioId = 13
+                        },
+                        new
+                        {
+                            PacienteId = 14,
+                            ApellidoMaterno = "Ruiz",
+                            ApellidoPaterno = "Torres",
+                            DNI = "45678901",
+                            FechaNacimiento = new DateOnly(1995, 11, 2),
+                            Nombres = "Luis",
+                            TieneSIS = false,
+                            UsuarioId = 14
+                        },
+                        new
+                        {
+                            PacienteId = 15,
+                            ApellidoMaterno = "Quispe",
+                            ApellidoPaterno = "Gómez",
+                            DNI = "56789012",
+                            FechaNacimiento = new DateOnly(2001, 7, 18),
+                            Nombres = "Carmen",
+                            TieneSIS = true,
+                            UsuarioId = 15
+                        },
+                        new
+                        {
+                            PacienteId = 16,
+                            ApellidoMaterno = "Chávez",
+                            ApellidoPaterno = "Flores",
+                            DNI = "67890123",
+                            FechaNacimiento = new DateOnly(1983, 2, 28),
+                            Nombres = "Jorge",
+                            TieneSIS = false,
+                            UsuarioId = 16
+                        },
+                        new
+                        {
+                            PacienteId = 17,
+                            ApellidoMaterno = "Mamani",
+                            ApellidoPaterno = "Quispe",
+                            DNI = "78901234",
+                            FechaNacimiento = new DateOnly(1974, 9, 5),
+                            Nombres = "Rosa",
+                            TieneSIS = true,
+                            UsuarioId = 17
+                        },
+                        new
+                        {
+                            PacienteId = 18,
+                            ApellidoMaterno = "Vargas",
+                            ApellidoPaterno = "Díaz",
+                            DNI = "89012345",
+                            FechaNacimiento = new DateOnly(1998, 6, 12),
+                            Nombres = "Pedro",
+                            TieneSIS = true,
+                            UsuarioId = 18
+                        },
+                        new
+                        {
+                            PacienteId = 19,
+                            ApellidoMaterno = "Castro",
+                            ApellidoPaterno = "Rojas",
+                            DNI = "90123456",
+                            FechaNacimiento = new DateOnly(1990, 10, 30),
+                            Nombres = "Sofía",
+                            TieneSIS = false,
+                            UsuarioId = 19
                         });
                 });
 
@@ -658,6 +768,116 @@ namespace PostaCitasWeb.Data.Migrations
                             FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             NombreUsuario = "paciente",
                             PasswordHash = "Paciente123!",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 10,
+                            Activo = true,
+                            Celular = "999888777",
+                            DNI = "12345678",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "juan_perez",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 11,
+                            Activo = true,
+                            Celular = "988777666",
+                            DNI = "87654321",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "maria_lopez",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 12,
+                            Activo = true,
+                            Celular = "977666555",
+                            DNI = "11223344",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "carlos_rodriguez",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 13,
+                            Activo = true,
+                            Celular = "966555444",
+                            DNI = "99887766",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "ana_fernandez",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 14,
+                            Activo = true,
+                            Celular = "955444333",
+                            DNI = "45678901",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "luis_torres",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 15,
+                            Activo = true,
+                            Celular = "944333222",
+                            DNI = "56789012",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "carmen_gomez",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 16,
+                            Activo = true,
+                            Celular = "933222111",
+                            DNI = "67890123",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "jorge_flores",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 17,
+                            Activo = true,
+                            Celular = "922111000",
+                            DNI = "78901234",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "rosa_quispe",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 18,
+                            Activo = true,
+                            Celular = "911000999",
+                            DNI = "89012345",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "pedro_diaz",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
+                            Rol = 0
+                        },
+                        new
+                        {
+                            UsuarioId = 19,
+                            Activo = true,
+                            Celular = "900999888",
+                            DNI = "90123456",
+                            FechaCreacion = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            NombreUsuario = "sofia_rojas",
+                            PasswordHash = "$2a$11$pAeGrUlfoJBDW4N/CYvpGuTp8EKk5l8xBZSd1OR7hhjA87SlsPP82",
                             Rol = 0
                         });
                 });

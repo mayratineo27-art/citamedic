@@ -53,6 +53,11 @@ namespace PostaCitasWeb.Services
         Task<Cita?> GetCitaAsync(int citaId);
 
         /// <summary>
+        /// Actualiza el estado de una cita (ListoAtencion, NoAsistio, etc.) y registra el historial (RN21, RN30).
+        /// </summary>
+        Task<CitaResult> ActualizarEstadoCitaAsync(int citaId, EstadoCita nuevoEstado, int usuarioActuanteId);
+
+        /// <summary>
         /// RN37: Genera sobrecupos automáticamente cuando la demanda lo requiere.
         /// Este método será implementado según la demanda del sistema.
         /// </summary>

@@ -36,6 +36,11 @@ namespace PostaCitasWeb.Repositories
         Task<bool> HasActiveCitaInSlotAsync(int pacienteId, int slotId);
 
         /// <summary>
+        /// Verifica si un paciente ya tiene una cita activa en una fecha específica (1 cita por día).
+        /// </summary>
+        Task<bool> HasActiveCitaOnDateAsync(int pacienteId, DateOnly date);
+
+        /// <summary>
         /// Obtiene todas las citas con su información relacionada (Paciente, Slot, etc).
         /// </summary>
         Task<IEnumerable<Cita>> GetAllWithDetailsAsync();

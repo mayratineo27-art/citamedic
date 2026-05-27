@@ -26,11 +26,23 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICitaRepository, CitaRepository>();
 builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
+builder.Services.AddScoped<IAvisoRepository, AvisoRepository>();
+
+// Registrar proveedor de tiempo (simulado para testeo / real para prod)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<IDateTimeProvider, SimulatedDateTimeProvider>();
+}
+else
+{
+    builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+}
 
 // Registrar servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICitaService, CitaService>();
 builder.Services.AddScoped<IEspecialidadService, EspecialidadService>();
+builder.Services.AddScoped<IAvisoService, AvisoService>();
 builder.Services.AddScoped<IBaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa>, BaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa>>();
 builder.Services.AddScoped<IBaseRepository<PostaCitasWeb.Entities.AvisoAtencionInmediata>, BaseRepository<PostaCitasWeb.Entities.AvisoAtencionInmediata>>();
 
