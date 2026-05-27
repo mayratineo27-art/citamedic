@@ -18,24 +18,27 @@ namespace PostaCitasWeb.Controllers
         private readonly IAvisoRepository _avisoRepository;
         private readonly ICitaService _citaService;
         private readonly IAvisoService _avisoService;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public EnfermeriaController(
             ICitaRepository citaRepository, 
             IAvisoRepository avisoRepository,
             ICitaService citaService,
-            IAvisoService avisoService)
+            IAvisoService avisoService,
+            IDateTimeProvider dateTimeProvider)
         {
             _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
             _avisoRepository = avisoRepository ?? throw new ArgumentNullException(nameof(avisoRepository));
             _citaService = citaService ?? throw new ArgumentNullException(nameof(citaService));
             _avisoService = avisoService ?? throw new ArgumentNullException(nameof(avisoService));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.EnfermeraNombre = User.Identity?.Name ?? "Enfermera";
             var allCitas = await _citaRepository.GetAllWithDetailsAsync();
-            var today = DateOnly.FromDateTime(DateTime.Today);
+            var today = _dateTimeProvider.Today;
 
             // RN21 & RN36: Obtener todas las citas del día
             var todayCitas = allCitas.Where(c =>

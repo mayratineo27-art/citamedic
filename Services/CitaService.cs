@@ -45,12 +45,12 @@ namespace PostaCitasWeb.Services
                 return false;
             }
 
-            if (cita.FechaReserva.Date == _dateTimeProvider.Today)
+            if (DateOnly.FromDateTime(cita.FechaReserva) == _dateTimeProvider.Today)
             {
                 return false;
             }
 
-            if (_dateTimeProvider.Today.DayOfWeek == DayOfWeek.Saturday && cita.FechaReserva.Date == _dateTimeProvider.Today.AddDays(2))
+            if (_dateTimeProvider.Today.DayOfWeek == DayOfWeek.Saturday && DateOnly.FromDateTime(cita.FechaReserva) == _dateTimeProvider.Today.AddDays(2))
             {
                 return false;
             }
@@ -169,8 +169,8 @@ namespace PostaCitasWeb.Services
 
                 // Obtener horario de triaje según turno
                 TimeOnly horaLimite = ObtenerHoraLimiteCancel(slot);
-                var ahora = DateTime.Now;
-                var fechaHoy = DateOnly.FromDateTime(ahora);
+                var ahora = _dateTimeProvider.Now;
+                var fechaHoy = _dateTimeProvider.Today;
 
                 if (slot.Programacion.Fecha < fechaHoy)
                 {
@@ -185,7 +185,7 @@ namespace PostaCitasWeb.Services
                 // Cambiar estado a Cancelada
                 var estadoAnterior = cita.EstadoCita;
                 cita.EstadoCita = EstadoCita.Cancelada;
-                cita.FechaUltimaActualizacion = DateTime.UtcNow;
+                cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
 
                 _citaRepository.Update(cita);
                 await _citaRepository.SaveChangesAsync();
@@ -201,7 +201,7 @@ namespace PostaCitasWeb.Services
                     CitaId = citaId,
                     EstadoAnterior = estadoAnterior,
                     EstadoNuevo = EstadoCita.Cancelada,
-                    FechaCambio = DateTime.UtcNow,
+                    FechaCambio = _dateTimeProvider.UtcNow,
                     UsuarioId = cita.PacienteId,
                     Observacion = motivo ?? "Cancelación por paciente"
                 };
@@ -244,7 +244,7 @@ namespace PostaCitasWeb.Services
                     PresionSistolica = presionSistolica,
                     PresionDiastolica = presionDiastolica,
                     Observacion = observacion,
-                    FechaRegistro = DateTime.UtcNow
+                    FechaRegistro = _dateTimeProvider.UtcNow
                 };
 
                 await _triajeRepository.AddAsync(triaje);
@@ -253,7 +253,7 @@ namespace PostaCitasWeb.Services
                 // RN22: Cambiar estado a EnTriaje
                 var estadoAnterior = cita.EstadoCita;
                 cita.EstadoCita = EstadoCita.EnTriaje;
-                cita.FechaUltimaActualizacion = DateTime.UtcNow;
+                cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
 
                 _citaRepository.Update(cita);
                 await _citaRepository.SaveChangesAsync();
@@ -264,7 +264,7 @@ namespace PostaCitasWeb.Services
                     CitaId = citaId,
                     EstadoAnterior = estadoAnterior,
                     EstadoNuevo = EstadoCita.EnTriaje,
-                    FechaCambio = DateTime.UtcNow,
+                    FechaCambio = _dateTimeProvider.UtcNow,
                     UsuarioId = enfermeriaUsuarioId,
                     Observacion = "Triaje registrado"
                 };
@@ -317,7 +317,7 @@ namespace PostaCitasWeb.Services
                      return CitaResult.CreateFailure("Solo se puede marcar como Listo para Atención si la cita está En Triaje.");
 
                  cita.EstadoCita = nuevoEstado;
-                 cita.FechaUltimaActualizacion = DateTime.UtcNow;
+                 cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
 
                  _citaRepository.Update(cita);
                  await _citaRepository.SaveChangesAsync();
@@ -328,7 +328,7 @@ namespace PostaCitasWeb.Services
                      CitaId = citaId,
                      EstadoAnterior = estadoAnterior,
                      EstadoNuevo = nuevoEstado,
-                     FechaCambio = DateTime.UtcNow,
+                     FechaCambio = _dateTimeProvider.UtcNow,
                      UsuarioId = usuarioActuanteId,
                      Observacion = $"Estado actualizado a {nuevoEstado}"
                  };
@@ -364,7 +364,7 @@ namespace PostaCitasWeb.Services
         {
             // Generar código único para ticket
             // Formato: TC-YYYYMMDD-NNNNN
-            var fecha = DateTime.Now.ToString("yyyyMMdd");
+            var fecha = _dateTimeProvider.Now.ToString("yyyyMMdd");
             var random = new Random().Next(10000, 99999);
             return $"TC-{fecha}-{random}";
         }

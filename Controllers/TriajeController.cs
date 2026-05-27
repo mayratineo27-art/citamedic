@@ -15,11 +15,13 @@ namespace PostaCitasWeb.Controllers
     {
         private readonly ICitaService _citaService;
         private readonly ICitaRepository _citaRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public TriajeController(ICitaService citaService, ICitaRepository citaRepository)
+        public TriajeController(ICitaService citaService, ICitaRepository citaRepository, IDateTimeProvider dateTimeProvider)
         {
             _citaService = citaService ?? throw new ArgumentNullException(nameof(citaService));
             _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         [HttpGet]
@@ -32,7 +34,7 @@ namespace PostaCitasWeb.Controllers
              }
 
              var allCitas = await _citaRepository.GetAllWithDetailsAsync();
-             var today = DateOnly.FromDateTime(DateTime.Today);
+             var today = _dateTimeProvider.Today;
 
              // Buscar cita activa para hoy (Pendiente o EnTriaje)
              var cita = allCitas.FirstOrDefault(c =>

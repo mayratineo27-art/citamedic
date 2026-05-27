@@ -20,19 +20,22 @@ namespace PostaCitasWeb.Controllers
         private readonly ICitaRepository _citaRepository;
         private readonly IPacienteRepository _pacienteRepository;
         private readonly ISlotRepository _slotRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public CitasController(
             ICitaService citaService,
             IEspecialidadService especialidadService,
             ICitaRepository citaRepository,
             IPacienteRepository pacienteRepository,
-            ISlotRepository slotRepository)
+            ISlotRepository slotRepository,
+            IDateTimeProvider dateTimeProvider)
         {
             _citaService = citaService ?? throw new ArgumentNullException(nameof(citaService));
             _especialidadService = especialidadService ?? throw new ArgumentNullException(nameof(especialidadService));
             _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
             _pacienteRepository = pacienteRepository ?? throw new ArgumentNullException(nameof(pacienteRepository));
             _slotRepository = slotRepository ?? throw new ArgumentNullException(nameof(slotRepository));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         [HttpGet]
@@ -150,7 +153,7 @@ namespace PostaCitasWeb.Controllers
             {
                 cita.EspecialidadId = model.EspecialidadId;
                 cita.FechaReserva = model.Fecha;
-                cita.FechaUltimaActualizacion = DateTime.UtcNow;
+                cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
 
                 var especialidad = especialidades.FirstOrDefault(e => e.EspecialidadId == model.EspecialidadId);
                 if (especialidad != null)
@@ -202,7 +205,7 @@ namespace PostaCitasWeb.Controllers
                 FechaReserva = model.Fecha,
                 EstadoCita = EstadoCita.Pendiente,
                 OrigenReserva = OrigenReserva.Web,
-                FechaUltimaActualizacion = DateTime.UtcNow,
+                FechaUltimaActualizacion = _dateTimeProvider.UtcNow,
                 Historial = new HashSet<HistorialEstadoCita>()
             };
 
@@ -260,18 +263,18 @@ namespace PostaCitasWeb.Controllers
             }
 
             // Calcular fechas según RN37 y FA03
-            var localToday = DateTime.Today;
+            var localToday = _dateTimeProvider.Today;
             var dayOfWeek = localToday.DayOfWeek;
             var targetDates = new List<DateOnly>();
 
             if (dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday)
             {
-                targetDates.Add(DateOnly.FromDateTime(localToday)); // Lunes a Viernes: Mismo día
+                targetDates.Add(localToday); // Lunes a Viernes: Mismo día
             }
             else if (dayOfWeek == DayOfWeek.Saturday)
             {
-                targetDates.Add(DateOnly.FromDateTime(localToday)); // Sábado: Mismo día (según FA03)
-                targetDates.Add(DateOnly.FromDateTime(localToday.AddDays(2))); // Sábado: Próximo lunes
+                targetDates.Add(localToday); // Sábado: Mismo día (según FA03)
+                targetDates.Add(localToday.AddDays(2)); // Sábado: Próximo lunes
             }
             else // Domingo
             {

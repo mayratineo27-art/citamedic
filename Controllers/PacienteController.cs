@@ -22,6 +22,7 @@ namespace PostaCitasWeb.Controllers
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly AppDbContext _context;
         private readonly IAvisoService _avisoService;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public PacienteController(
             IEspecialidadService especialidadService, 
@@ -29,7 +30,8 @@ namespace PostaCitasWeb.Controllers
             IPacienteRepository pacienteRepository,
             IUsuarioRepository usuarioRepository,
             AppDbContext context,
-            IAvisoService avisoService)
+            IAvisoService avisoService,
+            IDateTimeProvider dateTimeProvider)
         {
             _especialidadService = especialidadService ?? throw new ArgumentNullException(nameof(especialidadService));
             _citaService = citaService ?? throw new ArgumentNullException(nameof(citaService));
@@ -37,6 +39,7 @@ namespace PostaCitasWeb.Controllers
             _usuarioRepository = usuarioRepository ?? throw new ArgumentNullException(nameof(usuarioRepository));
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _avisoService = avisoService ?? throw new ArgumentNullException(nameof(avisoService));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         public async Task<IActionResult> Index()
@@ -58,7 +61,7 @@ namespace PostaCitasWeb.Controllers
             // CU03: Consultar Programación Referencial de Atención
             // Obtener programaciones operativas habilitadas futuras (o de hoy en adelante)
             var programaciones = await _context.ProgramacionesOperativas
-                .Where(p => p.Habilitada && p.Fecha >= DateOnly.FromDateTime(DateTime.Today))
+                .Where(p => p.Habilitada && p.Fecha >= _dateTimeProvider.Today)
                 .Include(p => p.Especialidad)
                 .Include(p => p.Medico)
                 .OrderBy(p => p.Fecha)

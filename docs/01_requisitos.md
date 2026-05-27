@@ -113,7 +113,7 @@ Media
 
 ---
 
-## RF06 Actualizar datos permitidos
+## RF05 Actualizar datos permitidos
 
 Actor:
 Paciente

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PostaCitasWeb.Entities;
 using PostaCitasWeb.Models.ViewModels;
 using PostaCitasWeb.Repositories;
+using PostaCitasWeb.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,16 @@ namespace PostaCitasWeb.Controllers
     {
         private readonly IBaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa> _programacionRepository;
         private readonly ICitaRepository _citaRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public AdmisionController(IBaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa> programacionRepository, ICitaRepository citaRepository)
+        public AdmisionController(
+            IBaseRepository<PostaCitasWeb.Entities.ProgramacionOperativa> programacionRepository,
+            ICitaRepository citaRepository,
+            IDateTimeProvider dateTimeProvider)
         {
             _programacionRepository = programacionRepository ?? throw new ArgumentNullException(nameof(programacionRepository));
             _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
+            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         }
 
         public async Task<IActionResult> Index()
@@ -81,12 +87,12 @@ namespace PostaCitasWeb.Controllers
                     },
                     EstadoCita = EstadoCita.Pendiente,
                     OrigenReserva = OrigenReserva.Presencial,
-                    FechaReserva = DateTime.Today,
-                    FechaUltimaActualizacion = DateTime.UtcNow
+                    FechaReserva = _dateTimeProvider.Now,
+                    FechaUltimaActualizacion = _dateTimeProvider.UtcNow
                 }
             };
 
-            ViewBag.TotalCitasHoy = citas.Count(c => c.FechaReserva.Date == DateTime.Today);
+            ViewBag.TotalCitasHoy = citas.Count(c => DateOnly.FromDateTime(c.FechaReserva) == _dateTimeProvider.Today);
             ViewBag.TotalProgramaciones = programaciones.Count();
             ViewBag.TotalProgramacionesHabilitadas = programaciones.Count(p => p.Habilitada);
             ViewBag.TotalCitasPresenciales = citas.Count(c => c.OrigenReserva == PostaCitasWeb.Entities.OrigenReserva.Presencial);
@@ -114,7 +120,7 @@ namespace PostaCitasWeb.Controllers
                     return Json(new { success = false, message = "Programación no encontrada." });
                 }
 
-                if (programacion.Fecha < DateOnly.FromDateTime(DateTime.UtcNow))
+                if (programacion.Fecha < _dateTimeProvider.Today)
                 {
                     return Json(new { success = false, message = "No se puede habilitar programaciones pasadas." });
                 }
@@ -167,7 +173,7 @@ namespace PostaCitasWeb.Controllers
                     return Json(new { success = false, message = "Programación no encontrada." });
                 }
 
-                if (programacion.Fecha < DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)))
+                if (programacion.Fecha < _dateTimeProvider.Today.AddDays(-1))
                 {
                     return Json(new { success = false, message = "Solo se pueden ajustar programaciones futuras." });
                 }
