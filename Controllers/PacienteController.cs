@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 using PostaCitasWeb.Data;
 using PostaCitasWeb.Entities;
 using PostaCitasWeb.Models.ViewModels;
@@ -55,6 +58,12 @@ namespace PostaCitasWeb.Controllers
             {
                 return NotFound("No se encontró la información del paciente.");
             }
+
+            // Load dependientes (children)
+            paciente.Dependientes = await _context.Pacientes
+                .Where(p => p.ResponsableId == paciente.PacienteId)
+                .Include(p => p.Usuario)
+                .ToListAsync();
 
             var list = await _citaService.GetCitasByPacienteAsync(paciente.PacienteId);
 
@@ -198,6 +207,88 @@ namespace PostaCitasWeb.Controllers
             }
 
             return Json(new { success = true, message = "Aviso de atención inmediata enviado con éxito. Enfermería ha sido notificada." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AccederComoDependiente(int dependienteId)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return Challenge();
+            }
+
+            var tutor = await _pacienteRepository.GetByUsuarioIdAsync(userId);
+            if (tutor == null)
+            {
+                return NotFound("Tutor no encontrado.");
+            }
+
+            var dependiente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.PacienteId == dependienteId);
+
+            if (dependiente == null || dependiente.ResponsableId != tutor.PacienteId)
+            {
+                return Forbid("No tiene autorización para acceder a la cuenta de este dependiente.");
+            }
+
+            // Sign out current tutor user identity
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Sign in minor child identity with tutor claim
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, dependiente.UsuarioId.ToString()),
+                new Claim(ClaimTypes.Name, dependiente.Usuario.NombreUsuario ?? dependiente.DNI),
+                new Claim(ClaimTypes.Role, "Paciente"),
+                new Claim("TutorOriginalUsuarioId", tutor.UsuarioId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VolverACuentaTutor()
+        {
+            var tutorUsuarioIdStr = User.FindFirst("TutorOriginalUsuarioId")?.Value;
+            if (string.IsNullOrEmpty(tutorUsuarioIdStr) || !int.TryParse(tutorUsuarioIdStr, out int tutorUsuarioId))
+            {
+                return BadRequest("No se encontró sesión original de tutor activa.");
+            }
+
+            var tutorUsuario = await _usuarioRepository.GetByIdAsync(tutorUsuarioId);
+            if (tutorUsuario == null)
+            {
+                return RedirectToAction("Logout", "Auth");
+            }
+
+            // Sign out minor child identity
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Sign in back as tutor original identity
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, tutorUsuario.UsuarioId.ToString()),
+                new Claim(ClaimTypes.Name, tutorUsuario.NombreUsuario ?? tutorUsuario.DNI),
+                new Claim(ClaimTypes.Role, tutorUsuario.Rol.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -48,7 +48,7 @@ namespace PostaCitasWeb.Controllers
 
              if (cita == null)
              {
-                 TempData["ErrorMessage"] = $"No se encontró ninguna cita activa para hoy con el DNI '{dni}'.";
+                 TempData["ErrorMessage"] = "El paciente no tiene reserva de cita registrada.";
                  return RedirectToAction("Index", "Enfermeria");
              }
 

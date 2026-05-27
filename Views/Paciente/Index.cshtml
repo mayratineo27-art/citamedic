@@ -724,6 +724,14 @@
                     <i class="fa-solid fa-circle-exclamation text-danger"></i> Atención Inmediata
                 </button>
             </li>
+            @if (Model.Paciente.Dependientes.Any() || User.HasClaim(c => c.Type == "TutorOriginalUsuarioId"))
+            {
+                <li>
+                    <button class="menu-link" onclick="switchTab('tab-mi-familia', this)">
+                        <i class="fa-solid fa-users text-primary"></i> Mi Familia
+                    </button>
+                </li>
+            }
         </ul>
 
         <div class="sidebar-footer">
@@ -739,6 +747,23 @@
     <!-- MAIN PORTAL AREA -->
     <main class="portal-main">
         
+        <!-- Impersonation Banner -->
+        @if (User.HasClaim(c => c.Type == "TutorOriginalUsuarioId"))
+        {
+            <div class="alert alert-info d-flex justify-content-between align-items-center mb-4 p-3" style="border-radius:16px; border:1px solid rgba(13,110,253,0.2); background-color:rgba(13,110,253,0.05); color:#084298;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-user-shield" style="font-size:1.2rem; color:var(--indigo);"></i>
+                    <span class="text-sm">Sesión delegada: Está gestionando la cuenta de su menor dependiente <strong>@Model.Paciente.Nombres @Model.Paciente.ApellidoPaterno</strong>.</span>
+                </div>
+                <form asp-controller="Paciente" asp-action="VolverACuentaTutor" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-primary px-3 py-1.5" style="border-radius:8px; font-weight:600;">
+                        <i class="fa-solid fa-arrow-left-long me-1"></i> Volver a mi cuenta
+                    </button>
+                </form>
+            </div>
+        }
+
         <!-- HEADER -->
         <header class="d-flex justify-content-between align-items-center mb-4 welcome-header">
             <div>
@@ -907,19 +932,57 @@
                 <!-- Columna Lateral Derecha -->
                 <div class="col-lg-4 mb-4">
                     <!-- Widget Mi Familia -->
-                    <div class="card-premium p-4 mb-4 bg-white shadow-sm border border-light" style="border-radius: var(--radius); min-height: 112px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card-premium p-4 mb-4 bg-white shadow-sm border border-light" style="border-radius: var(--radius); display: flex; flex-direction: column; gap: 1rem;">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-navy text-sm d-flex align-items-center gap-2" style="font-size: 0.85rem; font-family: 'Outfit', sans-serif;">
                                 <i class="fa-solid fa-users text-teal"></i> Mi Familia
                             </span>
-                            <span class="badge bg-opacity-10 rounded-pill px-2 py-1 text-uppercase font-bold" style="background-color: #e0e7ff; color: #4f46e5; font-size: 0.65rem; letter-spacing: 0.5px; cursor: pointer;" onclick="alert('Función de agregar familiares disponible próximamente en Admisión')">VER TODOS</span>
+                            @if (Model.Paciente.Dependientes.Any())
+                            {
+                                <span class="badge bg-opacity-10 rounded-pill px-2 py-1 text-uppercase font-bold" style="background-color: #e0e7ff; color: #4f46e5; font-size: 0.65rem; letter-spacing: 0.5px; cursor: pointer;" onclick="document.querySelector('.menu-link[onclick*=\'tab-mi-familia\']').click()">VER TODOS</span>
+                            }
                         </div>
-                        <div class="d-flex align-items-center justify-content-between mt-3">
-                            <span class="text-xs text-muted">Sin familiares registrados</span>
-                            <div class="add-family-btn d-flex align-items-center justify-content-center" onclick="alert('Función de agregar familiares disponible próximamente en Admisión')">
-                                <i class="fa-solid fa-plus text-muted text-xs"></i>
+                        
+                        @if (!Model.Paciente.Dependientes.Any())
+                        {
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="text-xs text-muted">Sin familiares registrados</span>
+                                <div class="add-family-btn d-flex align-items-center justify-content-center" onclick="alert('Para registrar un menor a su cargo, por favor acuda a la ventanilla de Admisión.')">
+                                    <i class="fa-solid fa-plus text-muted text-xs"></i>
+                                </div>
                             </div>
-                        </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-2" style="max-height: 180px; overflow-y: auto;">
+                                @foreach (var dep in Model.Paciente.Dependientes)
+                                {
+                                    <div class="d-flex align-items-center justify-content-between p-2 rounded border border-light bg-light bg-opacity-50">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div style="width: 32px; height: 32px; background-color: var(--teal-light); color: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                                                <i class="fa-solid fa-child"></i>
+                                            </div>
+                                            <div>
+                                                <span class="d-block fw-bold text-dark text-xs" style="font-size: 0.78rem;">@dep.Nombres @dep.ApellidoPaterno</span>
+                                                <span class="d-block text-muted" style="font-size: 0.65rem;">DNI: @dep.DNI</span>
+                                            </div>
+                                        </div>
+                                        <form asp-controller="Paciente" asp-action="AccederComoDependiente" method="post" style="margin: 0;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="dependienteId" value="@dep.PacienteId" />
+                                            <button type="submit" class="btn btn-sm btn-link p-1 text-teal" title="Acceder a la cuenta del menor" style="border: none; background: none;">
+                                                <i class="fa-solid fa-right-to-bracket"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-sm btn-link p-0 text-muted" style="font-size: 0.72rem; text-decoration: none;" onclick="alert('Para registrar un menor adicional a su cargo, por favor acuda a la ventanilla de Admisión.')">
+                                    <i class="fa-solid fa-circle-info me-1"></i>¿Cómo agregar más familiares?
+                                </button>
+                            </div>
+                        }
                     </div>
 
                     <!-- Widget Último Pulso -->
@@ -1443,14 +1506,65 @@
             </div>
         </div>
 
+        <!-- PESTAÑA 10: MI FAMILIA -->
+        <div id="tab-mi-familia" class="tab-panel-custom">
+            <div class="card-premium">
+                <div class="card-header-premium">
+                    <h3 class="card-title-premium"><i class="fa-solid fa-users text-primary me-2"></i>Gestión de Mi Familia (Menores de Edad)</h3>
+                </div>
+                <div class="card-body-premium">
+                    <p class="text-muted text-sm mb-4">
+                        A continuación se listan los familiares menores de edad asociados a su cuenta como tutor/responsable. 
+                        Puede acceder a la cuenta de cualquiera de ellos de manera directa para registrar citas, ver tickets o triajes en su nombre.
+                    </p>
+
+                    @if (!Model.Paciente.Dependientes.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-child-reaching fs-1 mb-3 opacity-50"></i>
+                            <p class="mb-0 fw-semibold">No tiene menores de edad asociados como dependientes.</p>
+                            <p class="text-xs">Para asociar a un menor, por favor solicítelo en la ventanilla de admisión.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var dep in Model.Paciente.Dependientes)
+                            {
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card p-3 border shadow-sm" style="border-radius: 16px; background-color: #ffffff;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div style="width: 48px; height: 48px; background-color: var(--teal-light); color: var(--teal); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
+                                                <i class="fa-solid fa-child"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-0 fw-bold" style="font-size: 0.95rem; color: var(--navy);">@dep.Nombres @dep.ApellidoPaterno</h5>
+                                                <span class="text-xs text-muted d-block">DNI: @dep.DNI</span>
+                                                <span class="text-xs fw-bold mt-1 d-block" style="color: var(--indigo);">HC-@dep.PacienteId.ToString("D6")</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 text-end">
+                                            <form asp-controller="Paciente" asp-action="AccederComoDependiente" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="dependienteId" value="@dep.PacienteId" />
+                                                <button type="submit" class="btn btn-sm text-white" style="background-color: var(--teal); border-radius: 8px; font-weight: 600; border: none; padding: 0.4rem 0.85rem;">
+                                                    <i class="fa-solid fa-right-to-bracket me-1"></i> Acceder
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
         <!-- Disclaimers Generales del Proyecto -->
         <div class="warning-disclaimer">
             <p class="mb-1"><strong>PostaCitasWeb v1.0</strong> – Sistema Spec-Driven Development (SpecDD)</p>
             <p class="mb-0">Este portal cumple con las restricciones de privacidad de datos (RN07: No se visualizan UPS de médicos ni detalles de configuración interna administrativa). Las recetas y resultados clínicos no se almacenan en este servidor (RN23 / RN34).</p>
-        </div>
-
-    </main>
-</div>icos no se almacenan en este servidor (RN23 / RN34).</p>
         </div>
 
     </main>

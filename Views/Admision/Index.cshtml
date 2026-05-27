@@ -2,11 +2,11 @@
 @{
     ViewData["Title"] = "Panel de Admisión — CITAMEDIC";
     var nombre = ViewBag.AdmisionNombre as string ?? "Admisión";
-    var citasHoy        = (int)(ViewBag.TotalCitasHoy ?? 0);
-    var programaciones  = (int)(ViewBag.TotalProgramaciones ?? 0);
-    var habilitadas     = (int)(ViewBag.TotalProgramacionesHabilitadas ?? 0);
-    var presenciales    = (int)(ViewBag.TotalCitasPresenciales ?? 0);
-    var web             = (int)(ViewBag.TotalCitasWeb ?? 0);
+    var todayStr = ViewBag.TotalCitasHoy != null ? ViewBag.TotalCitasHoy.ToString() : "0";
+    var totalCitas = Model.CitasPresenciales.Count();
+    
+    // Obtener información de fechas para sábado
+    var todayDateIso = DateTime.Now.ToString("yyyy-MM-dd");
 }
 
 <!-- Fuentes y FontAwesome -->
@@ -17,353 +17,1376 @@
 
 <style>
     :root {
-        --navy:        #1D2D50;
+        --navy:        #0f2b48;
+        --navy-light:  #1d3d60;
         --teal:        #2AAE8A;
-        --teal-light:  #e8f7f3;
+        --teal-hover:  #218f71;
+        --teal-light:  #eaf7f3;
         --indigo:      #4f46e5;
         --indigo-lt:   #e0e7ff;
         --amber:       #d97706;
         --amber-lt:    #fffbeb;
         --purple:      #9333ea;
         --purple-lt:   #fdf4ff;
-        --bg-main:     #f0f5f4;
+        --danger:      #ef4444;
+        --danger-lt:   #fee2e2;
+        --bg-main:     #f4f7f6;
+        --card-bg:     #ffffff;
         --text-main:   #1D2D50;
         --text-muted:  #64748b;
         --border:      #e2e8f0;
-        --radius:      24px;
-        --shadow-sm:   0 4px 6px -1px rgba(29,45,80,0.02), 0 2px 4px -2px rgba(29,45,80,0.02);
-        --shadow-md:   0 10px 15px -3px rgba(29,45,80,0.05), 0 4px 6px -4px rgba(29,45,80,0.04);
+        --radius-lg:   24px;
+        --radius-md:   16px;
+        --shadow-sm:   0 4px 6px -1px rgba(15,43,72,0.03), 0 2px 4px -2px rgba(15,43,72,0.03);
+        --shadow-md:   0 10px 15px -3px rgba(15,43,72,0.06), 0 4px 6px -4px rgba(15,43,72,0.04);
+        --shadow-lg:   0 20px 25px -5px rgba(15,43,72,0.1), 0 10px 10px -5px rgba(15,43,72,0.04);
     }
 
-    body { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; background: var(--bg-main); color: var(--text-main); }
+    body {
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        background: var(--bg-main);
+        color: var(--text-main);
+    }
 
-    .adm-page { min-height: 100vh; padding: 2.5rem 3rem; max-width: 1400px; margin: 0 auto; }
+    .adm-page {
+        min-height: 90vh;
+        padding: 2rem 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
 
-    /* ── Header ───────────────────────────── */
-    .adm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem; }
-    .welcome-title { font-family: 'Outfit', sans-serif; font-weight: 400; font-size: 2.35rem; color: var(--navy); margin: 0 0 0.25rem; line-height: 1.15; }
-    .welcome-subtitle { color: var(--text-muted); font-size: 1rem; margin: 0; }
+    /* Header */
+    .adm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .welcome-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 2.2rem;
+        color: var(--navy);
+        margin: 0 0 0.25rem;
+    }
+    .welcome-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin: 0;
+    }
     .status-badge {
-        display: inline-flex; align-items: center; gap: 0.6rem;
-        background: #fff; border: 1px solid var(--border);
-        border-radius: 9999px; padding: 0.5rem 1.25rem;
-        box-shadow: var(--shadow-sm); font-size: 0.85rem; font-weight: 600; color: var(--navy);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 9999px;
+        padding: 0.5rem 1.25rem;
+        box-shadow: var(--shadow-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--navy);
     }
-    .badge-dot { width: 8px; height: 8px; background: var(--teal); border-radius: 50%; animation: pulse-dot 1.6s infinite ease-out; }
+    .badge-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--teal);
+        border-radius: 50%;
+        animation: pulse-dot 1.6s infinite ease-out;
+    }
     @@keyframes pulse-dot {
         0%  { box-shadow: 0 0 0 0   rgba(42,174,138,0.5); }
         70% { box-shadow: 0 0 0 8px rgba(42,174,138,0); }
         100%{ box-shadow: 0 0 0 0   rgba(42,174,138,0); }
     }
 
-    /* ── Hero Banner ──────────────────────── */
-    .hero-banner {
-        background: linear-gradient(135deg, #0f4c81 0%, #083162 100%);
-        border-radius: var(--radius); padding: 2.25rem 3rem; margin-bottom: 2rem;
-        position: relative; overflow: hidden; color: white;
-        box-shadow: 0 10px 30px rgba(15,76,129,0.18);
+    /* Tabs Navigation */
+    .nav-tabs-premium {
+        border-bottom: 1.5px solid var(--border);
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 1px;
     }
-    .hero-banner::before { content:''; position: absolute; width: 280px; height: 280px; background: rgba(255,255,255,0.04); border-radius: 50%; top: -70px; right: -70px; }
-    .hero-logo { width: 50px; height: 50px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; margin-bottom: 1.1rem; position: relative; z-index: 2; }
-    .hero-title { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; position: relative; z-index: 2; }
-    .hero-subtitle { font-size: 0.9rem; opacity: 0.75; position: relative; z-index: 2; max-width: 560px; }
-    .hero-stats { display: flex; gap: 2rem; margin-top: 1.5rem; position: relative; z-index: 2; flex-wrap: wrap; }
-    .hero-stat-value { font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 800; color: #93c5fd; line-height: 1; }
-    .hero-stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; margin-top: 4px; }
-    .hero-ghost { position: absolute; right: -30px; bottom: -40px; font-size: 14rem; color: rgba(255,255,255,0.03); transform: rotate(-12deg); z-index: 1; pointer-events: none; }
-
-    /* ── KPI Cards ────────────────────────── */
-    .kpi-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.5rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1.25rem; }
-    .kpi-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
-    .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--navy); line-height: 1; }
-    .kpi-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px; }
-
-    /* ── Section Label ────────────────────── */
-    .section-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.85rem; }
-
-    /* ── Action Cards ─────────────────────── */
-    .action-card {
-        background: white; border: 1px solid var(--border); border-radius: var(--radius);
-        padding: 1.65rem 1.5rem; box-shadow: var(--shadow-sm);
-        display: flex; flex-direction: column; height: 100%;
-        transition: all 0.22s ease;
+    .tab-link-premium {
+        background: none;
+        border: none;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        white-space: nowrap;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
     }
-    .action-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(42,174,138,0.3); }
-    .action-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
-    .action-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem; color: var(--navy); margin-bottom: 0.4rem; }
-    .action-desc { font-size: 0.85rem; color: var(--text-muted); flex-grow: 1; line-height: 1.55; margin-bottom: 1.1rem; }
+    .tab-link-premium:hover {
+        color: var(--navy);
+        background: rgba(15,43,72,0.03);
+    }
+    .tab-link-premium.active {
+        color: var(--teal);
+        border-bottom-color: var(--teal);
+        background: rgba(42,174,138,0.04);
+    }
 
-    /* ── Buttons ──────────────────────────── */
-    .btn-prem         { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.875rem; border: none; text-decoration: none; transition: all 0.2s; cursor: pointer; }
-    .btn-prem-teal    { background: var(--teal); color: white; }
-    .btn-prem-teal:hover  { background: #239475; color: white; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(42,174,138,0.2); }
-    .btn-prem-indigo  { background: var(--indigo); color: white; }
-    .btn-prem-indigo:hover { background: #4338ca; color: white; transform: translateY(-1px); }
-    .btn-prem-outline { background: white; color: var(--text-main); border: 1px solid var(--border); }
-    .btn-prem-outline:hover { background: var(--bg-main); color: var(--text-main); transform: translateY(-1px); }
+    /* Cards */
+    .card-premium {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-title-premium {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: var(--navy);
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-    /* ── Premium Card / Table ─────────────── */
-    .card-premium { background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.5rem; }
-    .card-header-premium { padding: 1.1rem 1.75rem; background: white; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .card-title-premium { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--navy); margin: 0; }
+    /* Tab content animation */
+    .tab-pane-premium {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .tab-pane-premium.active {
+        display: block;
+    }
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-    .table-premium { width: 100%; margin: 0; }
-    .table-premium th { font-weight: 700; color: var(--navy); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; padding: 1rem 1.5rem; background: #f8fafc; border-bottom: 1.5px solid var(--border); }
-    .table-premium td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: #334155; }
-    .table-premium tr:last-child td { border-bottom: none; }
+    /* Search & Inputs */
+    .search-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    .input-premium {
+        flex-grow: 1;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 0.85rem 1.25rem;
+        font-size: 0.95rem;
+        color: var(--navy);
+        background: var(--bg-main);
+        transition: all 0.2s ease;
+        outline: none;
+    }
+    .input-premium:focus {
+        border-color: var(--teal);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(42,174,138,0.1);
+    }
+    .btn-premium {
+        background: var(--teal);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 0.85rem 1.75rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-premium:hover {
+        background: var(--teal-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(42,174,138,0.25);
+    }
+    .btn-premium:active {
+        transform: translateY(0);
+    }
+    .btn-secondary-premium {
+        background: #fff;
+        color: var(--navy);
+        border: 1.5px solid var(--border);
+    }
+    .btn-secondary-premium:hover {
+        background: var(--bg-main);
+        color: var(--navy);
+        box-shadow: none;
+    }
 
-    /* ── Badges ───────────────────────────── */
-    .badge-dot-badge { padding: 0.28rem 0.65rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-    .b-pendiente   { background:#dbeafe; color:#1e40af; }
-    .b-habilitada  { background:#d1fae5; color:#065f46; }
-    .b-presencial  { background:var(--indigo-lt); color:var(--indigo); }
-    .b-web         { background:var(--teal-light); color:#0f766e; }
-    .b-cancelada   { background:#f1f5f9; color:#475569; }
+    /* Forms */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-group-premium {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-group-premium label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+    }
+    .form-control-static {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--navy);
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+    }
 
-    /* ── Empty state ──────────────────────── */
-    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
-    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; display: block; }
+    /* Warning/Info alert banner */
+    .alert-premium {
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        border: 1px solid transparent;
+    }
+    .alert-premium-warning {
+        background: var(--amber-lt);
+        border-color: rgba(217,119,6,0.2);
+        color: #92400e;
+    }
+    .alert-premium-info {
+        background: var(--teal-light);
+        border-color: rgba(42,174,138,0.2);
+        color: #065f46;
+    }
+    .alert-icon {
+        font-size: 1.25rem;
+        margin-top: 0.15rem;
+    }
 
-    @@media (max-width: 768px) {
-        .adm-page { padding: 1.5rem 1.25rem; }
-        .hero-banner { padding: 1.75rem 1.5rem; }
-        .welcome-title { font-size: 1.75rem; }
+    /* Slots Grid */
+    .slots-header {
+        font-weight: 700;
+        color: var(--navy);
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .slots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .slot-card {
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        position: relative;
+    }
+    .slot-card:hover {
+        border-color: var(--teal);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .slot-card.active {
+        border-color: var(--teal);
+        background: var(--teal-light);
+        box-shadow: 0 0 0 3px rgba(42,174,138,0.15);
+    }
+    .slot-card.disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        background: #f1f5f9;
+        border-color: var(--border);
+        transform: none;
+        box-shadow: none;
+    }
+    .slot-time {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--navy);
+    }
+    .slot-medico {
+        font-size: 0.825rem;
+        color: var(--text-muted);
+        font-weight: 550;
+    }
+    .slot-quota {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--teal);
+        margin-top: 0.25rem;
+    }
+    .slot-card.disabled .slot-quota {
+        color: var(--danger);
+    }
+
+    /* Radio buttons for shift selection as premium pills */
+    .shift-toggle-group {
+        display: inline-flex;
+        background: var(--bg-main);
+        padding: 0.35rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+    }
+    .shift-toggle-btn {
+        padding: 0.65rem 1.25rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .shift-toggle-btn.active {
+        background: #fff;
+        color: var(--navy);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Table styles */
+    .table-responsive-premium {
+        overflow-x: auto;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+    }
+    .table-premium {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        text-align: left;
+    }
+    .table-premium th {
+        background: #f8fafc;
+        color: var(--navy);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1.5px solid var(--border);
+    }
+    .table-premium td {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+        color: #334155;
+        font-weight: 500;
+    }
+    .table-premium tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .table-premium tbody tr:hover {
+        background: rgba(15,43,72,0.015);
+    }
+
+    /* Badges */
+    .badge-premium {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .badge-presencial { background: var(--indigo-lt); color: var(--indigo); }
+    .badge-web { background: var(--teal-light); color: var(--teal); }
+    .badge-pendiente { background: #dbeafe; color: #1e40af; }
+    .badge-triaje { background: #fef3c7; color: #d97706; }
+    .badge-listo { background: #d1fae5; color: #065f46; }
+    .badge-noasistio { background: #fee2e2; color: #ef4444; }
+    .badge-cancelada { background: #f1f5f9; color: #475569; }
+
+    /* Physical HC card */
+    .hc-search-result {
+        display: none;
+        animation: fadeIn 0.35s ease-out;
+        margin-top: 1.5rem;
+    }
+    .hc-card {
+        background: linear-gradient(135deg, #0f2b48 0%, #153c65 100%);
+        border-radius: var(--radius-lg);
+        padding: 2.25rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+    .hc-card::after {
+        content: '\f07c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 1.5rem;
+        bottom: -1rem;
+        font-size: 11rem;
+        opacity: 0.04;
+        pointer-events: none;
+    }
+    .hc-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #93c5fd;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+    .hc-number {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        margin-bottom: 1.25rem;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .hc-patient-details {
+        border-top: 1px solid rgba(255,255,255,0.15);
+        padding-top: 1.25rem;
+        display: flex;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+    .hc-patient-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .hc-patient-info-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .hc-patient-info-val {
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    /* Specialties Grid */
+    .specialties-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    .specialty-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: flex-start;
+        gap: 1.1rem;
+        transition: all 0.2s ease;
+    }
+    .specialty-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(42,174,138,0.25);
+    }
+    .specialty-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: var(--teal-light);
+        color: var(--teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+    .specialty-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        flex-grow: 1;
+    }
+    .specialty-name {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--navy);
+    }
+    .specialty-ups {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--indigo);
+        background: var(--indigo-lt);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        width: fit-content;
+    }
+    .specialty-duration {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Modal success styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15,43,72,0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    .modal-premium {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        max-width: 500px;
+        width: 100%;
+        padding: 2.25rem;
+        text-align: center;
+        animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @@keyframes modalScaleUp {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .modal-success-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: var(--teal-light);
+        color: var(--teal);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .modal-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+    }
+    .modal-desc {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    .ticket-badge-premium {
+        background: var(--bg-main);
+        border: 1.5px dashed var(--border);
+        border-radius: 12px;
+        padding: 0.85rem 1.5rem;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--navy);
+        letter-spacing: 0.5px;
+        margin-bottom: 1.75rem;
+        display: inline-block;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--text-muted);
+    }
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--border);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .spinner {
+        display: inline-block;
+        width: 1.2rem;
+        height: 1.2rem;
+        vertical-align: text-bottom;
+        border: 0.2em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border .75s linear infinite;
+    }
+    @@keyframes spinner-border {
+        to { transform: rotate(360deg); }
     }
 </style>
+
+<form id="antiForgeryForm">
+    @Html.AntiForgeryToken()
+</form>
 
 <div class="adm-page">
 
     <!-- ═══ HEADER ═══════════════════════════════════════ -->
     <header class="adm-header">
         <div>
-            <h1 class="welcome-title" id="adm-greeting">
-                Hola, <span style="color:#2AAE8A; font-weight:700;">@nombre</span> 👋
+            <h1 class="welcome-title">
+                Hola, <span style="color:var(--teal); font-weight:700;">@nombre</span> 👋
             </h1>
             <p class="welcome-subtitle">Panel de Admisión — Posta de Salud Los Licenciados</p>
         </div>
         <div class="status-badge">
             <span class="badge-dot"></span>
             <i class="fa-solid fa-hospital-user" style="color:var(--teal);"></i>
-            Sesión Activa
+            Módulo Admisión Activo
         </div>
     </header>
 
-    <!-- ═══ HERO ══════════════════════════════════════════ -->
-    <div class="hero-banner mb-4">
-        <div class="hero-logo"><i class="fa-solid fa-calendar-days text-white"></i></div>
-        <h2 class="hero-title">Módulo de Admisión y Programación</h2>
-        <p class="hero-subtitle">Gestiona la disponibilidad de citas, registra atenciones presenciales y controla la programación operativa de la posta.</p>
-        <div class="hero-stats">
-            <div><div class="hero-stat-value">@citasHoy</div><div class="hero-stat-label">Citas hoy</div></div>
-            <div><div class="hero-stat-value">@programaciones</div><div class="hero-stat-label">Programaciones</div></div>
-            <div><div class="hero-stat-value">@habilitadas</div><div class="hero-stat-label">Habilitadas</div></div>
-            <div><div class="hero-stat-value">@presenciales</div><div class="hero-stat-label">Presenciales</div></div>
-        </div>
-        <i class="fa-solid fa-file-medical hero-ghost"></i>
+    <!-- ═══ TABS NAVIGATION ══════════════════════════════ -->
+    <div class="nav-tabs-premium">
+        <button class="tab-link-premium active" onclick="switchTab('tab-generar-cita', this)">
+            <i class="fa-solid fa-calendar-plus"></i> Generar Cita Presencial
+        </button>
+        <button class="tab-link-premium" onclick="switchTab('tab-trazabilidad-citas', this)">
+            <i class="fa-solid fa-list-check"></i> Trazabilidad de Citas
+        </button>
+        <button class="tab-link-premium" onclick="switchTab('tab-buscar-paciente', this)">
+            <i class="fa-solid fa-folder-open"></i> Buscar Paciente (Historia Clínica)
+        </button>
+        <button class="tab-link-premium" onclick="switchTab('tab-especialidades-ups', this)">
+            <i class="fa-solid fa-briefcase-medical"></i> Especialidades y UPS
+        </button>
     </div>
 
-    <!-- ═══ KPIs ══════════════════════════════════════════ -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4 col-sm-6">
-            <div class="kpi-card">
-                <div class="kpi-icon" style="background:var(--teal-light);">
-                    <i class="fa-solid fa-calendar-day" style="color:var(--teal);"></i>
-                </div>
-                <div><div class="kpi-value">@citasHoy</div><div class="kpi-label">Citas de hoy</div></div>
+    <!-- ═══ TAB 1: GENERAR CITA PRESENCIAL ═══════════════ -->
+    <div id="tab-generar-cita" class="tab-pane-premium active">
+        <div class="card-premium">
+            <h2 class="card-title-premium">
+                <i class="fa-solid fa-user-check" style="color:var(--teal);"></i>
+                1. Identificación del Paciente
+            </h2>
+            
+            <div class="search-group">
+                <input type="text" id="presencialDniInput" class="input-premium" placeholder="Ingrese el DNI del paciente (8 dígitos)..." maxlength="8">
+                <button type="button" class="btn-premium" onclick="buscarPacientePresencial()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Buscar Paciente
+                </button>
             </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="kpi-card">
-                <div class="kpi-icon" style="background:var(--indigo-lt);">
-                    <i class="fa-solid fa-hospital-user" style="color:var(--indigo);"></i>
-                </div>
-                <div><div class="kpi-value">@presenciales</div><div class="kpi-label">Citas presenciales</div></div>
+
+            <!-- Loader status -->
+            <div id="buscarPacienteLoader" style="display:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">
+                <span class="spinner me-1"></span> Buscando paciente en la base de datos...
             </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="kpi-card">
-                <div class="kpi-icon" style="background:var(--amber-lt);">
-                    <i class="fa-solid fa-globe" style="color:var(--amber);"></i>
+
+            <!-- Result alert panel -->
+            <div id="pacienteResultAlert" class="alert-premium" style="display:none;">
+                <i class="fa-solid alert-icon" id="pacienteAlertIcon"></i>
+                <div id="pacienteAlertText"></div>
+            </div>
+
+            <!-- Read-only form content -->
+            <div id="pacienteDataForm" style="display:none;">
+                <div class="form-grid">
+                    <div class="form-group-premium">
+                        <label>Nombres</label>
+                        <div class="form-control-static" id="pacienteNombres">—</div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>Apellido Paterno</label>
+                        <div class="form-control-static" id="pacienteApePat">—</div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>Apellido Materno</label>
+                        <div class="form-control-static" id="pacienteApeMat">—</div>
+                    </div>
                 </div>
-                <div><div class="kpi-value">@web</div><div class="kpi-label">Citas web</div></div>
+
+                <div class="form-grid">
+                    <div class="form-group-premium">
+                        <label>Tipo de Seguro</label>
+                        <div class="form-control-static" id="pacienteSeguro">—</div>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>Identificador HC Física</label>
+                        <div class="form-control-static" id="pacienteHcCode" style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--indigo);">—</div>
+                    </div>
+                </div>
+
+                <!-- Minor patient tutor section -->
+                <div id="minorTutorSection" class="alert-premium alert-premium-warning" style="display:none;">
+                    <i class="fa-solid fa-child-reaching alert-icon" style="font-size:1.5rem;"></i>
+                    <div>
+                        <h4 style="margin:0 0 0.25rem 0;font-weight:700;">Paciente Menor de Edad</h4>
+                        <p style="margin:0 0 0.5rem 0;font-size:0.85rem;opacity:0.95;">Este paciente es menor de 18 años. Se requiere registrar la cita bajo la responsabilidad del tutor.</p>
+                        <div style="font-size:0.85rem;font-weight:600;" id="tutorDetailsInfo">
+                            Tutor Registrado: —
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs to store IDs -->
+                <input type="hidden" id="pacienteIdHidden">
+
+                <hr style="border:0; border-top:1.5px solid var(--border); margin:2rem 0;">
+
+                <h2 class="card-title-premium">
+                    <i class="fa-solid fa-hospital" style="color:var(--indigo);"></i>
+                    2. Selección de Especialidad y Turno
+                </h2>
+
+                <div class="form-grid">
+                    <div class="form-group-premium">
+                        <label for="selectEspecialidad">Especialidad</label>
+                        <select id="selectEspecialidad" class="input-premium" style="background:#fff;" onchange="cargarSlotsDisponibles()">
+                            <option value="">Seleccione una especialidad...</option>
+                            @foreach(var esp in Model.Especialidades)
+                            {
+                                <option value="@esp.EspecialidadId">@esp.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group-premium">
+                        <label>Turno</label>
+                        <div class="shift-toggle-group">
+                            <div class="shift-toggle-btn active" id="btnTurnoManana" onclick="setTurnoSelect(0)">
+                                <i class="fa-solid fa-sun text-warning"></i> Mañana
+                            </div>
+                            <div class="shift-toggle-btn" id="btnTurnoTarde" onclick="setTurnoSelect(1)">
+                                <i class="fa-solid fa-cloud-sun" style="color:var(--amber);"></i> Tarde
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Date Option for Saturday simulation -->
+                    <div class="form-group-premium" id="fechaOptionGroup">
+                        <label for="selectFecha">Fecha de Atención</label>
+                        <select id="selectFecha" class="input-premium" style="background:#fff;" onchange="cargarSlotsDisponibles()">
+                            <option value="@todayDateIso">Hoy (@DateTime.Now.ToString("dd/MM/yyyy"))</option>
+                            @if (DateTime.Now.DayOfWeek == DayOfWeek.Saturday)
+                            {
+                                var mondayIso = DateTime.Now.AddDays(2).ToString("yyyy-MM-dd");
+                                <option value="@mondayIso">Lunes (@DateTime.Now.AddDays(2).ToString("dd/MM/yyyy"))</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="slots-header">
+                    <i class="fa-solid fa-clock" style="color:var(--teal);"></i>
+                    Horarios Disponibles para Reserva
+                </div>
+                
+                <div id="slotsLoader" style="display:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">
+                    <span class="spinner me-1"></span> Cargando horarios de atención...
+                </div>
+
+                <div id="noSlotsMessage" class="empty-state" style="padding: 2rem 0; border: 1px dashed var(--border); border-radius: var(--radius-md); background: #fbfcfc;">
+                    <i class="fa-regular fa-clock"></i>
+                    <p class="mb-0 fw-semibold">No hay horarios disponibles. Seleccione especialidad y turno.</p>
+                </div>
+
+                <div class="slots-grid" id="slotsCardsContainer" style="display:none;">
+                    <!-- Filled dynamically with JS -->
+                </div>
+
+                <!-- Confirm and Hidden Slot ID -->
+                <input type="hidden" id="selectedSlotIdHidden">
+
+                <div class="text-end">
+                    <button type="button" class="btn-premium" id="btnConfirmarReserva" disabled onclick="confirmarReservaCita()">
+                        <i class="fa-solid fa-calendar-check"></i> Confirmar y Reservar Cita Presencial
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ═══ ACCIONES RÁPIDAS ═════════════════════════════ -->
-    <div class="section-label">Acciones rápidas</div>
-    <div class="row g-3 mb-4">
-
-        <!-- Nueva cita presencial -->
-        <div class="col-md-4">
-            <div class="action-card">
-                <div class="action-icon" style="background:var(--teal-light);">
-                    <i class="fa-solid fa-calendar-plus" style="color:var(--teal);"></i>
-                </div>
-                <div class="action-title">Registrar Cita Presencial</div>
-                <div class="action-desc">Buscar paciente, seleccionar especialidad, elegir horario y confirmar la reserva compartiendo stock con la web.</div>
-                <a asp-controller="Citas" asp-action="Create" class="btn-prem btn-prem-teal">
-                    <i class="fa-solid fa-plus"></i> Nueva cita
-                </a>
+    <!-- ═══ TAB 2: TRAZABILIDAD DE CITAS ═════════════════ -->
+    <div id="tab-trazabilidad-citas" class="tab-pane-premium">
+        <div class="card-premium">
+            <h2 class="card-title-premium">
+                <i class="fa-solid fa-list-check" style="color:var(--indigo);"></i>
+                Trazabilidad General de Citas (Web y Presencial)
+            </h2>
+            
+            <div class="search-group">
+                <input type="text" id="trazabilidadDniInput" class="input-premium" placeholder="Buscar por DNI del paciente..." oninput="filtrarCitasTrazabilidad()">
+                <button type="button" class="btn-premium btn-secondary-premium" onclick="limpiarFiltroTrazabilidad()">
+                    <i class="fa-solid fa-broom"></i> Limpiar Filtro
+                </button>
             </div>
-        </div>
 
-        <!-- Habilitar disponibilidad -->
-        <div class="col-md-4">
-            <a href="@Url.Action("Programacion", "Admin")" class="text-decoration-none">
-            <div class="action-card">
-                <div class="action-icon" style="background:var(--indigo-lt);">
-                    <i class="fa-solid fa-toggle-on" style="color:var(--indigo);"></i>
-                </div>
-                <div class="action-title">Habilitar Disponibilidad</div>
-                <div class="action-desc">Publicar cupos de una programación existente para que los pacientes puedan reservar desde la web o ventanilla.</div>
-                <span class="btn-prem btn-prem-indigo mt-auto" style="width:fit-content;">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Ir a programación
-                </span>
-            </div>
-            </a>
-        </div>
-
-        <!-- Ajustar disponibilidad -->
-        <div class="col-md-4">
-            <a href="@Url.Action("Programacion", "Admin")" class="text-decoration-none">
-            <div class="action-card">
-                <div class="action-icon" style="background:var(--amber-lt);">
-                    <i class="fa-solid fa-sliders" style="color:var(--amber);"></i>
-                </div>
-                <div class="action-title">Ajustar Disponibilidad</div>
-                <div class="action-desc">Modificar cupos o deshabilitar programaciones futuras por rotación, ausencia médica o reprogramación de jornada.</div>
-                <span class="btn-prem btn-prem-outline mt-auto" style="width:fit-content;">
-                    <i class="fa-solid fa-pencil"></i> Ajustar cupos
-                </span>
-            </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- ═══ TABLA CITAS ═══════════════════════════════════ -->
-    <div class="section-label">Vista general de citas</div>
-    <div class="card-premium">
-        <div class="card-header-premium">
-            <span class="card-title-premium">
-                <i class="fa-solid fa-list-check me-2" style="color:var(--teal);"></i>
-                Citas del sistema
-            </span>
-            <span class="badge-dot-badge b-presencial">@Model.CitasPresenciales.Count() registros</span>
-        </div>
-        <div>
             @if (!Model.CitasPresenciales.Any())
             {
                 <div class="empty-state">
                     <i class="fa-regular fa-calendar-xmark"></i>
-                    <p class="mb-0 fw-semibold">No hay citas registradas.</p>
+                    <p class="mb-0 fw-semibold">No hay citas registradas en el sistema.</p>
                 </div>
             }
             else
             {
-                <table class="table-premium">
-                    <thead>
-                        <tr>
-                            <th>#Cita</th>
-                            <th>Paciente</th>
-                            <th>Especialidad</th>
-                            <th>Médico</th>
-                            <th>Origen</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var cita in Model.CitasPresenciales)
-                        {
-                            var pNombre  = cita.Paciente?.Nombres ?? $"Paciente #{cita.PacienteId}";
-                            var espNombre = cita.Especialidad?.Nombre ?? $"#{cita.EspecialidadId}";
-                            var medNombre = cita.Slot?.Programacion?.Medico?.Nombres ?? "—";
-                            var origen    = cita.OrigenReserva.ToString();
-                            var origenClass = origen == "Presencial" ? "b-presencial" : "b-web";
-                            var estadoClass = cita.EstadoCita.ToString() switch {
-                                "Pendiente"       => "b-pendiente",
-                                "ListoAtencion"   => "b-habilitada",
-                                "Cancelada"       => "b-cancelada",
-                                _                 => "b-pendiente"
-                            };
+                <div class="table-responsive-premium">
+                    <table class="table-premium" id="trazabilidadTable">
+                        <thead>
                             <tr>
-                                <td><span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--navy);">C-@cita.CitaId.ToString("D4")</span></td>
-                                <td style="font-weight:600;color:var(--navy);">@pNombre</td>
-                                <td>@espNombre</td>
-                                <td>@medNombre</td>
-                                <td><span class="badge-dot-badge @origenClass">@origen</span></td>
-                                <td><span class="badge-dot-badge @estadoClass">@cita.EstadoCita</span></td>
+                                <th>#Cita</th>
+                                <th>DNI Paciente</th>
+                                <th>Paciente</th>
+                                <th>Especialidad</th>
+                                <th>Médico</th>
+                                <th>Fecha Cita</th>
+                                <th>Origen</th>
+                                <th>Estado</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach(var cita in Model.CitasPresenciales)
+                            {
+                                var pDni = cita.Paciente?.DNI ?? "—";
+                                var pNombre = cita.Paciente != null ? $"{cita.Paciente.Nombres} {cita.Paciente.ApellidoPaterno}" : $"ID: {cita.PacienteId}";
+                                var espNombre = cita.Especialidad?.Nombre ?? "—";
+                                var medNombre = cita.Slot?.Programacion?.Medico != null 
+                                    ? $"Dr. {cita.Slot.Programacion.Medico.Nombres} {cita.Slot.Programacion.Medico.ApellidoPaterno}"
+                                    : "—";
+                                var fechaStr = cita.Slot?.Programacion?.Fecha.ToString("dd/MM/yyyy") ?? "—";
+                                var horaStr = cita.Slot != null ? $"{cita.Slot.HoraInicio:hh\\:mm} - {cita.Slot.HoraFin:hh\\:mm}" : "—";
+                                var origen = cita.OrigenReserva.ToString();
+                                var badgeOrigen = origen == "Presencial" ? "badge-presencial" : "badge-web";
+                                
+                                var badgeEstado = cita.EstadoCita.ToString() switch {
+                                    "Pendiente" => "badge-pendiente",
+                                    "EnTriaje" => "badge-triaje",
+                                    "ListoAtencion" => "badge-listo",
+                                    "NoAsistio" => "badge-noasistio",
+                                    "Cancelada" => "badge-cancelada",
+                                    _ => "badge-pendiente"
+                                };
+
+                                <tr data-dni="@pDni">
+                                    <td><span style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--navy);">C-@cita.CitaId.ToString("D4")</span></td>
+                                    <td><strong style="color:var(--navy);">@pDni</strong></td>
+                                    <td>@pNombre</td>
+                                    <td>@espNombre</td>
+                                    <td>@medNombre</td>
+                                    <td>
+                                        <div>@fechaStr</div>
+                                        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;"><i class="fa-regular fa-clock me-1"></i>@horaStr</div>
+                                    </td>
+                                    <td><span class="badge-premium @badgeOrigen">@origen</span></td>
+                                    <td><span class="badge-premium @badgeEstado">@cita.EstadoCita</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
     </div>
 
-    <!-- ═══ TABLA PROGRAMACIONES ══════════════════════════ -->
-    <div class="section-label">Programaciones operativas</div>
-    <div class="card-premium">
-        <div class="card-header-premium">
-            <span class="card-title-premium">
-                <i class="fa-solid fa-table-list me-2" style="color:var(--indigo);"></i>
-                Slots / Disponibilidad
-            </span>
+    <!-- ═══ TAB 3: BUSCAR PACIENTE (HC FÍSICA) ═══════════ -->
+    <div id="tab-buscar-paciente" class="tab-pane-premium">
+        <div class="card-premium">
+            <h2 class="card-title-premium">
+                <i class="fa-solid fa-folder-open" style="color:var(--teal);"></i>
+                Búsqueda de Paciente para Historia Clínica Física
+            </h2>
+            <p class="welcome-subtitle mb-4">Ingrese el DNI del paciente para obtener su código identificador y localizar su carpeta física en el archivo.</p>
+
+            <div class="search-group">
+                <input type="text" id="hcDniInput" class="input-premium" placeholder="Ingrese el DNI del paciente (8 dígitos)..." maxlength="8">
+                <button type="button" class="btn-premium" onclick="buscarPacienteHC()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Buscar Historia
+                </button>
+            </div>
+
+            <!-- Loader -->
+            <div id="hcLoader" style="display:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">
+                <span class="spinner me-1"></span> Consultando código de historial clínico...
+            </div>
+
+            <!-- Empty state or error -->
+            <div id="hcErrorAlert" class="alert-premium alert-premium-warning" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation alert-icon"></i>
+                <div id="hcErrorText"></div>
+            </div>
+
+            <!-- Result presentation -->
+            <div id="hcResultArea" class="hc-search-result">
+                <div class="hc-card">
+                    <div class="hc-title">Ubicación Historia Clínica Física</div>
+                    <div class="hc-number" id="hcResultNumber">HC-000000</div>
+                    
+                    <div class="hc-patient-details">
+                        <div class="hc-patient-info-item">
+                            <span class="hc-patient-info-label">Paciente</span>
+                            <span class="hc-patient-info-val" id="hcResultName">—</span>
+                        </div>
+                        <div class="hc-patient-info-item">
+                            <span class="hc-patient-info-label">DNI</span>
+                            <span class="hc-patient-info-val" id="hcResultDni">—</span>
+                        </div>
+                        <div class="hc-patient-info-item">
+                            <span class="hc-patient-info-label">Seguro</span>
+                            <span class="hc-patient-info-val" id="hcResultSeguro">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            @if (!Model.Programaciones.Any())
+    </div>
+
+    <!-- ═══ TAB 4: ESPECIALIDADES Y UPS ═════════════════ -->
+    <div id="tab-especialidades-ups" class="tab-pane-premium">
+        <div class="card-premium">
+            <h2 class="card-title-premium">
+                <i class="fa-solid fa-briefcase-medical" style="color:var(--indigo);"></i>
+                Especialidades Habilitadas y UPS
+            </h2>
+            <p class="welcome-subtitle mb-4">Relación de especialidades médicas activas en la Posta Los Licenciados y sus respectivas Unidades Productoras de Servicios de Salud (UPS).</p>
+
+            @if (!Model.Especialidades.Any())
             {
                 <div class="empty-state">
-                    <i class="fa-regular fa-calendar"></i>
-                    <p class="mb-0 fw-semibold">No hay programaciones registradas.</p>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p class="mb-0 fw-semibold">No hay especialidades configuradas en el sistema.</p>
                 </div>
             }
             else
             {
-                <table class="table-premium">
-                    <thead>
-                        <tr>
-                            <th>Especialidad</th>
-                            <th>Médico</th>
-                            <th>Turno</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Programaciones)
-                        {
-                            var espNombre  = item.Especialidad?.Nombre ?? $"Especialidad #{item.EspecialidadId}";
-                            var medNombre2 = item.Medico?.Nombres ?? $"Médico #{item.MedicoId}";
-                            var estadoLbl  = item.Habilitada ? "Habilitada" : "Pendiente";
-                            var estadoCls  = item.Habilitada ? "b-habilitada" : "b-pendiente";
-                            <tr>
-                                <td style="font-weight:600;">@espNombre</td>
-                                <td>@medNombre2</td>
-                                <td>@item.Turno</td>
-                                <td><span class="badge-dot-badge @estadoCls">@estadoLbl</span></td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="specialties-grid">
+                    @foreach(var esp in Model.Especialidades)
+                    {
+                        var icon = esp.Nombre switch {
+                            "Medicina General" => "fa-user-doctor",
+                            "Odontología" => "fa-tooth",
+                            "Obstetricia" => "fa-baby",
+                            _ => "fa-stethoscope"
+                        };
+                        <div class="specialty-card">
+                            <div class="specialty-icon">
+                                <i class="fa-solid @icon"></i>
+                            </div>
+                            <div class="specialty-info">
+                                <span class="specialty-name">@esp.Nombre</span>
+                                <span class="specialty-ups">UPS: @(esp.UPS?.Nombre ?? "—")</span>
+                                <div class="specialty-duration">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span>Duración consulta: @esp.DuracionMinutos min</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
         </div>
     </div>
 
     <!-- ═══ FOOTER ════════════════════════════════════════ -->
     <div class="text-center mt-5 pt-4" style="border-top:1px solid var(--border); font-size:0.72rem; color:var(--text-muted);">
-        <strong>PostaCitasWeb v1.0</strong> — Acceso permitido para roles <strong>Admisión</strong> y <strong>Administrador</strong>.
+        <strong>PostaCitasWeb v1.0</strong> — Acceso de Admisión registrado.
     </div>
 
 </div>
 
+<!-- ═══ SUCCESS MODAL ════════════════════════════════ -->
+<div class="modal-overlay" id="successModalOverlay">
+    <div class="modal-premium">
+        <div class="modal-success-icon">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="modal-title">¡Reserva Completada!</h3>
+        <p class="modal-desc" id="modalSuccessDesc">La cita presencial ha sido agendada con éxito para el paciente.</p>
+        <div class="ticket-badge-premium" id="modalTicketCode">TC-00000000-00000</div>
+        <div>
+            <button class="btn-premium" onclick="cerrarModalExito()">Aceptar y Continuar</button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        (function () {
-            const h = new Date().getHours();
-            const n = "@nombre";
-            const w = h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
-            document.getElementById('adm-greeting').innerHTML =
-                `${w}, <span style="color:#2AAE8A;font-weight:700;">${n}</span> 👋`;
-        })();
+        let currentTurno = 0; // 0 = Mañana, 1 = Tarde
+
+        // safeFetch helper to handle session expiration/redirects gracefully
+        async function safeFetch(url, options = {}) {
+            try {
+                const response = await fetch(url, options);
+                if (response.redirected || response.status === 401 || response.status === 403) {
+                    window.location.href = '/Auth/Login';
+                    return null;
+                }
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("text/html")) {
+                    window.location.href = '/Auth/Login';
+                    return null;
+                }
+                return response;
+            } catch (err) {
+                console.error("Fetch error:", err);
+                throw err;
+            }
+        }
+
+        // Switch Tabs
+        function switchTab(tabId, buttonElement) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane-premium').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            // Show selected tab pane
+            document.getElementById(tabId).classList.add('active');
+
+            // Deactivate all tab links
+            document.querySelectorAll('.tab-link-premium').forEach(link => {
+                link.classList.remove('active');
+            });
+            // Activate selected tab link
+            buttonElement.classList.add('active');
+        }
+
+        // --- TAB 1: GENERAR CITA PRESENCIAL ---
+        
+        async function buscarPacientePresencial() {
+            const dni = document.getElementById('presencialDniInput').value.trim();
+            const loader = document.getElementById('buscarPacienteLoader');
+            const alertBox = document.getElementById('pacienteResultAlert');
+            const dataForm = document.getElementById('pacienteDataForm');
+
+            // Reset
+            alertBox.style.display = 'none';
+            dataForm.style.display = 'none';
+
+            if (dni.length !== 8 || isNaN(dni)) {
+                alertBox.className = 'alert-premium alert-premium-warning';
+                document.getElementById('pacienteAlertIcon').className = 'fa-solid fa-triangle-exclamation alert-icon';
+                document.getElementById('pacienteAlertText').innerHTML = '<strong>Alerta:</strong> Ingrese un DNI válido de 8 dígitos.';
+                alertBox.style.display = 'flex';
+                return;
+            }
+
+            loader.style.display = 'block';
+
+            try {
+                const response = await safeFetch(`/Admision/BuscarPacientePorDni?dni=${dni}`);
+                if (!response) return;
+                const data = await response.json();
+
+                loader.style.display = 'none';
+
+                if (data.success) {
+                    // Populate read-only form
+                    document.getElementById('pacienteIdHidden').value = data.pacienteId;
+                    document.getElementById('pacienteNombres').textContent = data.nombres;
+                    document.getElementById('pacienteApePat').textContent = data.apellidoPaterno;
+                    document.getElementById('pacienteApeMat').textContent = data.apellidoMaterno || '—';
+                    document.getElementById('pacienteSeguro').textContent = data.tieneSIS ? 'SIS (Seguro Integral de Salud)' : 'Particular / Ninguno';
+                    document.getElementById('pacienteHcCode').textContent = data.historiaClinicaCode;
+
+                    // Minor handling
+                    const minorAlert = document.getElementById('minorTutorSection');
+                    const tutorInfo = document.getElementById('tutorDetailsInfo');
+                    if (data.esMenor) {
+                        tutorInfo.textContent = `Responsable registrado: ${data.responsableNombre || 'No asignado'} (DNI: ${data.responsableDni || '—'})`;
+                        minorAlert.style.display = 'flex';
+                    } else {
+                        minorAlert.style.display = 'none';
+                    }
+
+                    // Display form
+                    dataForm.style.display = 'block';
+                    
+                    // Reset fields for reservation steps
+                    document.getElementById('selectEspecialidad').value = "";
+                    document.getElementById('selectedSlotIdHidden').value = "";
+                    document.getElementById('btnConfirmarReserva').disabled = true;
+                    document.getElementById('slotsCardsContainer').style.display = 'none';
+                    document.getElementById('noSlotsMessage').style.display = 'block';
+                } else {
+                    alertBox.className = 'alert-premium alert-premium-warning';
+                    document.getElementById('pacienteAlertIcon').className = 'fa-solid fa-user-xmark alert-icon';
+                    document.getElementById('pacienteAlertText').innerHTML = `<strong>Error:</strong> ${data.message}`;
+                    alertBox.style.display = 'flex';
+                }
+            } catch (err) {
+                loader.style.display = 'none';
+                alertBox.className = 'alert-premium alert-premium-warning';
+                document.getElementById('pacienteAlertIcon').className = 'fa-solid fa-circle-exclamation alert-icon';
+                document.getElementById('pacienteAlertText').innerHTML = '<strong>Error de sistema:</strong> Ocurrió un problema de red o de autenticación.';
+                alertBox.style.display = 'flex';
+                console.error(err);
+            }
+        }
+
+        function setTurnoSelect(turnoCode) {
+            currentTurno = turnoCode;
+            
+            // Toggle active pill button class
+            const btnManana = document.getElementById('btnTurnoManana');
+            const btnTarde = document.getElementById('btnTurnoTarde');
+
+            if (turnoCode === 0) {
+                btnManana.classList.add('active');
+                btnTarde.classList.remove('active');
+            } else {
+                btnTarde.classList.add('active');
+                btnManana.classList.remove('active');
+            }
+
+            cargarSlotsDisponibles();
+        }
+
+        async function cargarSlotsDisponibles() {
+            const especialidadId = document.getElementById('selectEspecialidad').value;
+            const fechaVal = document.getElementById('selectFecha').value;
+            const container = document.getElementById('slotsCardsContainer');
+            const noSlots = document.getElementById('noSlotsMessage');
+            const loader = document.getElementById('slotsLoader');
+
+            // Reset selection
+            document.getElementById('selectedSlotIdHidden').value = "";
+            document.getElementById('btnConfirmarReserva').disabled = true;
+            container.innerHTML = "";
+
+            if (!especialidadId) {
+                container.style.display = 'none';
+                noSlots.style.display = 'block';
+                return;
+            }
+
+            noSlots.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                const response = await safeFetch(`/Admision/GetSlotsDisponibles?especialidadId=${especialidadId}&turno=${currentTurno}&fecha=${fechaVal}`);
+                if (!response) return;
+                const slots = await response.json();
+
+                loader.style.display = 'none';
+
+                if (slots && slots.length > 0) {
+                    slots.forEach(s => {
+                        const card = document.createElement('div');
+                        const isDisabled = s.cuposDisponibles <= 0;
+                        card.className = `slot-card ${isDisabled ? 'disabled' : ''}`;
+                        
+                        if (!isDisabled) {
+                            card.onclick = () => selectSlot(s.slotId, card);
+                        }
+
+                        card.innerHTML = `
+                            <div class="slot-time">${s.horaInicio} - ${s.horaFin}</div>
+                            <div class="slot-medico"><i class="fa-solid fa-user-doctor me-1"></i>${s.medicoNombre}</div>
+                            <div class="slot-quota">${isDisabled ? 'Agotado' : `${s.cuposDisponibles} cupos libres`}</div>
+                        `;
+                        container.appendChild(card);
+                    });
+
+                    container.style.display = 'grid';
+                    noSlots.style.display = 'none';
+                } else {
+                    container.style.display = 'none';
+                    noSlots.style.display = 'block';
+                    noSlots.innerHTML = `
+                        <i class="fa-regular fa-calendar-xmark"></i>
+                        <p class="mb-0 fw-semibold">No se encontraron programaciones operativas ni horarios habilitados para esta selección.</p>
+                    `;
+                }
+            } catch (err) {
+                loader.style.display = 'none';
+                container.style.display = 'none';
+                noSlots.style.display = 'block';
+                noSlots.innerHTML = `<p class="text-danger fw-semibold">Error al cargar horarios de atención.</p>`;
+                console.error(err);
+            }
+        }
+
+        function selectSlot(slotId, cardElement) {
+            // Remove active class from all slots
+            document.querySelectorAll('.slot-card').forEach(c => {
+                c.classList.remove('active');
+            });
+
+            // Set active class
+            cardElement.classList.add('active');
+
+            // Store selected ID
+            document.getElementById('selectedSlotIdHidden').value = slotId;
+
+            // Enable booking button
+            document.getElementById('btnConfirmarReserva').disabled = false;
+        }
+
+        async function confirmarReservaCita() {
+            const pacienteId = document.getElementById('pacienteIdHidden').value;
+            const slotId = document.getElementById('selectedSlotIdHidden').value;
+            const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+            const btn = document.getElementById('btnConfirmarReserva');
+
+            if (!pacienteId || !slotId) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner me-1"></span> Procesando Reserva...`;
+
+            try {
+                // Post request
+                const formData = new FormData();
+                formData.append('pacienteId', pacienteId);
+                formData.append('slotId', slotId);
+
+                const response = await safeFetch('/Admision/ReservarCitaPresencial', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    body: formData
+                });
+                if (!response) return;
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success modal
+                    document.getElementById('modalTicketCode').textContent = result.ticket;
+                    document.getElementById('modalSuccessDesc').innerHTML = `La cita presencial ha sido agendada con éxito.<br>Paciente: <strong>${document.getElementById('pacienteNombres').textContent} ${document.getElementById('pacienteApePat').textContent}</strong>.`;
+                    document.getElementById('successModalOverlay').style.display = 'flex';
+                } else {
+                    alert(`Error al reservar: ${result.message}`);
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> Confirmar y Reservar Cita Presencial`;
+                }
+            } catch (err) {
+                alert('Ocurrió un error inesperado al conectar con el servidor.');
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-calendar-check"></i> Confirmar y Reservar Cita Presencial`;
+                console.error(err);
+            }
+        }
+
+        function cerrarModalExito() {
+            document.getElementById('successModalOverlay').style.display = 'none';
+            // Reload the page to refresh lists and tables
+            window.location.reload();
+        }
+
+        // --- TAB 2: TRAZABILIDAD ---
+        
+        // --- TAB 2: TRAZABILIDAD ---
+        
+        function filtrarCitasTrazabilidad() {
+            const dniVal = document.getElementById('trazabilidadDniInput').value.trim().toLowerCase();
+            const rows = document.querySelectorAll('#trazabilidadTable tbody tr');
+
+            rows.forEach(row => {
+                const rowDni = row.getAttribute('data-dni');
+                if (!dniVal || rowDni.includes(dniVal)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function limpiarFiltroTrazabilidad() {
+            document.getElementById('trazabilidadDniInput').value = "";
+            filtrarCitasTrazabilidad();
+        }
+
+        // --- TAB 3: BUSCAR PACIENTE (HC FÍSICA) ---
+        
+        async function buscarPacienteHC() {
+            const dni = document.getElementById('hcDniInput').value.trim();
+            const loader = document.getElementById('hcLoader');
+            const errorAlert = document.getElementById('hcErrorAlert');
+            const resultArea = document.getElementById('hcResultArea');
+
+            // Reset
+            errorAlert.style.display = 'none';
+            resultArea.style.display = 'none';
+
+            if (dni.length !== 8 || isNaN(dni)) {
+                document.getElementById('hcErrorText').textContent = 'Ingrese un DNI válido de 8 dígitos.';
+                errorAlert.style.display = 'flex';
+                return;
+            }
+
+            loader.style.display = 'block';
+
+            try {
+                const response = await safeFetch(`/Admision/BuscarPacientePorDni?dni=${dni}`);
+                if (!response) return;
+                const data = await response.json();
+
+                loader.style.display = 'none';
+
+                if (data.success) {
+                    document.getElementById('hcResultNumber').textContent = data.historiaClinicaCode;
+                    document.getElementById('hcResultName').textContent = `${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno || ''}`;
+                    document.getElementById('hcResultDni').textContent = data.dni;
+                    document.getElementById('hcResultSeguro').textContent = data.tieneSIS ? 'SIS' : 'Particular';
+
+                    resultArea.style.display = 'block';
+                } else {
+                    document.getElementById('hcErrorText').textContent = data.message;
+                    errorAlert.style.display = 'flex';
+                }
+            } catch (err) {
+                loader.style.display = 'none';
+                document.getElementById('hcErrorText').textContent = 'Error de conexión con el servidor.';
+                errorAlert.style.display = 'flex';
+                console.error(err);
+            }
+        }
+
+        // Handle Enter key for search inputs
+        document.getElementById('presencialDniInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscarPacientePresencial();
+            }
+        });
+
+        document.getElementById('hcDniInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscarPacienteHC();
+            }
+        });
     </script>
 }

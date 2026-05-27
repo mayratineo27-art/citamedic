@@ -215,6 +215,151 @@ namespace PostaCitasWeb.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// AJAX: Busca un paciente adulto (padre/tutor) por DNI para autocompletar en el modal.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> BuscarPadrePorDni(string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni) || dni.Length != 8)
+                return Json(new { success = false, message = "DNI inválido." });
+
+            var pacientes = await _pacienteRepository.GetAllAsync();
+            var padre = pacientes.FirstOrDefault(p => p.DNI == dni && !p.EsMenor);
+
+            if (padre == null)
+                return Json(new { success = false, message = "No se encontró un paciente adulto registrado con ese DNI." });
+
+            return Json(new
+            {
+                success = true,
+                pacienteId = padre.PacienteId,
+                nombre = $"{padre.Nombres} {padre.ApellidoPaterno} {padre.ApellidoMaterno}".Trim()
+            });
+        }
+
+        /// <summary>
+        /// AJAX: Busca un paciente (menor) por DNI para autocompletar los campos del formulario.
+        /// Si ya está registrado en el sistema devuelve sus datos; si no, informa que debe ingresarse manualmente.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> BuscarMenorPorDni(string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni) || dni.Length != 8)
+                return Json(new { success = false, found = false, message = "DNI inválido." });
+
+            var pacientes = await _pacienteRepository.GetAllAsync();
+            var paciente = pacientes.FirstOrDefault(p => p.DNI == dni);
+
+            if (paciente == null)
+                return Json(new { success = true, found = false, message = "DNI no encontrado en el sistema. Complete los datos manualmente." });
+
+            // Si ya existe, verificar que no esté ya asociado a otro responsable
+            if (paciente.ResponsableId.HasValue)
+                return Json(new
+                {
+                    success = false,
+                    found = true,
+                    message = $"Este paciente ya tiene un responsable asignado (HC-{paciente.PacienteId:D6})."
+                });
+
+            return Json(new
+            {
+                success = true,
+                found = true,
+                nombres = paciente.Nombres,
+                apellidoPaterno = paciente.ApellidoPaterno,
+                apellidoMaterno = paciente.ApellidoMaterno,
+                fechaNacimiento = paciente.FechaNacimiento.ToString("yyyy-MM-dd"),
+                tieneSIS = paciente.TieneSIS,
+                esMenor = paciente.EsMenor,
+                pacienteId = paciente.PacienteId
+            });
+        }
+
+        /// <summary>
+        /// Registra un menor de edad vinculado a un padre/tutor ya registrado en el sistema.
+        /// Crea el Usuario (rol Paciente) y el Paciente con ResponsableId asignado.
+        /// Regla de negocio: el menor debe ser menor de 18 años, el DNI debe ser único,
+        /// y el responsable debe estar previamente registrado como paciente adulto.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegistrarMenor(RegistrarMenorViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Por favor complete todos los campos obligatorios correctamente.";
+                return RedirectToAction(nameof(Pacientes));
+            }
+
+            // Validar fecha de nacimiento
+            if (!DateOnly.TryParse(model.FechaNacimiento, out var fechaNac))
+            {
+                TempData["ErrorMessage"] = "Fecha de nacimiento inválida.";
+                return RedirectToAction(nameof(Pacientes));
+            }
+
+            // RN: El paciente debe ser menor de 18 años
+            var hoy = DateOnly.FromDateTime(_dateTimeProvider.Now);
+            if (fechaNac.AddYears(18) <= hoy)
+            {
+                TempData["ErrorMessage"] = "El paciente a registrar debe ser menor de 18 años.";
+                return RedirectToAction(nameof(Pacientes));
+            }
+
+            // Verificar que el DNI del menor no esté en uso
+            var usuariosExistentes = await _usuarioRepository.GetAllAsync();
+            if (usuariosExistentes.Any(u => u.DNI == model.DniMenor))
+            {
+                TempData["ErrorMessage"] = $"Ya existe un usuario registrado con el DNI {model.DniMenor}.";
+                return RedirectToAction(nameof(Pacientes));
+            }
+
+            // Buscar al padre/tutor por su DNI
+            var pacientes = await _pacienteRepository.GetAllAsync();
+            var padre = pacientes.FirstOrDefault(p => p.DNI == model.DniResponsable && !p.EsMenor);
+            if (padre == null)
+            {
+                TempData["ErrorMessage"] = $"No se encontró un paciente adulto registrado con el DNI {model.DniResponsable}. El padre/tutor debe estar registrado previamente en el sistema.";
+                return RedirectToAction(nameof(Pacientes));
+            }
+
+            // Crear el Usuario para el menor
+            var usuarioMenor = new Usuario
+            {
+                DNI = model.DniMenor,
+                NombreUsuario = model.DniMenor,  // Username = DNI por convención
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                Rol = Rol.Paciente,
+                Activo = true,
+                Celular = string.Empty,
+                FechaCreacion = _dateTimeProvider.UtcNow
+            };
+
+            await _usuarioRepository.AddAsync(usuarioMenor);
+            await _usuarioRepository.SaveChangesAsync();
+
+            // Crear el Paciente menor vinculado al padre (ResponsableId)
+            var pacienteMenor = new Paciente
+            {
+                UsuarioId = usuarioMenor.UsuarioId,
+                DNI = model.DniMenor,
+                Nombres = model.Nombres.Trim(),
+                ApellidoPaterno = model.ApellidoPaterno.Trim(),
+                ApellidoMaterno = model.ApellidoMaterno?.Trim() ?? string.Empty,
+                FechaNacimiento = fechaNac,
+                TieneSIS = model.TieneSIS,
+                ResponsableId = padre.PacienteId
+            };
+
+            await _pacienteRepository.AddAsync(pacienteMenor);
+            await _pacienteRepository.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Menor {model.Nombres} {model.ApellidoPaterno} registrado exitosamente y vinculado al responsable {padre.Nombres} {padre.ApellidoPaterno}. Sus credenciales de acceso son: Usuario: {model.DniMenor} / Contraseña: la ingresada en el formulario.";
+            return RedirectToAction(nameof(Pacientes));
+        }
+
         // ==========================================
         // 3. MÉTODOS DE ACCIÓN (POST)
         // ==========================================

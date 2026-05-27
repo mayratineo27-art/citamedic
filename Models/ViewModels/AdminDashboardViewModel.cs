@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PostaCitasWeb.Models.ViewModels
 {
@@ -48,5 +49,43 @@ namespace PostaCitasWeb.Models.ViewModels
         public bool EsMenor { get; set; }
         public string ResponsableNombre { get; set; } = string.Empty;
         public string Celular { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// ViewModel para registrar un menor de edad vinculado a un padre/tutor (CU-NUEVO).
+    /// </summary>
+    public class RegistrarMenorViewModel
+    {
+        [Required(ErrorMessage = "El DNI del menor es obligatorio.")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El DNI debe tener exactamente 8 dígitos.")]
+        [RegularExpression(@"^\d{8}$", ErrorMessage = "El DNI debe contener solo dígitos numéricos.")]
+        public string DniMenor { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Los nombres son obligatorios.")]
+        [StringLength(100)]
+        public string Nombres { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El apellido paterno es obligatorio.")]
+        [StringLength(50)]
+        public string ApellidoPaterno { get; set; } = string.Empty;
+
+        [StringLength(50)]
+        public string? ApellidoMaterno { get; set; }
+
+        [Required(ErrorMessage = "La fecha de nacimiento es obligatoria.")]
+        public string FechaNacimiento { get; set; } = string.Empty;
+
+        public bool TieneSIS { get; set; } = false;
+
+        /// <summary>DNI del padre/tutor responsable (debe estar registrado previamente).</summary>
+        [Required(ErrorMessage = "El DNI del responsable es obligatorio.")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El DNI debe tener exactamente 8 dígitos.")]
+        [RegularExpression(@"^\d{8}$", ErrorMessage = "El DNI debe contener solo dígitos numéricos.")]
+        public string DniResponsable { get; set; } = string.Empty;
+
+        /// <summary>Contraseña inicial para las credenciales del menor.</summary>
+        [Required(ErrorMessage = "La contraseña inicial es obligatoria.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+        public string Password { get; set; } = string.Empty;
     }
 }

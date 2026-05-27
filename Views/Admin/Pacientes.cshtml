@@ -10,8 +10,31 @@
             <h2 class="fw-bold" style="color: #1E3A8A; font-family: 'Segoe UI', sans-serif;">Gestión de Pacientes</h2>
             <p class="text-muted mb-0">Directorio local y padrón de la Posta Médica</p>
         </div>
-        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarMenor">
+                <i class="fa-solid fa-child me-1"></i> Registrar Menor de Edad
+            </button>
+            <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">← Volver al Panel</a>
+        </div>
     </div>
+
+    <!-- Alertas de resultado -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-start gap-2 mb-4" role="alert" style="border-radius: 12px;">
+            <i class="fa-solid fa-circle-check mt-1"></i>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-start gap-2 mb-4" role="alert" style="border-radius: 12px;">
+            <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+            <div>@TempData["ErrorMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
@@ -23,9 +46,7 @@
                             <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Total Pacientes</h6>
                             <h2 class="mb-0 fw-bold" style="color: #1E3A8A;">@ViewBag.TotalPacientes</h2>
                         </div>
-                        <div class="fs-1 text-muted opacity-50">
-                            👥
-                        </div>
+                        <div class="fs-1 text-muted opacity-50">👥</div>
                     </div>
                 </div>
             </div>
@@ -38,9 +59,7 @@
                             <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Pacientes con SIS</h6>
                             <h2 class="mb-0 fw-bold" style="color: #10B981;">@ViewBag.TotalSIS</h2>
                         </div>
-                        <div class="fs-1 text-muted opacity-50">
-                            🛡️
-                        </div>
+                        <div class="fs-1 text-muted opacity-50">🛡️</div>
                     </div>
                 </div>
             </div>
@@ -53,9 +72,7 @@
                             <h6 class="text-muted mb-1 text-uppercase fw-semibold" style="font-size: 0.85rem;">Menores de Edad</h6>
                             <h2 class="mb-0 fw-bold" style="color: #06B6D4;">@ViewBag.TotalMenores</h2>
                         </div>
-                        <div class="fs-1 text-muted opacity-50">
-                            👶
-                        </div>
+                        <div class="fs-1 text-muted opacity-50">👶</div>
                     </div>
                 </div>
             </div>
@@ -92,7 +109,7 @@
     <!-- Patients Directory Card -->
     <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
         <h5 class="mb-4 fw-bold border-bottom pb-2" style="color: #1E3A8A;">Padrón Local de Pacientes</h5>
-        
+
         @if (Model.Pacientes != null && Model.Pacientes.Any())
         {
             <div class="table-responsive">
@@ -104,15 +121,15 @@
                             <th>F. Nacimiento</th>
                             <th>Grupo Edad</th>
                             <th>Seguro</th>
-                            <th>Responsable</th>
+                            <th>Responsable / Tutor</th>
                             <th>Celular</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var paciente in Model.Pacientes)
                         {
-                            <tr class="patient-row" 
-                                data-dni="@paciente.DNI" 
+                            <tr class="patient-row"
+                                data-dni="@paciente.DNI"
                                 data-fullname="@($"{paciente.Nombres} {paciente.ApellidoPaterno} {paciente.ApellidoMaterno}".ToLower())"
                                 data-sis="@(paciente.TieneSIS ? "sis" : "no-sis")"
                                 data-edad="@(paciente.EsMenor ? "menor" : "adulto")">
@@ -124,7 +141,9 @@
                                 <td>
                                     @if (paciente.EsMenor)
                                     {
-                                        <span class="badge rounded-pill bg-info text-dark">Menor de Edad</span>
+                                        <span class="badge rounded-pill bg-info text-dark">
+                                            <i class="fa-solid fa-child me-1"></i>Menor de Edad
+                                        </span>
                                     }
                                     else
                                     {
@@ -141,7 +160,18 @@
                                         <span class="badge rounded-pill bg-light text-dark border">Particular</span>
                                     }
                                 </td>
-                                <td class="text-muted">@paciente.ResponsableNombre</td>
+                                <td>
+                                    @if (paciente.EsMenor && paciente.ResponsableNombre != "Ninguno")
+                                    {
+                                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                            <i class="fa-solid fa-user-shield me-1" style="font-size: 0.65rem;"></i>@paciente.ResponsableNombre
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size: 0.85rem;">@paciente.ResponsableNombre</span>
+                                    }
+                                </td>
                                 <td>@paciente.Celular</td>
                             </tr>
                         }
@@ -160,8 +190,141 @@
     </div>
 </div>
 
+<!-- =============================================
+     MODAL: REGISTRAR MENOR DE EDAD
+     ============================================= -->
+<div class="modal fade" id="modalRegistrarMenor" tabindex="-1" aria-labelledby="modalRegistrarMenorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <div>
+                    <h5 class="modal-title fw-bold" id="modalRegistrarMenorLabel" style="color: #1E3A8A; font-size: 1.15rem;">
+                        <i class="fa-solid fa-child-reaching me-2" style="color: #06B6D4;"></i>Registrar Menor de Edad
+                    </h5>
+                    <p class="text-muted mb-0" style="font-size: 0.82rem;">
+                        Crea el perfil del menor y lo vincula automáticamente al padre/tutor responsable.
+                    </p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form asp-controller="Admin" asp-action="RegistrarMenor" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body px-4 pt-3 pb-2">
+
+                    <!-- Paso 1: Responsable -->
+                    <div class="mb-4 p-3 rounded-3 border" style="background-color: #f0f9ff; border-color: #bae6fd !important;">
+                        <h6 class="fw-bold mb-3" style="color: #0369a1; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-user-shield me-2"></i>Paso 1 — Identificar al Padre / Tutor Responsable
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">DNI del Padre / Tutor <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" name="DniResponsable" id="dniResponsableInput"
+                                           class="form-control" placeholder="Ej: 12345678"
+                                           maxlength="8" required
+                                           oninput="this.value = this.value.replace(/\D/g,'').slice(0,8)">
+                                    <button type="button" class="btn btn-outline-primary" onclick="buscarPadre()" id="btnBuscarPadre">
+                                        <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                                    </button>
+                                </div>
+                                <div id="padreMsg" class="mt-1" style="font-size: 0.78rem;"></div>
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Responsable Encontrado</label>
+                                <input type="text" id="padreNombreDisplay" class="form-control bg-light" readonly
+                                       placeholder="Ingrese el DNI y haga clic en Buscar...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Datos del Menor -->
+                    <div class="mb-4 p-3 rounded-3 border" style="background-color: #f0fdf4; border-color: #bbf7d0 !important;">
+                        <h6 class="fw-bold mb-3" style="color: #15803d; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-child me-2"></i>Paso 2 — Datos del Menor de Edad
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">DNI del Menor <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" name="DniMenor" id="dniMenorInput"
+                                           class="form-control" placeholder="8 dígitos"
+                                           maxlength="8" required
+                                           oninput="this.value = this.value.replace(/\D/g,'').slice(0,8)">
+                                    <button type="button" class="btn btn-outline-success" onclick="buscarMenor()" title="Buscar datos del menor">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                </div>
+                                <div id="menorMsg" class="mt-1" style="font-size: 0.78rem;"></div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Nombres <span class="text-danger">*</span></label>
+                                <input type="text" name="Nombres" id="menorNombres" class="form-control" placeholder="Nombres completos del menor" required maxlength="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Apellido Paterno <span class="text-danger">*</span></label>
+                                <input type="text" name="ApellidoPaterno" id="menorApellidoP" class="form-control" placeholder="Apellido paterno" required maxlength="50">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Apellido Materno</label>
+                                <input type="text" name="ApellidoMaterno" id="menorApellidoM" class="form-control" placeholder="Apellido materno (opcional)" maxlength="50">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                                <input type="date" name="FechaNacimiento" id="menorFechaNac" class="form-control" required
+                                       max="@DateTime.Today.AddYears(-1).ToString("yyyy-MM-dd")"
+                                       min="@DateTime.Today.AddYears(-17).ToString("yyyy-MM-dd")">
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">Debe ser menor de 18 años.</div>
+                            </div>
+                            <div class="col-md-7 d-flex align-items-center">
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="TieneSIS" id="menorSis" value="true">
+                                    <label class="form-check-label fw-semibold" for="menorSis" style="font-size: 0.85rem;">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i>Tiene Seguro Integral de Salud (SIS)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Credenciales -->
+                    <div class="p-3 rounded-3 border" style="background-color: #fefce8; border-color: #fde68a !important;">
+                        <h6 class="fw-bold mb-3" style="color: #92400e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-key me-2"></i>Paso 3 — Credenciales de Acceso del Menor
+                        </h6>
+                        <div class="row g-3 align-items-start">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Usuario (asignado automáticamente)</label>
+                                <input type="text" class="form-control bg-light text-muted" readonly
+                                       value="DNI del menor" style="font-size: 0.85rem;">
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Contraseña Inicial <span class="text-danger">*</span></label>
+                                <input type="password" name="Password" class="form-control" placeholder="Mínimo 8 caracteres" required minlength="8">
+                                <div class="form-text text-muted" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-circle-info me-1"></i>Entregue estas credenciales al padre/tutor de forma impresa.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0 px-4 pb-4 pt-2 d-flex gap-2">
+                    <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4" id="btnGuardarMenor" disabled>
+                        <i class="fa-solid fa-user-plus me-2"></i>Registrar y Vincular
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // ── Filtro de tabla ──
         const searchDni = document.getElementById('searchDni');
         const filterSis = document.getElementById('filterSis');
         const filterEdad = document.getElementById('filterEdad');
@@ -179,25 +342,143 @@
                 const edad = row.getAttribute('data-edad');
 
                 const matchesQuery = dni.includes(query) || fullname.includes(query);
-                
                 let matchesSis = true;
                 if (sisFilter === 'sis') matchesSis = (hasSis === 'sis');
                 if (sisFilter === 'no-sis') matchesSis = (hasSis === 'no-sis');
-
                 let matchesEdad = true;
                 if (edadFilter === 'menores') matchesEdad = (edad === 'menor');
                 if (edadFilter === 'adultos') matchesEdad = (edad === 'adulto');
 
-                if (matchesQuery && matchesSis && matchesEdad) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (matchesQuery && matchesSis && matchesEdad) ? '' : 'none';
             });
         }
 
         if (searchDni) searchDni.addEventListener('input', filterPatients);
         if (filterSis) filterSis.addEventListener('change', filterPatients);
         if (filterEdad) filterEdad.addEventListener('change', filterPatients);
+
+        // ── AJAX: Buscar Menor por DNI (autocompletar datos) ──
+        async function buscarMenor() {
+            const dni = document.getElementById('dniMenorInput').value.trim();
+            const msgEl = document.getElementById('menorMsg');
+
+            if (dni.length !== 8) {
+                msgEl.innerHTML = '<span class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i>Ingrese un DNI de exactamente 8 dígitos.</span>';
+                return;
+            }
+
+            msgEl.innerHTML = '<span class="text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i>Buscando...</span>';
+            setMenorFieldsReadOnly(false);
+
+            try {
+                const resp = await fetch(`/Admin/BuscarMenorPorDni?dni=${encodeURIComponent(dni)}`);
+                const data = await resp.json();
+
+                if (!data.success) {
+                    // Error: ya tiene responsable u otro problema
+                    msgEl.innerHTML = `<span class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i>${data.message}</span>`;
+                    limpiarCamposMenor();
+                    return;
+                }
+
+                if (data.found) {
+                    // Autocompletar campos con datos existentes
+                    document.getElementById('menorNombres').value    = data.nombres;
+                    document.getElementById('menorApellidoP').value  = data.apellidoPaterno;
+                    document.getElementById('menorApellidoM').value  = data.apellidoMaterno;
+                    document.getElementById('menorFechaNac').value   = data.fechaNacimiento;
+                    document.getElementById('menorSis').checked      = data.tieneSIS;
+
+                    if (!data.esMenor) {
+                        msgEl.innerHTML = '<span class="text-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i>Advertencia: este paciente no es menor de 18 años.</span>';
+                    } else {
+                        msgEl.innerHTML = `<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>Datos autocompletos desde el sistema — HC-${String(data.pacienteId).padStart(6,'0')}</span>`;
+                    }
+                    setMenorFieldsReadOnly(true);
+                } else {
+                    // No encontrado: dejar campos editables
+                    msgEl.innerHTML = `<span class="text-info"><i class="fa-solid fa-circle-info me-1"></i>${data.message}</span>`;
+                    limpiarCamposMenor();
+                }
+            } catch (e) {
+                msgEl.innerHTML = '<span class="text-danger"><i class="fa-solid fa-wifi me-1"></i>Error de conexión.</span>';
+            }
+        }
+
+        function setMenorFieldsReadOnly(readonly) {
+            ['menorNombres','menorApellidoP','menorApellidoM','menorFechaNac'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.readOnly = readonly;
+                    el.classList.toggle('bg-light', readonly);
+                    el.classList.toggle('text-muted', readonly);
+                }
+            });
+            const sis = document.getElementById('menorSis');
+            if (sis) sis.disabled = readonly;
+        }
+
+        function limpiarCamposMenor() {
+            ['menorNombres','menorApellidoP','menorApellidoM','menorFechaNac'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const sis = document.getElementById('menorSis');
+            if (sis) sis.checked = false;
+            setMenorFieldsReadOnly(false);
+        }
+
+        // ── AJAX: Buscar Padre por DNI ──
+        async function buscarPadre() {
+            const dni = document.getElementById('dniResponsableInput').value.trim();
+            const msgEl = document.getElementById('padreMsg');
+            const display = document.getElementById('padreNombreDisplay');
+            const btnGuardar = document.getElementById('btnGuardarMenor');
+
+            display.value = '';
+            btnGuardar.disabled = true;
+
+            if (dni.length !== 8) {
+                msgEl.innerHTML = '<span class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i>Ingrese un DNI de exactamente 8 dígitos.</span>';
+                return;
+            }
+
+            msgEl.innerHTML = '<span class="text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i>Buscando...</span>';
+
+            try {
+                const resp = await fetch(`/Admin/BuscarPadrePorDni?dni=${encodeURIComponent(dni)}`);
+                const data = await resp.json();
+                if (data.success) {
+                    display.value = data.nombre;
+                    msgEl.innerHTML = `<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>Responsable encontrado — HC-${String(data.pacienteId).padStart(6, '0')}</span>`;
+                    btnGuardar.disabled = false;
+                } else {
+                    display.value = '';
+                    msgEl.innerHTML = `<span class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i>${data.message}</span>`;
+                }
+            } catch (e) {
+                msgEl.innerHTML = '<span class="text-danger"><i class="fa-solid fa-wifi me-1"></i>Error de conexión. Intente nuevamente.</span>';
+            }
+        }
+
+        // Buscar con Enter en el DNI del padre
+        document.getElementById('dniResponsableInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); buscarPadre(); }
+        });
+
+        // Buscar con Enter en el DNI del menor
+        document.getElementById('dniMenorInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); buscarMenor(); }
+        });
+
+        // Reset modal al cerrarlo
+        document.getElementById('modalRegistrarMenor')?.addEventListener('hidden.bs.modal', function () {
+            this.querySelector('form').reset();
+            document.getElementById('padreMsg').innerHTML = '';
+            document.getElementById('padreNombreDisplay').value = '';
+            document.getElementById('menorMsg').innerHTML = '';
+            document.getElementById('btnGuardarMenor').disabled = true;
+            limpiarCamposMenor();
+        });
     </script>
 }

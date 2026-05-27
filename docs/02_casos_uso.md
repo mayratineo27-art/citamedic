@@ -141,6 +141,7 @@ Validar acceso.
 ##### MÓDULO PACIENTES
 
 
+
 ## CU04 — Visualizar perfil
 
 ## Objetivo
@@ -819,3 +820,127 @@ Visualizar a todos los pacientes del día organizados en un tablero Kanban segú
 - RF18 Actualizar estado de atención
 - RNF07 Trazabilidad
 
+
+##### MÓDULO ADMISIÓN
+
+## CU18 - Generar cita para paciente (Presencial)
+
+### Objetivo
+Permitir al encargado de admisión registrar una cita médica presencial para un paciente.
+
+### Actor principal
+Encargado de Admisión
+
+### Precondiciones
+- El encargado de admisión inició sesión.
+- Existe disponibilidad publicada para la jornada.
+
+### Flujo principal
+1. El encargado de admisión ingresa al módulo de Admisión.
+2. Selecciona la opción "Generar cita para paciente (Presencial)".
+3. El encargado ingresa el DNI del paciente.
+4. El sistema busca al paciente y autocompleta sus campos (Nombres, Apellidos, si cuenta con SIS, y si es menor de edad).
+5. Si el paciente es menor de edad, el sistema solicita los datos del tutor/responsable del menor.
+6. El encargado selecciona la especialidad y el turno (mañana/tarde).
+7. El sistema muestra las tarjetas de horarios disponibles.
+8. El encargado selecciona una tarjeta y confirma la reserva de la cita presencial.
+9. El sistema descuenta el cupo y registra la cita (compartiendo stock con la modalidad web).
+
+### Postcondiciones
+- Cita presencial registrada.
+- Cupo descontado.
+
+---
+
+## CU19 - Visualizar citas registradas
+
+### Objetivo
+Permitir visualizar y realizar el seguimiento de todas las citas registradas en ambas modalidades (presencial y web), facilitando la trazabilidad.
+
+### Actor principal
+Encargado de Admisión
+
+### Precondiciones
+- El encargado de admisión inició sesión.
+
+### Flujo principal
+1. El encargado de admisión accede a la opción "Visualizar citas registradas".
+2. El sistema muestra la lista de todas las citas registradas de todos los pacientes en ambas modalidades.
+3. El encargado puede filtrar la lista ingresando el DNI del paciente.
+4. El sistema actualiza la lista mostrando únicamente las citas asociadas al DNI buscado.
+
+### Postcondiciones
+- Citas del día y su estado visualizadas.
+
+---
+
+## CU20- Buscar paciente por DNI para historial clínico
+
+### Objetivo
+Facilitar la búsqueda física de la carpeta de historia clínica a partir del número de historial clínico asociado al DNI del paciente.
+
+### Actor principal
+Encargado de Admisión
+
+### Precondiciones
+- El encargado de admisión inició sesión.
+
+### Flujo principal
+1. El encargado de admisión accede a la opción "Buscar paciente".
+2. El encargado ingresa el DNI del paciente.
+3. El sistema busca al paciente y muestra su información personal junto con su identificador de historial clínico (por ejemplo, HC-XXXXXX).
+4. El encargado utiliza dicho identificador para ubicar físicamente la carpeta de historia clínica.
+
+### Postcondiciones
+- Identificador de historia clínica obtenido.
+
+---
+
+## CU21- Visualizar especialidades y UPS
+
+### Objetivo
+Tener noción del estado de las especialidades activas y sus Unidades Productoras de Servicios de Salud (UPS) asociadas.
+
+### Actor principal
+Encargado de Admisión
+
+### Precondiciones
+- El encargado de admisión inició sesión.
+
+### Flujo principal
+1. El encargado de admisión accede a la opción "Visualizar especialidades y UPS".
+2. El sistema muestra una lista o cuadrícula de las especialidades activas con su código o nombre de Unidad Productora de Servicios de Salud (UPS).
+
+### Postcondiciones
+- Información de especialidades y UPS visualizada.
+
+---
+
+###### Módulo Paciente- Responsable
+
+## CU22 - Gestionar familiares y delegar sesión (Mi Familia)
+
+### Objetivo
+Permitir a un paciente adulto (tutor/responsable) visualizar a sus familiares menores de edad (dependientes) y delegar/iniciar sesión con la cuenta de cualquiera de ellos de manera directa para realizar reservas y consultas.
+
+### Actor principal
+Paciente (Tutor / Responsable)
+
+### Precondiciones
+- El paciente inició sesión.
+- El paciente tiene menores de edad (dependientes) asociados administrativamente en su perfil (vínculo ResponsableId).
+
+### Flujo principal
+1. El paciente accede a su panel y visualiza el botón o pestaña "Mi Familia" (habilitado automáticamente al tener dependientes).
+2. El paciente hace clic en "Mi Familia".
+3. El sistema muestra la lista de sus dependientes asociados con sus nombres, DNI e identificación de historia clínica.
+4. El paciente selecciona la opción "Acceder como [Nombre del Menor]".
+5. El sistema valida la relación de tutoría y realiza el cambio de sesión, autenticando al paciente bajo el perfil del menor.
+6. El sistema muestra un banner persistente indicando que está gestionando la cuenta del menor.
+7. El paciente realiza gestiones a nombre del menor.
+8. El paciente hace clic en "Volver a cuenta de Tutor".
+9. El sistema restablece la sesión del tutor original de manera directa.
+
+### Postcondiciones
+- Sesión delegada al menor de edad iniciada, permitiendo actuar en representación del menor.
+- Sesión del tutor original restablecida al finalizar.
