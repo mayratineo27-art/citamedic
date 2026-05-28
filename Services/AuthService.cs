@@ -165,6 +165,100 @@ namespace PostaCitasWeb.Services
             return await _usuarioRepository.DniExistsAsync(dni);
         }
 
+        /// <summary>
+        /// Habilita un usuario (solo Admisión). RN01.
+        /// </summary>
+        public async Task<AuthResult> HabilitarUsuarioAsync(int usuarioId, int admisionUsuarioId)
+        {
+            // Buscar usuario solicitante
+            var solicitante = await _usuarioRepository.GetByIdAsync(admisionUsuarioId);
+            if (solicitante == null)
+                return AuthResult.CreateFailure("El solicitante no existe.");
+
+            // Verificar que el solicitante tenga Rol = Admisión
+            if (solicitante.Rol != Rol.Admision && solicitante.Rol != Rol.Administrador)
+                return AuthResult.CreateFailure("Solo Admisión puede habilitar usuarios.");
+
+            // Buscar usuario a habilitar
+            var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
+            if (usuario == null)
+                return AuthResult.CreateFailure("El usuario no existe.");
+
+            // Establecer Activo = true
+            usuario.Activo = true;
+            _usuarioRepository.Update(usuario);
+            await _usuarioRepository.SaveChangesAsync();
+
+            return AuthResult.CreateSuccess(usuarioId, usuario.NombreUsuario, null, usuario.Rol.ToString());
+        }
+
+        /// <summary>
+        /// Solicita recuperación de contraseña. RN02A.
+        /// </summary>
+        public async Task<string> SolicitarRecuperacionAsync(string dni, string celular)
+        {
+            // Buscar Usuario por DNI
+            var usuario = await _usuarioRepository.GetByDniAsync(dni);
+            if (usuario == null)
+                throw new KeyNotFoundException("Usuario no encontrado con el DNI proporcionado.");
+
+            // Comparar celular con Usuario.Celular
+            if (usuario.Celular != celular)
+                throw new InvalidOperationException("El número celular no coincide con el registrado.");
+
+            // Generar y retornar token temporal
+            string token = Guid.NewGuid().ToString();
+            return token;
+        }
+
+        /// <summary>
+        /// Actualiza datos de un paciente. RN02.
+        /// </summary>
+        public async Task<AuthResult> ActualizarDatosAsync(int pacienteId, ActualizarDatosDto dto)
+        {
+            // Buscar paciente
+            var paciente = await _pacienteRepository.GetByIdAsync(pacienteId);
+            if (paciente == null)
+                return AuthResult.CreateFailure("Paciente no encontrado.");
+
+            var usuario = await _usuarioRepository.GetByIdAsync(paciente.UsuarioId);
+            if (usuario == null)
+                return AuthResult.CreateFailure("Usuario asociado no encontrado.");
+
+            // RN02: Campos inmutables - DNI, Nombres, ApellidoPaterno, ApellidoMaterno, FechaNacimiento
+            if (dto.DNI != null || dto.Nombres != null || dto.ApellidoPaterno != null || 
+                dto.ApellidoMaterno != null || dto.FechaNacimiento != null)
+            {
+                return AuthResult.CreateFailure("No está permitido modificar este campo (RN02).");
+            }
+
+            // Actualizar campos permitidos
+            bool actualizado = false;
+
+            if (dto.Celular != null)
+            {
+                usuario.Celular = dto.Celular;
+                actualizado = true;
+            }
+
+            if (dto.Password != null)
+            {
+                if (dto.Password.Length < 8)
+                    return AuthResult.CreateFailure("La contraseña debe tener al menos 8 caracteres.");
+
+                usuario.PasswordHash = BC.HashPassword(dto.Password);
+                actualizado = true;
+            }
+
+            if (actualizado)
+            {
+                _usuarioRepository.Update(usuario);
+                await _usuarioRepository.SaveChangesAsync();
+            }
+
+            return AuthResult.CreateSuccess(usuario.UsuarioId, usuario.NombreUsuario, paciente.PacienteId, usuario.Rol.ToString());
+        }
+
         private static bool EsPasswordValida(string password, string storedPassword)
         {
             if (string.IsNullOrWhiteSpace(storedPassword))

@@ -1,6 +1,8 @@
 using PostaCitasWeb.Entities;
 using PostaCitasWeb.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PostaCitasWeb.Services
@@ -11,10 +13,12 @@ namespace PostaCitasWeb.Services
     public class AvisoService : IAvisoService
     {
         private readonly IAvisoRepository _avisoRepository;
+        private readonly IUsuarioRepository _usuarioRepository;
 
-        public AvisoService(IAvisoRepository avisoRepository)
+        public AvisoService(IAvisoRepository avisoRepository, IUsuarioRepository usuarioRepository)
         {
             _avisoRepository = avisoRepository ?? throw new ArgumentNullException(nameof(avisoRepository));
+            _usuarioRepository = usuarioRepository ?? throw new ArgumentNullException(nameof(usuarioRepository));
         }
 
         public async Task<bool> ActualizarEstadoAvisoAsync(int avisoId, EstadoAviso nuevoEstado)
@@ -51,6 +55,24 @@ namespace PostaCitasWeb.Services
             await _avisoRepository.AddAsync(aviso);
             await _avisoRepository.SaveChangesAsync();
             return true;
+        }
+
+        /// <summary>
+        /// Obtiene todos los avisos (solo Enfermería). RN26.
+        /// </summary>
+        public async Task<IEnumerable<AvisoAtencionInmediata>> ObtenerTodosAsync(int solicitanteId)
+        {
+            // Verificar que el Usuario con solicitanteId tenga Rol = Enfermeria
+            var solicitante = await _usuarioRepository.GetByIdAsync(solicitanteId);
+            if (solicitante == null)
+                throw new KeyNotFoundException("Solicitante no encontrado.");
+
+            if (solicitante.Rol != Rol.Enfermeria)
+                throw new UnauthorizedAccessException("Solo Enfermería puede obtener todos los avisos.");
+
+            // Retornar todos los avisos ordenados por FechaEnvio descendente
+            var avisos = await _avisoRepository.GetAllWithPacienteAsync();
+            return avisos.OrderByDescending(a => a.FechaEnvio);
         }
     }
 }

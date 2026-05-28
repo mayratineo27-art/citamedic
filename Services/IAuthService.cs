@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PostaCitasWeb.Services
@@ -36,6 +38,35 @@ namespace PostaCitasWeb.Services
         /// Verifica si un DNI ya está registrado.
         /// </summary>
         Task<bool> IsDniRegisteredAsync(string dni);
+
+        /// <summary>
+        /// Habilita un usuario (solo Admisión). RN01.
+        /// </summary>
+        Task<AuthResult> HabilitarUsuarioAsync(int usuarioId, int admisionUsuarioId);
+
+        /// <summary>
+        /// Solicita recuperación de contraseña. RN02A.
+        /// </summary>
+        Task<string> SolicitarRecuperacionAsync(string dni, string celular);
+
+        /// <summary>
+        /// Actualiza datos de un paciente. RN02.
+        /// </summary>
+        Task<AuthResult> ActualizarDatosAsync(int pacienteId, ActualizarDatosDto dto);
+    }
+
+    /// <summary>
+    /// DTO para actualización de datos de paciente.
+    /// </summary>
+    public class ActualizarDatosDto
+    {
+        public string? DNI { get; set; }
+        public string? Nombres { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public DateOnly? FechaNacimiento { get; set; }
+        public string? Celular { get; set; }
+        public string? Password { get; set; }
     }
 
     /// <summary>
