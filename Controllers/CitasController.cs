@@ -148,22 +148,7 @@ namespace PostaCitasWeb.Controllers
                 return View(model);
             }
 
-            var cita = await _citaRepository.GetByIdAsync(model.CitaId);
-            if (cita != null)
-            {
-                cita.EspecialidadId = model.EspecialidadId;
-                cita.FechaReserva = model.Fecha;
-                cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
-
-                var especialidad = especialidades.FirstOrDefault(e => e.EspecialidadId == model.EspecialidadId);
-                if (especialidad != null)
-                {
-                    cita.Especialidad = especialidad;
-                }
-
-                _citaRepository.Update(cita);
-                await _citaRepository.SaveChangesAsync();
-            }
+            await _citaService.UpdateCitaAsync(model.CitaId, model.EspecialidadId, model.Fecha);
 
             return RedirectToAction(nameof(Index));
         }
@@ -234,9 +219,8 @@ namespace PostaCitasWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEspecialidades()
         {
-            var list = await _especialidadService.GetAllAsync();
-            // RN07: El paciente no visualiza la UPS interna, solo Especialidades activas.
-            var result = list.Where(e => e.Activa).Select(e => new
+            var activas = await _citaService.GetEspecialidadesActivasAsync();
+            var result = activas.Select(e => new
             {
                 especialidadId = e.EspecialidadId,
                 nombre = e.Nombre
@@ -264,54 +248,12 @@ namespace PostaCitasWeb.Controllers
 
             // Calcular fechas según RN37 y FA03
             var localToday = _dateTimeProvider.Today;
-            var dayOfWeek = localToday.DayOfWeek;
-            var targetDates = new List<DateOnly>();
-
-            if (dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday)
-            {
-                targetDates.Add(localToday); // Lunes a Viernes: Mismo día
-            }
-            else if (dayOfWeek == DayOfWeek.Saturday)
-            {
-                targetDates.Add(localToday); // Sábado: Mismo día (según FA03)
-                targetDates.Add(localToday.AddDays(2)); // Sábado: Próximo lunes
-            }
-            else // Domingo
+            if (localToday.DayOfWeek == DayOfWeek.Sunday)
             {
                 return Json(new { success = false, message = "Las reservas web no están disponibles los domingos (RN37)." });
             }
 
-            var ahora = _dateTimeProvider.Now;
-            var horaActual = ahora.TimeOfDay;
-
-            var allSlots = new List<SlotDisponible>();
-            foreach (var date in targetDates)
-            {
-                if (date == localToday)
-                {
-                    if (targetTurno == Turno.Manana)
-                    {
-                        var horaInicioReserva = new TimeSpan(6, 0, 0);
-                        var horaFinReserva = new TimeSpan(8, 0, 0);
-                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
-                        {
-                            continue; // Fuera del horario de reserva
-                        }
-                    }
-                    else if (targetTurno == Turno.Tarde)
-                    {
-                        var horaInicioReserva = new TimeSpan(13, 0, 0);
-                        var horaFinReserva = new TimeSpan(15, 0, 0);
-                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
-                        {
-                            continue; // Fuera del horario de reserva
-                        }
-                    }
-                }
-
-                var slotsForDate = await _slotRepository.GetSlotsByEspecialidadAndTurnoAndDateAsync(especialidadId, targetTurno, date);
-                allSlots.AddRange(slotsForDate);
-            }
+            var allSlots = await _citaService.GetSlotsDisponiblesAsync(especialidadId, targetTurno);
             
             var result = allSlots.OrderBy(s => s.Programacion?.Fecha).ThenBy(s => s.HoraInicio).Select(s => new
             {

@@ -19,6 +19,7 @@ namespace PostaCitasWeb.Services
         private readonly IBaseRepository<HistorialEstadoCita> _historialRepository;
         private readonly IBaseRepository<Triaje> _triajeRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IEspecialidadService _especialidadService;
 
         public CitaService(
             ICitaRepository citaRepository,
@@ -27,7 +28,8 @@ namespace PostaCitasWeb.Services
             IBaseRepository<Ticket> ticketRepository,
             IBaseRepository<HistorialEstadoCita> historialRepository,
             IBaseRepository<Triaje> triajeRepository,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IEspecialidadService especialidadService)
         {
             _citaRepository = citaRepository ?? throw new ArgumentNullException(nameof(citaRepository));
             _pacienteRepository = pacienteRepository ?? throw new ArgumentNullException(nameof(pacienteRepository));
@@ -36,6 +38,7 @@ namespace PostaCitasWeb.Services
             _historialRepository = historialRepository ?? throw new ArgumentNullException(nameof(historialRepository));
             _triajeRepository = triajeRepository ?? throw new ArgumentNullException(nameof(triajeRepository));
             _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
+            _especialidadService = especialidadService ?? throw new ArgumentNullException(nameof(especialidadService));
         }
 
         public async Task<bool> CreateCitaAsync(Cita cita)
@@ -386,6 +389,95 @@ namespace PostaCitasWeb.Services
             // - Retornar true si se generaron, false si no fue necesario
             await Task.CompletedTask;
             return false;
+        }
+
+        public async Task<IEnumerable<SlotDisponible>> GetSlotsDisponiblesAsync(int especialidadId, Turno turno)
+        {
+            // Calcular fechas según RN37 y FA03
+            var localToday = _dateTimeProvider.Today;
+            var dayOfWeek = localToday.DayOfWeek;
+            var targetDates = new List<DateOnly>();
+
+            if (dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday)
+            {
+                targetDates.Add(localToday); // Lunes a Viernes: Mismo día
+            }
+            else if (dayOfWeek == DayOfWeek.Saturday)
+            {
+                targetDates.Add(localToday); // Sábado: Mismo día (según FA03)
+                targetDates.Add(localToday.AddDays(2)); // Sábado: Próximo lunes
+            }
+            else // Domingo
+            {
+                // Las reservas web no están disponibles los domingos (RN37)
+                return Array.Empty<SlotDisponible>();
+            }
+
+            var ahora = _dateTimeProvider.Now;
+            var horaActual = ahora.TimeOfDay;
+
+            var allSlots = new List<SlotDisponible>();
+            foreach (var date in targetDates)
+            {
+                if (date == localToday)
+                {
+                    if (turno == Turno.Manana)
+                    {
+                        var horaInicioReserva = new TimeSpan(6, 0, 0);
+                        var horaFinReserva = new TimeSpan(8, 0, 0);
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            continue; // Fuera del horario de reserva
+                        }
+                    }
+                    else if (turno == Turno.Tarde)
+                    {
+                        var horaInicioReserva = new TimeSpan(13, 0, 0);
+                        var horaFinReserva = new TimeSpan(15, 0, 0);
+                        if (horaActual < horaInicioReserva || horaActual > horaFinReserva)
+                        {
+                            continue; // Fuera del horario de reserva
+                        }
+                    }
+                }
+
+                var slotsForDate = await _slotRepository.GetSlotsByEspecialidadAndTurnoAndDateAsync(especialidadId, turno, date);
+                allSlots.AddRange(slotsForDate);
+            }
+
+            return allSlots;
+        }
+
+        public async Task<bool> UpdateCitaAsync(int citaId, int especialidadId, DateTime fecha)
+        {
+            var cita = await _citaRepository.GetByIdAsync(citaId);
+            if (cita == null)
+            {
+                return false;
+            }
+
+            cita.EspecialidadId = especialidadId;
+            cita.FechaReserva = fecha;
+            cita.FechaUltimaActualizacion = _dateTimeProvider.UtcNow;
+
+            _citaRepository.Update(cita);
+            await _citaRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Especialidad>> GetEspecialidadesActivasAsync()
+        {
+            var list = await _especialidadService.GetAllAsync();
+            // RN07: El paciente no visualiza la UPS interna, solo Especialidades activas.
+            var activas = new List<Especialidad>();
+            foreach (var e in list)
+            {
+                if (e.Activa)
+                {
+                    activas.Add(e);
+                }
+            }
+            return activas;
         }
 
         // ==================== MÉTODOS PRIVADOS ====================

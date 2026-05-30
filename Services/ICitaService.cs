@@ -62,6 +62,21 @@ namespace PostaCitasWeb.Services
         /// Este método será implementado según la demanda del sistema.
         /// </summary>
         Task<bool> GenerarSobrecuposAsync(int slotId);
+
+        /// <summary>
+        /// Obtiene los slots disponibles para una especialidad y turno en fechas válidas (RN37).
+        /// </summary>
+        Task<IEnumerable<SlotDisponible>> GetSlotsDisponiblesAsync(int especialidadId, Turno turno);
+
+        /// <summary>
+        /// Actualiza los datos básicos de una cita.
+        /// </summary>
+        Task<bool> UpdateCitaAsync(int citaId, int especialidadId, DateTime fecha);
+
+        /// <summary>
+        /// Obtiene las especialidades activas para el paciente (RN07).
+        /// </summary>
+        Task<IEnumerable<Especialidad>> GetEspecialidadesActivasAsync();
     }
 
     /// <summary>

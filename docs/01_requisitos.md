@@ -1,10 +1,7 @@
 # REQUISITOS DEL SISTEMA
 
-Proyecto:
-Sistema Web de Gestión de Citas Médicas – Posta de Salud
-
-Versión:
-1.0
+**Proyecto:** Sistema Web de Gestión de Citas Médicas – Posta de Salud  
+**Versión:** 1.0
 
 ---
 
@@ -26,86 +23,53 @@ Definir las funcionalidades y restricciones necesarias para implementar el siste
 
 # REQUISITOS FUNCIONALES
 
-
 ## RF01 Iniciar sesión
 
-Actor:
-Todos
-
-Descripción:
-Permitir acceso según rol.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Todos |
+| **Descripción** | Permitir acceso según rol |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF03 Gestionar menores
 
-Actor:
-Responsable
-
-Descripción:
-
-Permitir administrar pacientes menores.
-
-Acciones:
-
-- Registrar dependiente.
-- Reservar.
-- Visualizar historial de citas.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Responsable del menor |
+| **Descripción** | Permitir administrar pacientes menores |
+| **Acciones** | • Registrar dependiente<br>• Reservar<br>• Visualizar historial de citas |
+| **Prioridad** | Alta |
 
 ---
 
-# MÓDULO 2 — PACIENTES
-
 ## RF04 Consultar perfil
 
-Actor:
-Paciente
-
-Descripción: 
-Permitir que el paciente consulte su perfil desde su dashboard.
-
-Visualizar:
-
-- Nombres y Apellidos
-- Dni
-- Nro. Historia Clínica
-- Seguro de Salud SIS
-- Establecimiento asignado
-- Dirección domiciliaria
-
-Prioridad:
-Media
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Permitir que el paciente consulte su perfil desde su dashboard |
+| **Visualizar** | • Nombres y Apellidos<br>• DNI<br>• Nro. Historia Clínica<br>• Seguro de Salud SIS<br>• Establecimiento asignado<br>• Dirección domiciliaria |
+| **Prioridad** | Media |
 
 ---
 
 ## RF05 Actualizar datos permitidos
 
-Actor:
-Paciente
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Modificar información del perfil |
+| **Modificar** | • Número celular<br>• Contraseña |
+| **Restricción** | No modificar: DNI, Nombre, Fecha de nacimiento |
+| **Prioridad** | Media |
 
-Descripción:
+---
 
-Modificar:
+# MÓDULO 2 — PACIENTES
 
-- Número celular
-- Contraseña
-
-Restricción:
-
-No modificar:
-
-- DNI
-- Nombre
-- Fecha de nacimiento
-
-Prioridad:
-Media
+*Los requisitos RF04 y RF05 pertenecen a este módulo*
 
 ---
 
@@ -113,129 +77,68 @@ Media
 
 ## RF07 Consultar especialidades
 
-Actor:
-Paciente
-
-Descripción:
-
-Visualizar especialidades disponibles.
-
-Restricción:
-
-No visualizar UPS.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Visualizar especialidades disponibles |
+| **Restricción** | No visualizar UPS |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF08 Consultar disponibilidad
 
-Actor:
-Paciente
-
-Descripción:
-
-Consultar cupos por:
-
-- Especialidad
-- Turno
-- Médico
-- Horario
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Consultar cupos por especialidad, turno, médico y horario |
+| **Consultar por** | • Especialidad<br>• Turno<br>• Médico<br>• Horario |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF09 Reservar cita
 
-Actor:
-Paciente
-
-Descripción:
-
-Reservar mediante:
-
-Especialidad
-
-↓
-
-Turno
-
-↓
-
-Tarjeta disponible
-
-↓
-
-Confirmar
-
-Reglas:
-
-- Descontar cupo.
-- Generar ticket.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Reservar mediante flujo guiado |
+| **Flujo** | Especialidad → Turno → Tarjeta disponible → Confirmar |
+| **Reglas** | • Descontar cupo<br>• Generar ticket |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF10 Registrar cita presencial
 
-Actor:
-Admisión
-
-Descripción:
-
-Registrar reservas realizadas presencialmente.
-
-Reglas:
-
-- Compartir stock con web.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Registrar reservas realizadas presencialmente |
+| **Reglas** | • Compartir stock con web |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF11 Cancelar cita
 
-Actor:
-Paciente
-
-Descripción:
-
-Cancelar reserva.
-
-Reglas:
-
-- Liberar cupo.
-- Solo antes del inicio del triaje.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Cancelar reserva |
+| **Reglas** | • Liberar cupo<br>• Solo antes del inicio del triaje |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF12 Generar ticket
 
-Actor:
-Sistema
-
-Descripción:
-
-Emitir comprobante.
-
-Datos:
-
-- Especialidad
-- Médico
-- Hora
-- Fecha
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Sistema |
+| **Descripción** | Emitir comprobante |
+| **Datos** | • Especialidad<br>• Médico<br>• Hora<br>• Fecha |
+| **Prioridad** | Alta |
 
 ---
 
@@ -243,101 +146,58 @@ Alta
 
 ## RF13 Gestionar UPS
 
-Actor:
-Administrador
-
-Descripción:
-
-Gestionar:
-
-- Crear
-- Editar
-- Desactivar
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Administrador |
+| **Descripción** | Gestionar UPS |
+| **Acciones** | • Crear<br>• Editar<br>• Desactivar |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF14 Gestionar especialidades
 
-Actor:
-Administrador
-
-Descripción:
-
-Configurar:
-
-- Nombre
-- UPS
-- Duración atención
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Administrador |
+| **Descripción** | Configurar especialidades |
+| **Configurar** | • Nombre<br>• UPS<br>• Duración atención |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF15 Habilitar disponibilidad
 
-Actor:
-Admisión
-
-Descripción:
-
-Habilitar la disponibilidad previamente configurada para la jornada correspondiente.
-
-Incluye:
-
-- Abrir cupos.
-- Asociar médico disponible.
-- Confirmar publicación.
-
-Restricción:
-
-No podrá crear horarios fuera de la planificación establecida.
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Habilitar la disponibilidad previamente configurada para la jornada correspondiente |
+| **Incluye** | • Abrir cupos<br>• Asociar médico disponible<br>• Confirmar publicación |
+| **Restricción** | No podrá crear horarios fuera de la planificación establecida |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF15A Configurar programación operativa
 
-Actor:
-Administrador
-
-Descripción:
-
-Configurar programación futura.
-
-Incluye:
-
-- Especialidad
-- Médico
-- Turno
-- Duración
-- Cupos
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Administrador |
+| **Descripción** | Configurar programación futura |
+| **Incluye** | • Especialidad<br>• Médico<br>• Turno<br>• Duración<br>• Cupos |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF16 Ajustar disponibilidad
 
-Actor:
-Admisión
-
-Descripción:
-
-Modificar disponibilidad futura.
-
-Motivos:
-
-- Rotación
-- Ausencia
-- Reprogramación
-
-Restricción:
-
-No modificar atención iniciada.
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Modificar disponibilidad futura |
+| **Motivos** | • Rotación<br>• Ausencia<br>• Reprogramación |
+| **Restricción** | No modificar atención iniciada |
+| **Prioridad** | Alta |
 
 ---
 
@@ -345,52 +205,32 @@ Alta
 
 ## RF17 Registrar triaje
 
-Actor:
-Enfermería
-
-Descripción:
-
-Registrar:
-
-- Peso
-- Talla
-- Temperatura
-- Presión
-- Observación
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Enfermería |
+| **Descripción** | Registrar signos vitales y observación |
+| **Registrar** | • Peso<br>• Talla<br>• Temperatura<br>• Presión<br>• Observación |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF18 Actualizar estado de atención
 
-Actor:
-Enfermería
-
-Estados:
-
-- Pendiente
-- En triaje
-- Listo atención
-- No asistió
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Enfermería |
+| **Estados** | • Pendiente<br>• En triaje<br>• Listo atención<br>• No asistió |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF19 Consultar trazabilidad
 
-Actor:
-Paciente
-
-Descripción:
-
-Visualizar estados.
-
-Prioridad:
-Media
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Visualizar estados de la cita |
+| **Prioridad** | Media |
 
 ---
 
@@ -398,39 +238,23 @@ Media
 
 ## RF20 Registrar aviso de atención inmediata
 
-Actor:
-Paciente
-
-Descripción:
-
-Enviar aviso operativo.
-
-Restricción:
-
-No genera cita.
-
-Prioridad:
-Baja
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente |
+| **Descripción** | Enviar aviso operativo |
+| **Restricción** | No genera cita |
+| **Prioridad** | Baja |
 
 ---
 
 ## RF21 Visualizar avisos
 
-Actor:
-Enfermería
-
-Descripción:
-
-Visualizar panel.
-
-Estados:
-
-- Pendiente
-- Visualizado
-- Cerrado
-
-Prioridad:
-Baja
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Enfermería |
+| **Descripción** | Visualizar panel de avisos |
+| **Estados** | • Pendiente<br>• Visualizado<br>• Cerrado |
+| **Prioridad** | Baja |
 
 ---
 
@@ -438,109 +262,116 @@ Baja
 
 ## RF22 Gestionar usuarios
 
-Actor:
-Administrador
-
-Descripción:
-
-Administrar:
-
-- Pacientes
-- Enfermería
-- Admisión
-
-Prioridad:
-Media
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Administrador |
+| **Descripción** | Administrar usuarios del sistema |
+| **Administrar** | • Pacientes<br>• Enfermería<br>• Admisión |
+| **Prioridad** | Media |
 
 ---
 
 ## RF23 Configurar duración de atención
 
-Actor:
-Administrador
-
-Descripción:
-
-Configurar duración.
-
-Ejemplo:
-
-Medicina:
-20 minutos
-
-Prioridad:
-Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Administrador |
+| **Descripción** | Configurar duración de atención por especialidad |
+| **Ejemplo** | Medicina: 20 minutos |
+| **Prioridad** | Alta |
 
 ---
 
 ## RF24 Gestionar sobrecupos
 
-Actor:
-Admisión
-
-Descripción:
-
-Registrar excepción.
-
-Restricción:
-
-No visible al paciente.
-
-Prioridad:
-Baja
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Registrar excepción de disponibilidad |
+| **Restricción** | No visible al paciente |
+| **Prioridad** | Baja |
 
 ---
 
-
-
-# MÓDULO 8 — DERIVADOS 
+# MÓDULO 8 — DERIVADOS
 
 ## RF25 Tablero Kanban de Atención
-Actor: Enfermería
-Descripción: El sistema debe proveer una vista Kanban ("Falta Triaje", "En Triaje", "Listo Atención", "Finalizados") para que enfermería mueva pacientes entre estados rápidamente.
-Trazabilidad: CU17
-Prioridad: Alta
 
-## RF36 Gestión de Sesión Delegada (Mi Familia)
-Actor: Paciente (Responsable)
-Descripción: El sistema debe permitir a un tutor cambiar su sesión actual a la de un dependiente menor de edad registrado, operando en nombre de este, y regresar a la sesión original con un solo clic.
-Trazabilidad: CU22
-Prioridad: Alta
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Enfermería |
+| **Descripción** | Vista Kanban con estados: "Falta Triaje", "En Triaje", "Listo Atención", "Finalizados" para mover pacientes rápidamente |
+| **Prioridad** | Alta |
+
+---
 
 ## RF27 Visualización Global y Filtrado de Citas
-Actor: Admisión
-Descripción: El sistema debe listar todas las citas de ambas modalidades (web y presencial) y permitir un filtrado en tiempo real utilizando el DNI del paciente.
-Trazabilidad: CU19
-Prioridad: Alta
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Listar todas las citas (web y presencial) con filtrado en tiempo real por DNI |
+| **Prioridad** | Alta |
+
+---
 
 ## RF28 Consulta de Historia Clínica por DNI
-Actor: Admisión
-Descripción: Proveer una funcionalidad de búsqueda para obtener de inmediato el Identificador de Historia Clínica (Ej. HC-XXXX) a partir del DNI, facilitando la ubicación física del expediente.
-Trazabilidad: CU20
-Prioridad: Media
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Búsqueda para obtener el Identificador de Historia Clínica (Ej. HC-XXXX) a partir del DNI |
+| **Prioridad** | Media |
+
+---
 
 ## RF29 Vista Administrativa de Oferta en Tiempo Real
-Actor: Admisión
-Descripción: Permitir a Admisión consultar el estado de las especialidades activas y sus UPS correspondientes para informar correctamente a los pacientes presenciales.
-Trazabilidad: CU21
-Prioridad: Baja
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Consultar estado de especialidades activas y sus UPS para informar a pacientes presenciales |
+| **Prioridad** | Baja |
 
 ---
 
 ## RF30 Visualizar Agenda Diaria
-Actor: Médico
-Descripción: Permitir al médico visualizar la lista cronológica de pacientes asignados a sus citas del día, incluyendo el estado de cada paciente (ej. "Listo Atención", "En Triaje").
-Prioridad: Alta
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Médico |
+| **Descripción** | Visualizar lista cronológica de pacientes asignados a sus citas del día con estado de cada paciente |
+| **Prioridad** | Alta |
+
+---
 
 ## RF31 Búsqueda Rápida de Pacientes
-Actor: Admisión
-Descripción: Proveer un buscador global en el portal de admisión que permita filtrar y localizar pacientes mediante DNI o Número de Historia Clínica.
-Prioridad: Media
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Admisión |
+| **Descripción** | Buscador global en portal de admisión para filtrar pacientes por DNI o Número de Historia Clínica |
+| **Prioridad** | Media |
+
+---
 
 ## RF32 Validaciones Visuales Clínicas
-Actor: Enfermería
-Descripción: El sistema debe validar en tiempo real los valores numéricos introducidos en los campos de triaje (Tensión Arterial, Temperatura, Peso, etc.) y mostrar alertas visuales (ej. bordes rojos) si los valores exceden los rangos lógicos esperados.
-Prioridad: Media
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Enfermería |
+| **Descripción** | Validar en tiempo real valores numéricos de triaje y mostrar alertas visuales (bordes rojos) si exceden rangos lógicos |
+| **Prioridad** | Media |
+
+---
+
+## RF36 Gestión de Sesión Delegada (Mi Familia)
+
+| Campo | Valor |
+|-------|-------|
+| **Actor** | Paciente (Responsable) |
+| **Descripción** | Permitir al tutor cambiar su sesión a la de un dependiente menor registrado, operando en nombre de este, y regresar con un clic |
+| **Prioridad** | Alta |
 
 ---
 
@@ -548,56 +379,89 @@ Prioridad: Media
 
 ## RNF01 Rendimiento
 
-Tiempo de respuesta ≤ 3 segundos.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Tiempo de respuesta ≤ 3 segundos |
 
 ---
 
 ## RNF02 Seguridad
 
-Autenticación obligatoria.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Autenticación obligatoria |
 
 ---
 
 ## RNF03 Disponibilidad
 
-Operación durante horario laboral.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Operación durante horario laboral |
 
 ---
 
 ## RNF04 Usabilidad
 
-Interfaz simple.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Interfaz simple |
 
 ---
 
 ## RNF05 Escalabilidad
 
-Permitir agregar especialidades.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Permitir agregar especialidades |
 
 ---
 
 ## RNF06 Compatibilidad
 
-Compatible con navegador.
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Compatible con navegador |
 
 ---
 
 ## RNF07 Trazabilidad
 
-Registrar cambios
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Registrar cambios |
+
+---
 
 ## RNF08 Experiencia de Usuario Ágil e Inmersiva
-El sistema debe reducir las recargas de página completas durante flujos críticos (ej. Reserva de citas mediante Wizard de pasos, visualización de detalles clínicos en Modales u Offcanvas).
+
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Reducir recargas de página completas durante flujos críticos (Wizard de pasos, Modales, Offcanvas) |
+
+---
 
 ## RNF09 Accesibilidad de Impresión
-Las vistas diseñadas como documentos formales (Ej. Ticket Electrónico de cita) deben estar optimizadas nativamente para la impresión (media query de print) garantizando que elementos no esenciales de la UI (navegación, botones, sombras) sean ocultados.
 
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Vistas formales (Ticket Electrónico) optimizadas nativamente para impresión, ocultando UI no esencial |
+
+---
 
 ## RNF10 Interfaz Reactiva (Kanban)
-El tablero Kanban de Enfermería debe actualizar los estados de las tarjetas de manera fluida, sin refrescar toda la página, utilizando peticiones asíncronas para mantener el contexto visual operativo.
+
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Tablero Kanban actualiza estados fluidamente sin refrescar página, usando peticiones asíncronas |
+
+---
 
 ## RNF11 Seguridad en Delegación de Sesiones
-El mecanismo de "Cambio de Sesión" hacia un dependiente debe validar la integridad del vínculo (`ResponsableId`) a nivel de base de datos antes de generar el nuevo token de autenticación, asegurando que un usuario no suplante a nadie ajeno a su núcleo familiar.
+
+| Campo | Valor |
+|-------|-------|
+| **Requisito** | Validar integridad del vínculo (`ResponsableId`) a nivel de base de datos antes de generar nuevo token de autenticación |
 
 ---
 
@@ -605,366 +469,372 @@ El mecanismo de "Cambio de Sesión" hacia un dependiente debe validar la integri
 
 El sistema deberá permitir:
 
-✔ Registrar citas.
+✔ Registrar citas  
+✔ Compartir disponibilidad  
+✔ Registrar triaje  
+✔ Visualizar estados  
+✔ Generar ticket  
+✔ Ejecutar flujo completo
 
-✔ Compartir disponibilidad.
+---
 
-✔ Registrar triaje.
+# HISTORIAS DE USUARIO (SpecDD & BDD)
 
-✔ Visualizar estados.
-
-✔ Generar ticket.
-
-✔ Ejecutar flujo completo.
-
-
-HISTORIAS DE USUARIO (SpecDD & BDD)
 Esta sección traduce la totalidad de los Casos de Uso y Reglas de Negocio en especificaciones ejecutables organizadas por Épicas. La priorización sigue estrictamente el modelo MoSCoW para definir el MVP.
 
-ÉPICA 1: Gestión de Acceso y Usuarios
-
-
-HU01 - Inicio de Sesión
-
-Como Usuario (Paciente o Personal), quiero ingresar mis credenciales para acceder a las funciones correspondientes a mi rol.
-
-Prioridad: Must Have
-
-Trazabilidad: CU02, RF02
-
-Criterios de Aceptación:
-
-El sistema debe denegar el acceso si la cuenta no ha sido habilitada administrativamente (RN01).
-
-Tras la validación exitosa, el sistema debe redireccionar al usuario al panel correspondiente a su rol.
-
-HU02 - Gestión de Dependientes Menores
-
-Como Responsable del menor, quiero registrar y administrar pacientes menores para poder reservar y visualizar el historial de sus citas.
-
-Prioridad: Must Have
-
-Trazabilidad: CU03, RF04
-
-Criterios de Aceptación:
-
-Solo un usuario identificado como adulto responsable puede administrar reservas de dependientes menores (RN03).
-
-El sistema debe confirmar si el dependiente ya se encuentra registrado para evitar duplicidad.
-
-HU03 - Consultar y Actualizar Perfil
-
-Como Paciente, quiero visualizar y actualizar mi información para mantener mis datos de contacto al día.
-
-Prioridad: Should Have
-
-Trazabilidad: RF05, RF06
-
-Criterios de Aceptación:
-
-El sistema debe permitir modificar únicamente el número de celular y la contraseña (RN02).
-
-El sistema debe bloquear la edición del DNI, Nombre y Fecha de nacimiento (RN02).
-
-HU04 - Gestionar Usuarios Internos
-
-Como Administrador, quiero administrar las cuentas de Admisión y Enfermería para controlar el acceso operativo al sistema.
-
-Prioridad: Should Have
-
-Trazabilidad: CU18, RF22
-
-Criterios de Aceptación:
-
-El administrador debe poder buscar, editar y guardar la configuración de acceso del personal.
-
-ÉPICA 2: Configuración y Disponibilidad Operativa
-
-HU05 - Configuración de Duración de Atención
-
-Como Administrador, quiero configurar la duración de atención por especialidad para que el sistema calcule correctamente la generación de cupos.
-
-Prioridad: Must Have
-
-Trazabilidad: CU19, RF23
-
-Criterios de Aceptación:
-
-Cada especialidad debe permitir una duración distinta (ej. 20 minutos) (RN29).
-
-La modificación de la duración debe impactar automáticamente en la futura generación de tarjetas de disponibilidad.
-
-HU06 - Gestionar UPS y Especialidades
-
-Como Administrador, quiero crear y configurar UPS y Especialidades para estructurar la oferta de servicios de la posta.
-
-Prioridad: Must Have
-
-Trazabilidad: RF13, RF14
-
-Criterios de Aceptación:
-
-Las UPS configuradas deben mantenerse de uso estrictamente interno y no ser visibles para los pacientes (RN07).
-
-HU07 - Configuración de Programación Operativa
-
-Como Administrador, quiero definir las jornadas de los médicos para establecer la oferta base de turnos.
-
-Prioridad: Must Have
-
-Trazabilidad: CU10, RF15A
-
-Criterios de Aceptación:
-
-La programación debe incluir especialidad, médico, turno, duración y cupos totales (RN17).
-
-El sistema debe restringir cualquier intento de modificar una atención o programación que ya haya iniciado (RN09).
-
-HU08 - Habilitación de Disponibilidad
-
-Como Admisión, quiero habilitar la programación existente para abrir los cupos al público web y presencial.
-
-Prioridad: Must Have
-
-Trazabilidad: CU11, RF15
-
-Criterios de Aceptación:
-
-Admisión no debe poder crear nuevos horarios fuera de la planificación del administrador (RN06).
-
-Al confirmar la apertura, la disponibilidad debe generarse automáticamente dividiendo el turno según la duración configurada (RN08).
-
-HU09 - Ajustar Disponibilidad Futura
-
-Como Admisión, quiero modificar los cupos por rotación o ausencia para mantener la oferta real actualizada.
-
-Prioridad: Should Have
-
-Trazabilidad: CU12, RF16
-
-Criterios de Aceptación:
-
-El ajuste operativo debe limitarse única y estrictamente a jornadas futuras (RN18).
-
-HU10 - Gestionar Sobrecupos
-
-Como Admisión, quiero registrar excepciones de disponibilidad para atender casos fuera del stock regular.
-
-Prioridad: Could Have
-
-Trazabilidad: CU20, RF24
-
-Criterios de Aceptación:
-
-La disponibilidad extraordinaria generada (sobrecupo) debe permanecer totalmente oculta para los pacientes en la plataforma web (RN16).
-
-ÉPICA 3: Consulta y Reserva de Citas
-HU11 - Consultar Especialidades
-
-Como Paciente, quiero visualizar la lista de especialidades para iniciar mi proceso de reserva.
-
-Prioridad: Must Have
-
-Trazabilidad: CU04, RF07
-
-Criterios de Aceptación:
-
-El sistema debe mostrar únicamente las especialidades con disponibilidad, ocultando las jerarquías internas de UPS (RN07).
-
-HU12 - Consultar Disponibilidad
-
-Como Paciente, quiero consultar los horarios y médicos por especialidad para elegir mi turno ideal.
-
-Prioridad: Must Have
-
-Trazabilidad: CU05, RF08
-
-Criterios de Aceptación:
-
-El paciente debe visualizar los turnos segmentados únicamente entre Mañana (08:00–13:30) y Tarde (15:00–19:00) (RN27, RN28).
-
-HU13 - Reserva de Cita Web
-
-Como Paciente, quiero seleccionar un horario y confirmar mi reserva para asegurar mi atención.
-
-Prioridad: Must Have
-
-Trazabilidad: CU06, RF09
-
-Criterios de Aceptación:
-
-La reserva confirmada debe descontar inmediatamente un cupo del stock compartido (RN04).
-
-El sistema debe bloquear mediante validación la duplicidad de reservas activas para el mismo paciente y horario (RN31).
-
-HU14 - Registro de Cita Presencial
-
-Como Admisión, quiero registrar reservas físicas para atender a los pacientes en ventanilla.
-
-Prioridad: Must Have
-
-Trazabilidad: CU07, RF10
-
-Criterios de Aceptación:
-
-La reserva presencial debe consumir cupos exactamente del mismo stock que utiliza la web (RN04).
-
-HU15 - Generación de Ticket
-
-Como Sistema, quiero emitir un comprobante automático al finalizar una reserva para garantizar la formalidad del proceso.
-
-Prioridad: Must Have
-
-Trazabilidad: CU09, RF12
-
-Criterios de Aceptación:
-
-Toda reserva confirmada (web o presencial) debe generar obligatoriamente un ticket (RN12).
-
-El ticket debe contener Especialidad, Médico, Hora y Fecha.
-
-HU16 - Cancelación de Cita
-
-Como Paciente, quiero cancelar mi reserva activa para liberar mi cupo.
-
-Prioridad: Should Have
-
-Trazabilidad: CU08, RF11
-
-Criterios de Aceptación:
-
-La cancelación solo debe permitirse si se solicita antes de iniciar el periodo de triaje (20 minutos antes del turno) (RN13, RN36).
-
-La cancelación exitosa debe devolver inmediatamente la disponibilidad al stock (RN14).
-
-ÉPICA 4: Triaje y Trazabilidad
-
-HU17 - Registro de Triaje
-
-Como Enfermería, quiero registrar la evaluación inicial del paciente para habilitarlo para atención.
-
-Prioridad: Must Have
-
-Trazabilidad: CU13, RF17
-
-Criterios de Aceptación:
-
-El registro debe ser exclusivo del rol de enfermería (RN20).
-
-Solo se permite ingresar peso, talla, temperatura, presión y observación (sin historia clínica) (RN22, RN23).
-
-El paciente debe tener una cita activa y el registro debe cambiar el estado a "En triaje".
-
-HU18 - Actualizar Estado de Atención
-
-Como Enfermería, quiero actualizar los estados de la cita para mantener la trazabilidad operativa.
-
-Prioridad: Must Have
-
-Trazabilidad: CU14, RF18
-
-Criterios de Aceptación:
-
-Las transiciones deben respetar el flujo estricto: Pendiente → En triaje → Listo atención → No asistió (RN21).
-
-Cada transición debe generar un registro de auditoría en la base de datos (RN30).
-
-HU19 - Consultar Trazabilidad
-
-Como Paciente, quiero consultar el estado de mi cita para hacer seguimiento a mi atención.
-
-Prioridad: Should Have
-
-Trazabilidad: CU15, RF19
-
-Criterios de Aceptación:
-
-El paciente debe visualizar el estado actualizado en tiempo real sin requerir intervención administrativa.
-
-ÉPICA 5: Avisos Operativos (MVP Complementario)
-HU20 - Registrar Aviso de Atención Inmediata
-
-Como Paciente, quiero enviar un aviso indicando mi intención de asistir de inmediato para alertar a enfermería.
-
-Prioridad: Could Have
-
-Trazabilidad: CU16, RF20
-
-Criterios de Aceptación:
-
-El aviso debe registrarse sin generar una reserva médica real ni alterar el stock (RN24).
-
-El aviso no debe otorgar prioridad automática sobre el orden de citas (RN25).
-
-HU21 - Visualizar Panel de Avisos
-
-Como Enfermería, quiero visualizar un panel con las notificaciones de los pacientes para estar preparado ante llegadas inminentes.
-
-Prioridad: Could Have
-
-Trazabilidad: CU17, RF21
-
-Criterios de Aceptación:
-
-El panel debe ser visible exclusiva y únicamente por el personal de enfermería (RN26).
-
-Los avisos deben poder transicionar entre estados: Pendiente, Visualizado y Cerrado.
-
-**HU22- Reserva de Cita Web**
-* **Como** Paciente, **quiero** seleccionar un horario y confirmar mi reserva **para** asegurar mi atención.
-* **Prioridad:** Must Have
-* **Trazabilidad:** CU06, RF09
-* **Criterios de Aceptación:**
-    * La reserva confirmada debe descontar inmediatamente un cupo del stock compartido (RN04).
-    * El sistema debe bloquear mediante validación la duplicidad de reservas activas para el mismo paciente y horario (RN31).
-    * El sistema solo debe permitir reservar citas para el mismo día si es de Lunes a Viernes, o para el Lunes si la operación se realiza un día Sábado. Las reservas en Domingo están bloqueadas (RN37).
-*HU23 - Visualización de Agenda Diaria**
-* **Como** Médico, **quiero** visualizar mi agenda diaria en formato cronológico **para** saber qué pacientes tengo programados y su estado actual.
-* **Prioridad:** Must Have
-* **Trazabilidad:** RF26
-* **Criterios de Aceptación:**
-    * El médico solo debe ver a los pacientes asignados a sus propios turnos.
-    * Los pacientes deben mostrar de forma clara si ya completaron el triaje y están listos para la consulta.
-
-**HU24- Alertas de Rangos Clínicos en Triaje**
-* **Como** Profesional de Enfermería, **quiero** que el formulario de triaje me alerte si introduzco valores ilógicos **para** evitar errores de digitación en los signos vitales.
-* **Prioridad:** Should Have
-* **Trazabilidad:** RF28
-* **Criterios de Aceptación:**
-    * Los campos numéricos deben indicar un error visual inmediato si el valor introducido es biológicamente improbable (Ej. Temperatura > 45°C).
-
-**HU25 - Búsqueda Ágil en Recepción**
-* **Como** Personal de Admisión, **quiero** disponer de un buscador rápido en mi panel principal **para** encontrar pacientes por su DNI o Historia Clínica y agilizar su atención.
-* **Prioridad:** Should Have
-* **Trazabilidad:** RF27
-* **Criterios de Aceptación:**
-    * La búsqueda debe ser accesible sin navegar por menús profundos.
-    * Los resultados deben coincidir parcialmente con el número de historia clínica o exactamente con el DNI.
+---
+
+## ÉPICA 1: Gestión de Acceso y Usuarios
+
+### HU01 - Inicio de Sesión
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Usuario (Paciente o Personal) |
+| **Quiero** | Ingresar mis credenciales |
+| **Para** | Acceder a las funciones correspondientes a mi rol |
+| **Prioridad** | Must Have |
+| **Reglas** | RN01: Denegar acceso si cuenta no habilitada administratoriamente |
+| **Criterios de Aceptación** | • Tras validación exitosa, redirigir al panel correspondiente al rol |
 
 ---
 
-ÉPICA 6: Integración y Trazabilidad Global
+### HU02 - Gestión de Dependientes Menores
 
-**HU26 - Tablero Kanban para Enfermería**
-* **Como** Enfermera, **quiero** gestionar a los pacientes del día mediante un tablero Kanban **para** visualizar de manera rápida quién falta por triaje y quién está listo para atención médica.
-* **Prioridad:** Must Have
-* **Trazabilidad:** CU17, RF29
-
-**HU27 - Registro Integral de Citas (Presencial y Web)**
-* **Como** Admisión, **quiero** consultar un listado consolidado de citas de todas las modalidades **para** gestionar la agenda global de la posta y resolver conflictos diarios.
-* **Prioridad:** Must Have
-* **Trazabilidad:** CU19, RF31
-
-**HU28 - Delegación de Cuenta (Mi Familia)**
-* **Como** Tutor, **quiero** ingresar al perfil de mi hijo directamente desde mi cuenta **para** reservarle citas médicas sin requerir credenciales separadas.
-* **Prioridad:** Must Have
-* **Trazabilidad:** CU22, RF30
-
-**HU29 - Localización Ágil de Historia Clínica**
-* **Como** Admisión, **quiero** ingresar el DNI de un paciente y ver su Número de Historia Clínica **para** buscar físicamente su expediente en el archivo de forma rápida.
-* **Prioridad:** Should Have
-* **Trazabilidad:** CU20, RF32
+| Campo | Valor |
+|-------|-------|
+| **Como** | Responsable del menor |
+| **Quiero** | Registrar y administrar pacientes menores |
+| **Para** | Reservar y visualizar el historial de sus citas |
+| **Prioridad** | Must Have |
+| **Reglas** | RN03: Solo adulto responsable puede administrar reservas de dependientes menores |
+| **Criterios de Aceptación** | • El sistema confirma si el dependiente ya está registrado para evitar duplicidad |
 
 ---
 
+### HU03 - Consultar y Actualizar Perfil
 
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Visualizar y actualizar mi información |
+| **Para** | Mantener mis datos de contacto al día |
+| **Prioridad** | Should Have |
+| **Reglas** | RN02: Solo modificar celular y contraseña; bloquear edición de DNI, Nombre, Fecha de nacimiento |
+| **Criterios de Aceptación** | • El sistema permite modificar únicamente número de celular y contraseña |
+
+---
+
+### HU04 - Gestionar Usuarios Internos
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Administrador |
+| **Quiero** | Administrar cuentas de Admisión y Enfermería |
+| **Para** | Controlar el acceso operativo al sistema |
+| **Prioridad** | Should Have |
+| **Criterios de Aceptación** | • El administrador puede buscar, editar y guardar configuración de acceso del personal |
+
+---
+
+## ÉPICA 2: Configuración y Disponibilidad Operativa
+
+### HU05 - Configuración de Duración de Atención
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Administrador |
+| **Quiero** | Configurar duración de atención por especialidad |
+| **Para** | Que el sistema calcule correctamente la generación de cupos |
+| **Prioridad** | Must Have |
+| **Reglas** | RN29: Cada especialidad permite duración distinta (ej. 20 minutos) |
+| **Criterios de Aceptación** | • La modificación impacta automáticamente en futura generación de tarjetas de disponibilidad |
+
+---
+
+### HU06 - Gestionar UPS y Especialidades
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Administrador |
+| **Quiero** | Crear y configurar UPS y Especialidades |
+| **Para** | Estructurar la oferta de servicios de la posta |
+| **Prioridad** | Must Have |
+| **Reglas** | RN07: UPS de uso estrictamente interno, no visibles para pacientes |
+| **Criterios de Aceptación** | • Las UPS configuradas permanecen ocultas a pacientes |
+
+---
+
+### HU07 - Configuración de Programación Operativa
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Administrador |
+| **Quiero** | Definir jornadas de los médicos |
+| **Para** | Establecer la oferta base de turnos |
+| **Prioridad** | Must Have |
+| **Reglas** | RN17: Programación incluye especialidad, médico, turno, duración y cupos totales<br>RN09: Restringir modificación de atención/programación ya iniciada |
+| **Criterios de Aceptación** | • El sistema restringe intento de modificar atención ya iniciada |
+
+---
+
+### HU08 - Habilitación de Disponibilidad
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Habilitar programación existente |
+| **Para** | Abrir cupos al público web y presencial |
+| **Prioridad** | Must Have |
+| **Reglas** | RN06: Admisión no puede crear horarios fuera de planificación del administrador<br>RN08: Disponibilidad genera automáticamente dividiendo turno según duración configurada |
+| **Criterios de Aceptación** | • Al confirmar apertura, disponibilidad se genera automáticamente |
+
+---
+
+### HU09 - Ajustar Disponibilidad Futura
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Modificar cupos por rotación o ausencia |
+| **Para** | Mantener oferta real actualizada |
+| **Prioridad** | Should Have |
+| **Reglas** | RN18: Ajuste limitado única y estrictamente a jornadas futuras |
+| **Criterios de Aceptación** | • El ajuste operativo solo aplica a jornadas futuras |
+
+---
+
+### HU10 - Gestionar Sobrecupos
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Registrar excepciones de disponibilidad |
+| **Para** | Atender casos fuera del stock regular |
+| **Prioridad** | Could Have |
+| **Reglas** | RN16: Sobrecupo permanece totalmente oculto para pacientes en plataforma web |
+| **Criterios de Aceptación** | • Disponibilidad extraordinaria oculta a pacientes |
+
+---
+
+## ÉPICA 3: Consulta y Reserva de Citas
+
+### HU11 - Consultar Especialidades
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Visualizar lista de especialidades |
+| **Para** | Iniciar proceso de reserva |
+| **Prioridad** | Must Have |
+| **Reglas** | RN07: Mostrar solo especialidades con disponibilidad, ocultando jerarquías internas de UPS |
+| **Criterios de Aceptación** | • El sistema muestra únicamente especialidades con disponibilidad |
+
+---
+
+### HU12 - Consultar Disponibilidad
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Consultar horarios y médicos por especialidad |
+| **Para** | Elegir mi turno ideal |
+| **Prioridad** | Must Have |
+| **Reglas** | RN27, RN28: Turnos segmentados entre Mañana (08:00–13:30) y Tarde (15:00–19:00) |
+| **Criterios de Aceptación** | • Paciente visualiza turnos segmentados Mañana/Tarde |
+
+---
+
+### HU13 - Reserva de Cita Web
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Seleccionar horario y confirmar reserva |
+| **Para** | Asegurar mi atención |
+| **Prioridad** | Must Have |
+| **Reglas** | RN04: Reserva confirmed desconta inmediatamente cupo del stock compartido<br>RN31: Bloquear duplicidad de reservas activas para mismo paciente y horario<br>RN37: Solo reservar mismo día Lunes–Viernes, o Lunes si es Sábado; bloqueado Domingo |
+| **Criterios de Aceptación** | • Reserva confirma y desconta cupo inmediatamente<br>• Sistema bloquea duplicidad de reservas activas |
+
+---
+
+### HU14 - Registro de Cita Presencial
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Registrar reservas físicas |
+| **Para** | Atender pacientes en ventanilla |
+| **Prioridad** | Must Have |
+| **Reglas** | RN04: Reserva presencial consume cupos del mismo stock que web |
+| **Criterios de Aceptación** | • Reserva presencial consume cupos del mismo stock compartido |
+
+---
+
+### HU15 - Generación de Ticket
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Sistema |
+| **Quiero** | Emitir comprobante automático al finalizar reserva |
+| **Para** | Garantizar formalidad del proceso |
+| **Prioridad** | Must Have |
+| **Reglas** | RN12: Toda reserva confirmada (web o presencial) genera obligatoriamente ticket |
+| **Criterios de Aceptación** | • Ticket contiene: Especialidad, Médico, Hora, Fecha |
+
+---
+
+### HU16 - Cancelación de Cita
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Cancelar reserva activa |
+| **Para** | Liberar mi cupo |
+| **Prioridad** | Should Have |
+| **Reglas** | RN13, RN36: Cancelación solo antes de iniciar triaje (20 min antes del turno)<br>RN14: Cancelación exitosa devuelve disponibilidad al stock inmediatamente |
+| **Criterios de Aceptación** | • Cancelación solo antes de triaje<br>• Disponibilidad regresada inmediatamente al stock |
+
+---
+
+## ÉPICA 4: Triaje y Trazabilidad
+
+### HU17 - Registro de Triaje
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Enfermería |
+| **Quiero** | Registrar evaluación inicial del paciente |
+| **Para** | Habilitarlo para atención |
+| **Prioridad** | Must Have |
+| **Reglas** | RN20: Registro exclusivo del rol de enfermería<br>RN22, RN23: Solo peso, talla, temperatura, presión y observación (sin historia clínica) |
+| **Criterios de Aceptación** | • Paciente debe tener cita activa<br>• Registro cambia estado a "En triaje" |
+
+---
+
+### HU18 - Actualizar Estado de Atención
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Enfermería |
+| **Quiero** | Actualizar estados de la cita |
+| **Para** | Mantener trazabilidad operativa |
+| **Prioridad** | Must Have |
+| **Reglas** | RN21: Flujo estricto: Pendiente → En triaje → Listo atención → No asistió<br>RN30: Cada transición genera registro de auditoría en base de datos |
+| **Criterios de Aceptación** | • Transiciones respetan flujo estricto<br>• Cada transición genera registro de auditoría |
+
+---
+
+### HU19 - Consultar Trazabilidad
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Consultar estado de mi cita |
+| **Para** | Hacer seguimiento a mi atención |
+| **Prioridad** | Should Have |
+| **Criterios de Aceptación** | • Paciente visualiza estado actualizado en tiempo real sin intervención administrativa |
+
+---
+
+## ÉPICA 5: Avisos Operativos (MVP Complementario)
+
+### HU20 - Registrar Aviso de Atención Inmediata
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Paciente |
+| **Quiero** | Enviar aviso indicando intención de asistir de inmediato |
+| **Para** | Alertar a enfermería |
+| **Prioridad** | Could Have |
+| **Reglas** | RN24: Aviso se registra sin generar reserva médica real ni alterar stock<br>RN25: Aviso no otorga prioridad automática sobre orden de citas |
+| **Criterios de Aceptación** | • Aviso no genera reserva real ni altera stock |
+
+---
+
+### HU21 - Visualizar Panel de Avisos
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Enfermería |
+| **Quiero** | Visualizar panel con notificaciones de pacientes |
+| **Para** | Estar preparado ante llegadas inminentes |
+| **Prioridad** | Could Have |
+| **Reglas** | RN26: Panel visible exclusiva y únicamente por personal de enfermería |
+| **Criterios de Aceptación** | • Avisos transicionan entre estados: Pendiente, Visualizado, Cerrado |
+
+---
+
+### HU24 - Alertas de Rangos Clínicos en Triaje
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Profesional de Enfermería |
+| **Quiero** | Que formulario de triaje alerte si introduzco valores ilógicos |
+| **Para** | Evitar errores de digitación en signos vitales |
+| **Prioridad** | Should Have |
+| **Reglas** | RN32: Campos numéricos indican error visual inmediato si valor es biológicamente improbable (Ej. Temperatura > 45°C) |
+| **Criterios de Aceptación** | • Error visual inmediato si valor excede rangos lógicos |
+
+---
+
+### HU25 - Búsqueda Ágil en Recepción
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Personal de Admisión |
+| **Quiero** | Disponer de buscador rápido en panel principal |
+| **Para** | Encontrar pacientes por DNI o Historia Clínica y agilizar atención |
+| **Prioridad** | Should Have |
+| **Reglas** | RN31: Búsqueda accesible sin navegar menús profundos |
+| **Criterios de Aceptación** | • Resultados coinciden parcialmente con Historia Clínica o exactamente con DNI |
+
+---
+
+## ÉPICA 6: Integración y Trazabilidad Global
+
+### HU26 - Tablero Kanban para Enfermería
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Enfermera |
+| **Quiero** | Gestionar pacientes del día mediante tablero Kanban |
+| **Para** | Visualizar rápidamente quién falta por triaje y quién está listo para atención |
+| **Prioridad** | Must Have |
+| **Reglas** | RN25: Tablero Kanban con estados "Falta Triaje", "En Triaje", "Listo Atención", "Finalizados" |
+
+---
+
+### HU27 - Registro Integral de Citas (Presencial y Web)
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Consultar listado consolidado de citas de todas modalidades |
+| **Para** | Gestionar agenda global de la posta y resolver conflictos diarios |
+| **Prioridad** | Must Have |
+| **Reglas** | RN27: Listar todas citas (web y presencial) con filtrado en tiempo real por DNI |
+
+---
+
+### HU28 - Delegación de Cuenta (Mi Familia)
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Tutor |
+| **Quiero** | Ingresar al perfil de mi hijo directamente desde mi cuenta |
+| **Para** | Reservarle citas médicas sin requerir credenciales separadas |
+| **Prioridad** | Must Have |
+| **Reglas** | RN36: Cambio de sesión valida integridad del vínculo `ResponsableId` a nivel de base de datos |
+
+---
+
+### HU29 - Localización Ágil de Historia Clínica
+
+| Campo | Valor |
+|-------|-------|
+| **Como** | Admisión |
+| **Quiero** | Ingresar DNI de paciente y ver Número de Historia Clínica |
+| **Para** | Buscar físicamente expediente en archivo de forma rápida |
+| **Prioridad** | Should Have |
+| **Reglas** | RN28: Búsqueda para obtener Identificador de Historia Clínica (Ej. HC-XXXX) a partir del DNI |

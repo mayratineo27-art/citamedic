@@ -50,9 +50,9 @@ namespace PostaCitasWeb.Services
         Task<string> SolicitarRecuperacionAsync(string dni, string celular);
 
         /// <summary>
-        /// Actualiza datos de un paciente. RN02.
+        /// Actualiza datos de un usuario. RN02.
         /// </summary>
-        Task<AuthResult> ActualizarDatosAsync(int pacienteId, ActualizarDatosDto dto);
+        Task<AuthResult> ActualizarDatosAsync(int usuarioId, ActualizarDatosDto dto);
     }
 
     /// <summary>

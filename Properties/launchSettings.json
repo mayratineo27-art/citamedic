@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "PostaCitasWeb": {
@@ -6,7 +6,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "Auth/Login",
-      "applicationUrl": "https://localhost:7110;http://localhost:5242",
+      "applicationUrl": "https://localhost:7120;http://localhost:5250",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
