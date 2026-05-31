@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CITAMEDIC — Índice de Prototipos</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --navy: #1D2D50; --teal: #2AAE8A; --teal-light: #e8f7f3;
+    --bg: #f0f5f4; --border: #e2e8f0; --muted: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--navy); min-height: 100vh; padding: 3rem 2rem; }
+  .header { text-align: center; margin-bottom: 3rem; }
+  .logo { width: 64px; height: 64px; background: var(--teal); border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .logo i { color: white; font-size: 1.75rem; }
+  h1 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; color: var(--navy); }
+  .subtitle { color: var(--muted); margin-top: 0.5rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; max-width: 1100px; margin: 0 auto; }
+  .section-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 2rem 0 1rem; max-width: 1100px; margin-left: auto; margin-right: auto; }
+  .card { background: white; border-radius: 20px; border: 1px solid var(--border); padding: 1.5rem; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 1rem; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(29,45,80,0.04); }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(29,45,80,0.08); border-color: var(--teal); }
+  .card-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card-icon.teal { background: var(--teal-light); color: var(--teal); }
+  .card-icon.indigo { background: #e0e7ff; color: #4f46e5; }
+  .card-icon.amber { background: #fffbeb; color: #d97706; }
+  .card-icon.red { background: #fee2e2; color: #ef4444; }
+  .card-id { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-name { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-top: 0.15rem; }
+  .card-actor { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+  .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; }
+  .badge-teal { background: var(--teal-light); color: var(--teal); }
+  .badge-indigo { background: #e0e7ff; color: #4f46e5; }
+  .badge-amber { background: #fffbeb; color: #d97706; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><i class="fa-solid fa-plus"></i></div>
+  <h1>CITAMEDIC — Prototipos</h1>
+  <p class="subtitle">PostaCitasWeb · Iteración 2 · Posta Los Licenciados</p>
+</div>
+
+<p class="section-title"><i class="fa-solid fa-users"></i> &nbsp;Acceso y Autenticación</p>
+<div class="grid">
+  <a href="p01-login.html" class="card">
+    <div class="card-icon teal"><i class="fa-solid fa-right-to-bracket"></i></div>
+    <div><div class="card-id">P-01</div><div class="card-name">Login</div><div class="card-actor"><span class="badge badge-teal">Todos los roles</span></div></div>
+  </a>
+  <a href="p02-activar-cuenta.html" class="card">
+    <div class="card-icon teal"><i class="fa-solid fa-key"></i></div>
+    <div><div class="card-id">P-02</div><div class="card-name">Activar Cuenta / Recuperar Contraseña</div><div class="card-actor"><span class="badge badge-teal">Paciente</span></div></div>
+  </a>
+</div>
+
+<p class="section-title"><i class="fa-solid fa-user"></i> &nbsp;Portal del Paciente</p>
+<div class="grid">
+  <a href="p03-dashboard-paciente.html" class="card">
+    <div class="card-icon teal"><i class="fa-solid fa-house"></i></div>
+    <div><div class="card-id">P-03</div><div class="card-name">Dashboard Paciente</div><div class="card-actor"><span class="badge badge-teal">Paciente</span></div></div>
+  </a>
+  <a href="p04-p07-wizard-reserva.html" class="card">
+    <div class="card-icon teal"><i class="fa-solid fa-calendar-plus"></i></div>
+    <div><div class="card-id">P-04 a P-07</div><div class="card-name">Wizard Reserva de Cita</div><div class="card-actor"><span class="badge badge-teal">Paciente</span></div></div>
+  </a>
+  <a href="p08-mis-citas.html" class="card">
+    <div class="card-icon teal"><i class="fa-solid fa-calendar-check"></i></div>
+    <div><div class="card-id">P-08</div><div class="card-name">Mis Citas + Ticket</div><div class="card-actor"><span class="badge badge-teal">Paciente</span></div></div>
+  </a>
+  <a href="p09-perfil.html" class="card">
+    <div class="card-icon amber"><i class="fa-solid fa-user-gear"></i></div>
+    <div><div class="card-id">P-09</div><div class="card-name">Perfil del Paciente</div><div class="card-actor"><span class="badge badge-teal">Paciente</span></div></div>
+  </a>
+  <a href="p10-sesion-delegada.html" class="card">
+    <div class="card-icon indigo"><i class="fa-solid fa-users"></i></div>
+    <div><div class="card-id">P-10</div><div class="card-name">Sesión Delegada (Tutor)</div><div class="card-actor"><span class="badge badge-indigo">Tutor</span></div></div>
+  </a>
+</div>
+
+<p class="section-title"><i class="fa-solid fa-hospital-user"></i> &nbsp;Portal de Admisión</p>
+<div class="grid">
+  <a href="p11-dashboard-admision.html" class="card">
+    <div class="card-icon indigo"><i class="fa-solid fa-house-medical"></i></div>
+    <div><div class="card-id">P-11</div><div class="card-name">Dashboard Admisión</div><div class="card-actor"><span class="badge badge-indigo">Admisión</span></div></div>
+  </a>
+  <a href="p12-cita-presencial.html" class="card">
+    <div class="card-icon indigo"><i class="fa-solid fa-clipboard-user"></i></div>
+    <div><div class="card-id">P-12</div><div class="card-name">Registro Cita Presencial</div><div class="card-actor"><span class="badge badge-indigo">Admisión</span></div></div>
+  </a>
+  <a href="p13-habilitar-programacion.html" class="card">
+    <div class="card-icon indigo"><i class="fa-solid fa-toggle-on"></i></div>
+    <div><div class="card-id">P-13</div><div class="card-name">Habilitar Programación</div><div class="card-actor"><span class="badge badge-indigo">Admisión</span></div></div>
+  </a>
+  <a href="p14-reset-contrasena.html" class="card">
+    <div class="card-icon red"><i class="fa-solid fa-lock-open"></i></div>
+    <div><div class="card-id">P-14</div><div class="card-name">Reset Contraseña (Ventanilla)</div><div class="card-actor"><span class="badge badge-indigo">Admisión</span></div></div>
+  </a>
+</div>
+
+<p class="section-title"><i class="fa-solid fa-shield-halved"></i> &nbsp;Portal del Administrador</p>
+<div class="grid">
+  <a href="p15-dashboard-admin.html" class="card">
+    <div class="card-icon amber"><i class="fa-solid fa-gauge-high"></i></div>
+    <div><div class="card-id">P-15</div><div class="card-name">Dashboard Administrador</div><div class="card-actor"><span class="badge badge-amber">Administrador</span></div></div>
+  </a>
+  <a href="p16-programaciones.html" class="card">
+    <div class="card-icon amber"><i class="fa-solid fa-calendar-days"></i></div>
+    <div><div class="card-id">P-16</div><div class="card-name">Gestión Programaciones Operativas</div><div class="card-actor"><span class="badge badge-amber">Administrador</span></div></div>
+  </a>
+  <a href="p17-vinculos-td.html" class="card">
+    <div class="card-icon amber"><i class="fa-solid fa-link"></i></div>
+    <div><div class="card-id">P-17</div><div class="card-name">Vínculos Tutor–Dependiente</div><div class="card-actor"><span class="badge badge-amber">Administrador</span></div></div>
+  </a>
+</div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-17 — Vínculos Tutor–Dependiente · CITAMEDIC</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="_base.css">
+<style>
+  :root { --amber: #d97706; --amber-light: #fffbeb; }
+  .menu-link.active { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; box-shadow: 0 6px 16px rgba(217,119,6,0.25) !important; }
+  .brand-logo { background: var(--amber) !important; }
+  .page-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.75rem; color: var(--navy); margin-bottom: 0.25rem; }
+  .page-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+  .dni-search-row { display: flex; gap: 0.75rem; }
+  .dni-search-row .form-control { flex: 1; }
+  .btn-amber { background: var(--amber); color: white; border: none; border-radius: 12px; padding: 0.65rem 1.25rem; font-weight: 600; font-size: 0.925rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  .btn-amber:hover { background: #b45309; transform: translateY(-1px); }
+  .btn-amber-sm { padding: 0.4rem 0.85rem; font-size: 0.82rem; border-radius: 9px; }
+  .patient-preview {
+    background: #f8fafc; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 0.75rem 1rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .patient-preview i { color: var(--text-muted); }
+  .patient-preview .name { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+  .patient-preview .hc { font-size: 0.78rem; color: var(--text-muted); }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .demo-bar { background: #f8fafc; border-bottom: 1px solid var(--border); padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .demo-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+  .btn-demo { padding: 0.35rem 0.85rem; border: 1.5px solid var(--border); border-radius: 9999px; background: white; font-size: 0.78rem; font-weight: 600; color: var(--navy); cursor: pointer; transition: all 0.2s; }
+  .btn-demo:hover { border-color: var(--amber); color: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="proto-nav">
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Índice</a>
+  <span>/</span>
+  <span>P-17 — Vínculos Tutor–Dependiente</span>
+  <span style="margin-left:auto;color:var(--text-muted);font-size:0.75rem;">RF_TD-A · Administrador</span>
+</div>
+
+<!-- DEMO BAR -->
+<div class="demo-bar">
+  <span class="demo-label">Demo:</span>
+  <button class="btn-demo" onclick="simularBusquedaTutor()"><i class="fa-solid fa-user"></i> Buscar tutor</button>
+  <button class="btn-demo" onclick="simularBusquedaDep()"><i class="fa-solid fa-child"></i> Buscar dependiente (menor)</button>
+  <button class="btn-demo" onclick="mostrarErrorVinculo()"><i class="fa-solid fa-triangle-exclamation"></i> Error vínculo duplicado</button>
+  <button class="btn-demo" onclick="ocultarErrorVinculo()"><i class="fa-solid fa-xmark"></i> Ocultar error</button>
+</div>
+
+<div class="portal-wrapper">
+  <!-- SIDEBAR ADMIN -->
+  <aside class="portal-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo"><i class="fa-solid fa-shield-halved"></i></div>
+      <div><div class="brand-name">CITAMEDIC</div><div class="brand-sub">Administrador</div></div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-avatar"><i class="fa-regular fa-user"></i></div>
+      <div>
+        <div class="profile-name">Admin Sistema</div>
+        <div class="profile-role">Administrador</div>
+      </div>
+    </div>
+    <div class="menu-section-header">Menú Admin</div>
+    <ul class="sidebar-menu">
+      <li><a href="p15-dashboard-admin.html" class="menu-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+      <li><a href="p16-programaciones.html" class="menu-link"><i class="fa-solid fa-calendar-days"></i> Programaciones</a></li>
+      <li><a href="#" class="menu-link active"><i class="fa-solid fa-link"></i> Vínculos T–D</a></li>
+      <li><a href="#" class="menu-link"><i class="fa-solid fa-user-doctor"></i> Médicos</a></li>
+      <li><a href="#" class="menu-link"><i class="fa-solid fa-users-gear"></i> Usuarios Internos</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="portal-main">
+    <div class="page-title">Vínculos Tutor–Dependiente</div>
+    <div class="page-sub">Registra y gestiona los vínculos entre tutores y sus dependientes</div>
+
+    <!-- Formulario creación -->
+    <div class="card-premium">
+      <div class="card-header-premium">
+        <h5><i class="fa-solid fa-link" style="color:#d97706;margin-right:0.5rem;"></i>Crear Nuevo Vínculo</h5>
+      </div>
+      <div class="card-body-premium">
+
+        <!-- Error vínculo duplicado -->
+        <div id="error-vinculo" class="alert alert-danger" style="display:none;">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>El vínculo ya existe. Este tutor ya está registrado como responsable de este dependiente.</span>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Tutor -->
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:0.75rem;">
+              <i class="fa-solid fa-user"></i> Tutor
+            </div>
+            <div class="form-group">
+              <label class="form-label">DNI del Tutor</label>
+              <div class="dni-search-row">
+                <input type="text" class="form-control" id="dni-tutor" placeholder="DNI (8 dígitos)" maxlength="8">
+                <button class="btn-amber btn-amber-sm" onclick="simularBusquedaTutor()">
+                  <i class="fa-solid fa-search"></i> Buscar
+                </button>
+              </div>
+            </div>
+            <div id="preview-tutor" style="display:none;">
+              <div class="patient-preview">
+                <i class="fa-regular fa-user fa-lg"></i>
+                <div>
+                  <div class="name">María Torres Quispe</div>
+                  <div class="hc">HC-000042 · DNI: 45678901</div>
+                </div>
+                <span class="badge badge-success" style="margin-left:auto;"><i class="fa-solid fa-check"></i> Tutor</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dependiente -->
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:0.75rem;">
+              <i class="fa-solid fa-child"></i> Dependiente
+            </div>
+            <div class="form-group">
+              <label class="form-label">DNI del Dependiente</label>
+              <div class="dni-search-row">
+                <input type="text" class="form-control" id="dni-dep" placeholder="DNI (8 dígitos)" maxlength="8">
+                <button class="btn-amber btn-amber-sm" onclick="simularBusquedaDep()">
+                  <i class="fa-solid fa-search"></i> Buscar
+                </button>
+              </div>
+            </div>
+            <div id="preview-dep" style="display:none;">
+              <div class="patient-preview">
+                <i class="fa-solid fa-child fa-lg" style="color:var(--teal);"></i>
+                <div>
+                  <div class="name">Carlos Torres Quispe</div>
+                  <div class="hc">HC-000087 · DNI: 12345678</div>
+                </div>
+                <span class="badge badge-indigo" style="margin-left:auto;" id="badge-menor"><i class="fa-solid fa-child"></i> Menor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="btn-amber" onclick="crearVinculo()">
+            <i class="fa-solid fa-link"></i> Crear vínculo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de vínculos activos -->
+    <div class="card-premium">
+      <div class="card-header-premium">
+        <h5><i class="fa-solid fa-table-list" style="color:#d97706;margin-right:0.5rem;"></i>Vínculos Activos</h5>
+        <span class="badge badge-amber" id="vinculos-count">3 vínculos</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-premium" id="tabla-vinculos">
+          <thead>
+            <tr>
+              <th>Tutor</th>
+              <th>Dependiente</th>
+              <th>Tipo</th>
+              <th>Fecha Registro</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-vinculos">
+            <tr id="vinculo-1">
+              <td>
+                <div style="font-weight:700;">María Torres Quispe</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 45678901</div>
+              </td>
+              <td>
+                <div style="font-weight:700;">Carlos Torres Quispe</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 12345678</div>
+              </td>
+              <td><span class="badge badge-indigo"><i class="fa-solid fa-child"></i> Menor</span></td>
+              <td>15/01/2026</td>
+              <td>
+                <button class="btn-premium-danger" style="padding:0.4rem 0.85rem;font-size:0.8rem;border-radius:9px;" onclick="eliminarVinculo('vinculo-1')">
+                  <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+            <tr id="vinculo-2">
+              <td>
+                <div style="font-weight:700;">Juan Pérez Huanca</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 32145678</div>
+              </td>
+              <td>
+                <div style="font-weight:700;">Sofía Pérez Quispe</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 98765432</div>
+              </td>
+              <td><span class="badge badge-indigo"><i class="fa-solid fa-child"></i> Menor</span></td>
+              <td>20/02/2026</td>
+              <td>
+                <button class="btn-premium-danger" style="padding:0.4rem 0.85rem;font-size:0.8rem;border-radius:9px;" onclick="eliminarVinculo('vinculo-2')">
+                  <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+            <tr id="vinculo-3">
+              <td>
+                <div style="font-weight:700;">Ana Quispe Mamani</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 78901234</div>
+              </td>
+              <td>
+                <div style="font-weight:700;">Rosa Quispe Mamani</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">DNI: 11223344</div>
+              </td>
+              <td><span class="badge badge-amber"><i class="fa-solid fa-person-cane"></i> Adulto mayor</span></td>
+              <td>05/03/2026</td>
+              <td>
+                <button class="btn-premium-danger" style="padding:0.4rem 0.85rem;font-size:0.8rem;border-radius:9px;" onclick="eliminarVinculo('vinculo-3')">
+                  <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let vinculosCount = 3;
+
+function simularBusquedaTutor() {
+  document.getElementById('dni-tutor').value = '45678901';
+  document.getElementById('preview-tutor').style.display = 'block';
+}
+
+function simularBusquedaDep() {
+  document.getElementById('dni-dep').value = '12345678';
+  document.getElementById('preview-dep').style.display = 'block';
+  document.getElementById('badge-menor').style.display = 'inline-flex';
+}
+
+function mostrarErrorVinculo() {
+  document.getElementById('error-vinculo').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function ocultarErrorVinculo() {
+  document.getElementById('error-vinculo').style.display = 'none';
+}
+
+function crearVinculo() {
+  const tutorVisible = document.getElementById('preview-tutor').style.display !== 'none';
+  const depVisible = document.getElementById('preview-dep').style.display !== 'none';
+  if (!tutorVisible || !depVisible) {
+    alert('Busca y selecciona tanto el tutor como el dependiente antes de crear el vínculo.');
+    return;
+  }
+  // Agregar fila a la tabla
+  vinculosCount++;
+  const tbody = document.getElementById('tbody-vinculos');
+  const newId = 'vinculo-' + vinculosCount;
+  const tr = document.createElement('tr');
+  tr.id = newId;
+  tr.innerHTML = `
+    <td><div style="font-weight:700;">María Torres Quispe</div><div style="font-size:0.78rem;color:var(--text-muted);">DNI: 45678901</div></td>
+    <td><div style="font-weight:700;">Carlos Torres Quispe</div><div style="font-size:0.78rem;color:var(--text-muted);">DNI: 12345678</div></td>
+    <td><span class="badge badge-indigo"><i class="fa-solid fa-child"></i> Menor</span></td>
+    <td>${new Date().toLocaleDateString('es-PE')}</td>
+    <td><button class="btn-premium-danger" style="padding:0.4rem 0.85rem;font-size:0.8rem;border-radius:9px;" onclick="eliminarVinculo('${newId}')"><i class="fa-solid fa-trash"></i> Eliminar</button></td>
+  `;
+  tbody.appendChild(tr);
+  document.getElementById('vinculos-count').textContent = vinculosCount + ' vínculos';
+  // Reset form
+  document.getElementById('preview-tutor').style.display = 'none';
+  document.getElementById('preview-dep').style.display = 'none';
+  document.getElementById('dni-tutor').value = '';
+  document.getElementById('dni-dep').value = '';
+  document.getElementById('error-vinculo').style.display = 'none';
+}
+
+function eliminarVinculo(id) {
+  if (confirm('¿Eliminar este vínculo? Esta acción no se puede deshacer.')) {
+    const row = document.getElementById(id);
+    if (row) { row.remove(); vinculosCount--; document.getElementById('vinculos-count').textContent = vinculosCount + ' vínculos'; }
+  }
+}
+</script>
+</body>
+</html>

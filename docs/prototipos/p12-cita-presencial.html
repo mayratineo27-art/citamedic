@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-12 — Registro Cita Presencial · CITAMEDIC</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="_base.css">
+<style>
+  :root { --indigo:#4f46e5;--indigo-light:#e0e7ff; }
+  .menu-link.active { background:linear-gradient(135deg,#4f46e5 0%,#3730a3 100%) !important;box-shadow:0 6px 16px rgba(79,70,229,0.25) !important; }
+  .brand-logo { background:var(--indigo) !important; }
+  .page-title { font-family:'Outfit',sans-serif;font-weight:700;font-size:1.75rem;color:var(--navy);margin-bottom:0.25rem; }
+  .page-sub { color:var(--text-muted);font-size:0.9rem;margin-bottom:1.75rem; }
+  .section-label { font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem; }
+  .radio-group { display:flex;gap:0.75rem; }
+  .radio-option { flex:1;border:1.5px solid var(--border);border-radius:12px;padding:0.85rem 1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.75rem; }
+  .radio-option:hover { border-color:var(--indigo);background:var(--indigo-light); }
+  .radio-option.selected { border-color:var(--indigo);background:var(--indigo-light); }
+  .radio-option input[type="radio"] { accent-color:var(--indigo);width:16px;height:16px; }
+  .patient-info-box { background:#f8fafc;border:1.5px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem; }
+  .patient-info-avatar { width:44px;height:44px;border-radius:12px;background:var(--indigo-light);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .patient-info-avatar i { color:var(--indigo);font-size:1.1rem; }
+  .demo-bar { background:#f8fafc;border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap; }
+  .demo-label { font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted); }
+  .btn-demo { padding:0.35rem 0.85rem;border:1.5px solid var(--border);border-radius:9999px;background:white;font-size:0.78rem;font-weight:600;color:var(--navy);cursor:pointer;transition:all 0.2s; }
+  .btn-demo:hover { border-color:var(--indigo);color:var(--indigo); }
+</style>
+</head>
+<body>
+<div class="proto-nav">
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Índice</a>
+  <span>/</span>
+  <span>P-12 — Registro Cita Presencial</span>
+  <span style="margin-left:auto;color:var(--text-muted);font-size:0.75rem;">RF10 · Admisión</span>
+</div>
+<div class="demo-bar">
+  <span class="demo-label">Demo:</span>
+  <button class="btn-demo" onclick="toggleDuplicado()"><i class="fa-solid fa-triangle-exclamation"></i> Banner duplicado</button>
+  <button class="btn-demo" onclick="toggleSobrecupo()"><i class="fa-solid fa-plus-circle"></i> Toggle sobrecupo</button>
+  <button class="btn-demo" onclick="cargarPaciente()"><i class="fa-solid fa-user-check"></i> Simular búsqueda</button>
+</div>
+<div class="portal-wrapper">
+  <aside class="portal-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo"><i class="fa-solid fa-hospital"></i></div>
+      <div><div class="brand-name">CITAMEDIC</div><div class="brand-sub">Admisión</div></div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-avatar"><i class="fa-regular fa-user"></i></div>
+      <div><div class="profile-name">Lucía Mendoza</div><div class="profile-role">Personal de Admisión</div></div>
+    </div>
+    <div class="menu-section-header">Menú Admisión</div>
+    <ul class="sidebar-menu">
+      <li><a href="p11-dashboard-admision.html" class="menu-link"><i class="fa-solid fa-house-medical"></i> Dashboard</a></li>
+      <li><a href="#" class="menu-link active"><i class="fa-solid fa-clipboard-user"></i> Cita Presencial</a></li>
+      <li><a href="p13-habilitar-programacion.html" class="menu-link"><i class="fa-solid fa-toggle-on"></i> Habilitar Programación</a></li>
+      <li><a href="p14-reset-contrasena.html" class="menu-link"><i class="fa-solid fa-lock-open"></i> Reset Contraseña</a></li>
+    </ul>
+    <div class="sidebar-footer"><button class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button></div>
+  </aside>
+  <main class="portal-main">
+    <div class="page-title">Registro de Cita Presencial</div>
+    <div class="page-sub">Registra una cita para un paciente en ventanilla</div>
+    <div class="card-premium" style="max-width:680px;">
+      <div class="card-header-premium"><h5><i class="fa-solid fa-clipboard-user" style="color:#4f46e5;margin-right:0.5rem;"></i>Nueva Cita Presencial</h5></div>
+      <div class="card-body-premium">
+        <div class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Paso 1 — Identificar paciente</div>
+        <div class="form-group">
+          <label class="form-label">DNI del Paciente</label>
+          <div style="display:flex;gap:0.75rem;">
+            <div class="input-group" style="flex:1;"><i class="fa-solid fa-id-card input-icon"></i><input type="text" class="form-control" id="dni-input" placeholder="Ingresa el DNI (8 dígitos)" maxlength="8"></div>
+            <button class="btn-premium" style="background:#4f46e5;flex-shrink:0;" onclick="cargarPaciente()"><i class="fa-solid fa-search"></i> Buscar</button>
+          </div>
+        </div>
+        <div id="patient-section" style="display:none;">
+          <div class="patient-info-box">
+            <div class="patient-info-avatar"><i class="fa-regular fa-user"></i></div>
+            <div><div style="font-weight:700;font-size:0.95rem;color:var(--navy);">María Torres Quispe</div><div style="font-size:0.82rem;color:var(--text-muted);">HC-000042 · DNI: 45678901</div></div>
+            <span class="badge badge-success" style="margin-left:auto;"><i class="fa-solid fa-circle-check"></i> Paciente encontrado</span>
+          </div>
+          <div id="banner-duplicado" class="alert alert-warning" style="display:none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div><strong>Este paciente ya tiene una cita activa para esta fecha.</strong><br><span style="font-size:0.85rem;">¿Confirmar el registro de todas formas?</span>
+              <div style="margin-top:0.5rem;display:flex;gap:0.5rem;">
+                <button class="btn-premium" style="padding:0.4rem 0.9rem;font-size:0.82rem;background:#4f46e5;">Confirmar de todas formas</button>
+                <button class="btn-premium-outline" style="padding:0.4rem 0.9rem;font-size:0.82rem;" onclick="document.getElementById('banner-duplicado').style.display='none'">Cancelar</button>
+              </div>
+            </div>
+          </div>
+          <hr style="border:none;border-top:1px solid var(--border);margin:1.25rem 0;">
+          <div class="section-label"><i class="fa-solid fa-calendar-plus"></i> Paso 2 — Datos de la cita</div>
+          <div class="form-group">
+            <label class="form-label">Especialidad</label>
+            <select class="form-control"><option value="">— Selecciona especialidad —</option><option>Medicina General</option><option>Pediatría</option><option>Odontología</option><option>Ginecología</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Turno</label>
+            <div class="radio-group">
+              <label class="radio-option" id="opt-manana" onclick="selectTurno('manana')"><input type="radio" name="turno" value="manana"><i class="fa-solid fa-sun" style="color:#d97706;"></i><span style="font-weight:600;font-size:0.9rem;color:var(--navy);">Mañana</span></label>
+              <label class="radio-option" id="opt-tarde" onclick="selectTurno('tarde')"><input type="radio" name="turno" value="tarde"><i class="fa-solid fa-moon" style="color:#4f46e5;"></i><span style="font-weight:600;font-size:0.9rem;color:var(--navy);">Tarde</span></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Slot disponible</label>
+            <select class="form-control" id="slot-select"><option value="">— Selecciona turno primero —</option></select>
+          </div>
+          <div id="sobrecupo-section" style="display:none;">
+            <div class="alert alert-warning" style="margin-bottom:1rem;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div><strong>No hay cupos disponibles.</strong><br>
+                <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;cursor:pointer;"><input type="checkbox" id="chk-sobrecupo" style="accent-color:#d97706;width:16px;height:16px;"><span style="font-size:0.875rem;font-weight:600;">Registrar como sobrecupo</span></label>
+              </div>
+            </div>
+          </div>
+          <button class="btn-premium btn-full" style="background:#4f46e5;margin-top:0.5rem;"><i class="fa-solid fa-calendar-check"></i> Registrar cita</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+let cuposDisponibles=true;
+function cargarPaciente() { document.getElementById('patient-section').style.display='block'; document.getElementById('dni-input').value='45678901'; }
+function selectTurno(t) { document.querySelectorAll('.radio-option').forEach(o=>o.classList.remove('selected')); document.getElementById('opt-'+t).classList.add('selected'); document.querySelector(`input[value="${t}"]`).checked=true; const s=document.getElementById('slot-select'); const slots=t==='manana'?['08:00','08:20','08:40','09:00','09:20']:['14:00','14:20','14:40','15:00']; s.innerHTML='<option value="">— Selecciona un slot —</option>'; slots.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;s.appendChild(o);}); }
+function toggleDuplicado() { if(document.getElementById('patient-section').style.display==='none')cargarPaciente(); const e=document.getElementById('banner-duplicado'); e.style.display=e.style.display==='none'?'flex':'none'; }
+function toggleSobrecupo() { cuposDisponibles=!cuposDisponibles; if(document.getElementById('patient-section').style.display==='none')cargarPaciente(); document.getElementById('sobrecupo-section').style.display=cuposDisponibles?'none':'block'; }
+</script>
+</body>
+</html>

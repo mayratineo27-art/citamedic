@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-02 — Activar Cuenta / Recuperar Contraseña · CITAMEDIC</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; background: var(--bg-main); padding: 5rem 2rem 2rem; }
+  .act-card { background: white; border-radius: 28px; border: 1px solid var(--border); box-shadow: var(--shadow-lg); padding: 2.5rem 2.25rem; width: 100%; max-width: 460px; }
+  .act-header { text-align: center; margin-bottom: 2rem; }
+  .act-logo { width: 56px; height: 56px; background: var(--teal-light); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .act-logo i { color: var(--teal); font-size: 1.5rem; }
+  .act-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--navy); }
+  .act-subtitle { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+  .step-indicator { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; }
+  .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+  .step-dot.active { background: var(--teal); color: white; }
+  .step-dot.done { background: #d1fae5; color: #065f46; }
+  .step-dot.pending { background: #f1f5f9; color: var(--text-muted); }
+  .step-line { flex: 1; height: 2px; background: var(--border); }
+  .step-line.done { background: var(--teal); }
+  .state-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .state-tab { flex: 1; min-width: 120px; padding: 0.5rem; border: 1.5px solid var(--border); border-radius: 10px; background: white; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-align: center; }
+  .state-tab.active { border-color: var(--teal); background: var(--teal-light); color: var(--teal); }
+  .state-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .strength-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 0.5rem; overflow: hidden; }
+  .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+  .success-icon { width: 72px; height: 72px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+  .success-icon i { color: #065f46; font-size: 2rem; }
+</style>
+</head>
+<body>
+
+<div class="proto-nav" style="position:fixed;top:0;left:0;right:0;z-index:100;">
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Índice</a>
+  <span>/</span>
+  <a href="p01-login.html">Login</a>
+  <span>/</span>
+  <span>P-02 — Activar Cuenta / Recuperar Contraseña</span>
+  <span style="margin-left:auto;color:var(--text-muted);font-size:0.75rem;">RF_ACT · Paciente</span>
+</div>
+
+<div style="width:100%;max-width:460px;margin-bottom:1rem;">
+  <div class="state-label">Estado del prototipo:</div>
+  <div class="state-tabs">
+    <div class="state-tab active" onclick="showState('paso1',this)">Paso 1 — Verificar</div>
+    <div class="state-tab" onclick="showState('activacion',this)">Paso 2a — Activación</div>
+    <div class="state-tab" onclick="showState('recuperacion',this)">Paso 2b — Recuperación</div>
+    <div class="state-tab" onclick="showState('error',this)">Error datos</div>
+    <div class="state-tab" onclick="showState('menor',this)">Error menor</div>
+    <div class="state-tab" onclick="showState('exito',this)">Éxito</div>
+  </div>
+</div>
+
+<!-- PASO 1 -->
+<div id="state-paso1" class="act-card">
+  <div class="act-header">
+    <div class="act-logo"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="act-title">Verificar identidad</div>
+    <div class="act-subtitle">Ingresa tus datos tal como están registrados en la posta</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot active">1</div>
+    <div class="step-line"></div>
+    <div class="step-dot pending">2</div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">DNI</label>
+    <div class="input-group">
+      <i class="fa-solid fa-id-card input-icon"></i>
+      <input type="text" class="form-control" placeholder="Número de DNI (8 dígitos)" maxlength="8">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Fecha de nacimiento</label>
+    <div class="input-group">
+      <i class="fa-solid fa-calendar input-icon"></i>
+      <input type="date" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Nombres completos</label>
+    <div class="input-group">
+      <i class="fa-solid fa-user input-icon"></i>
+      <input type="text" class="form-control" placeholder="Tal como aparecen en tu DNI">
+    </div>
+  </div>
+  <button class="btn-premium btn-full">
+    <i class="fa-solid fa-magnifying-glass"></i> Verificar identidad
+  </button>
+  <div style="text-align:center;margin-top:1.25rem;">
+    <a href="p01-login.html" style="color:var(--text-muted);font-size:0.875rem;text-decoration:none;font-weight:600;">
+      <i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión
+    </a>
+  </div>
+</div>
+
+<!-- PASO 2a: ACTIVACIÓN -->
+<div id="state-activacion" class="act-card" style="display:none;">
+  <div class="act-header">
+    <div class="act-logo"><i class="fa-solid fa-user-check"></i></div>
+    <div class="act-title">Activar cuenta</div>
+    <div class="act-subtitle">Define tu contraseña para activar tu cuenta</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot done"><i class="fa-solid fa-check" style="font-size:0.7rem;"></i></div>
+    <div class="step-line done"></div>
+    <div class="step-dot active">2</div>
+  </div>
+  <div class="alert alert-info">
+    <i class="fa-solid fa-circle-info"></i>
+    <span>¡Bienvenido! Tu identidad fue verificada. Define tu contraseña para activar tu cuenta.</span>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Nueva contraseña</label>
+    <div class="input-group" style="position:relative;">
+      <i class="fa-solid fa-lock input-icon"></i>
+      <input type="password" class="form-control" placeholder="Mínimo 8 caracteres" style="padding-right:3rem;" oninput="updateStrength(this.value)">
+      <button class="password-toggle" onclick="togglePwd('pwd-act')"><i class="fa-regular fa-eye" id="pwd-act-icon"></i></button>
+    </div>
+    <div class="strength-bar"><div class="strength-fill" id="strength-fill" style="width:0%;background:#ef4444;"></div></div>
+    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem;" id="strength-label">Ingresa una contraseña</div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Confirmar contraseña</label>
+    <div class="input-group">
+      <i class="fa-solid fa-lock input-icon"></i>
+      <input type="password" class="form-control" placeholder="Repite tu contraseña">
+    </div>
+  </div>
+  <button class="btn-premium btn-full">
+    <i class="fa-solid fa-user-plus"></i> Activar cuenta
+  </button>
+</div>
+
+<!-- PASO 2b: RECUPERACIÓN -->
+<div id="state-recuperacion" class="act-card" style="display:none;">
+  <div class="act-header">
+    <div class="act-logo"><i class="fa-solid fa-key"></i></div>
+    <div class="act-title">Cambiar contraseña</div>
+    <div class="act-subtitle">Define tu nueva contraseña de acceso</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot done"><i class="fa-solid fa-check" style="font-size:0.7rem;"></i></div>
+    <div class="step-line done"></div>
+    <div class="step-dot active">2</div>
+  </div>
+  <div class="alert alert-info">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>Identidad verificada. Define tu nueva contraseña para recuperar el acceso.</span>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Nueva contraseña</label>
+    <div class="input-group" style="position:relative;">
+      <i class="fa-solid fa-lock input-icon"></i>
+      <input type="password" class="form-control" placeholder="Mínimo 8 caracteres" style="padding-right:3rem;">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Confirmar contraseña</label>
+    <div class="input-group">
+      <i class="fa-solid fa-lock input-icon"></i>
+      <input type="password" class="form-control" placeholder="Repite tu contraseña">
+    </div>
+  </div>
+  <button class="btn-premium btn-full">
+    <i class="fa-solid fa-rotate-right"></i> Cambiar contraseña
+  </button>
+</div>
+
+<!-- ERROR: datos no encontrados -->
+<div id="state-error" class="act-card" style="display:none;">
+  <div class="act-header">
+    <div class="act-logo"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="act-title">Verificar identidad</div>
+    <div class="act-subtitle">Ingresa tus datos tal como están registrados en la posta</div>
+  </div>
+  <div class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>Datos no encontrados en el padrón de la posta. Verifica la información ingresada.</span>
+  </div>
+  <div class="form-group">
+    <label class="form-label">DNI</label>
+    <div class="input-group">
+      <i class="fa-solid fa-id-card input-icon"></i>
+      <input type="text" class="form-control" value="12345678" style="border-color:#ef4444;">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Fecha de nacimiento</label>
+    <div class="input-group">
+      <i class="fa-solid fa-calendar input-icon"></i>
+      <input type="date" class="form-control" style="border-color:#ef4444;">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">Nombres completos</label>
+    <div class="input-group">
+      <i class="fa-solid fa-user input-icon"></i>
+      <input type="text" class="form-control" value="Juan Perez" style="border-color:#ef4444;">
+    </div>
+  </div>
+  <button class="btn-premium btn-full"><i class="fa-solid fa-magnifying-glass"></i> Verificar identidad</button>
+</div>
+
+<!-- ERROR: menor de edad -->
+<div id="state-menor" class="act-card" style="display:none;">
+  <div class="act-header">
+    <div class="act-logo"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="act-title">Verificar identidad</div>
+  </div>
+  <div class="alert alert-danger">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>Los menores de edad no pueden activar cuenta directamente. Solicita a tu tutor que gestione tu cuenta.</span>
+  </div>
+  <div style="text-align:center;margin-top:1.25rem;">
+    <a href="p01-login.html" style="color:var(--text-muted);font-size:0.875rem;text-decoration:none;font-weight:600;">
+      <i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión
+    </a>
+  </div>
+</div>
+
+<!-- ÉXITO -->
+<div id="state-exito" class="act-card" style="display:none;text-align:center;">
+  <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+  <div class="act-title" style="margin-bottom:0.5rem;">¡Listo!</div>
+  <div class="act-subtitle" style="margin-bottom:2rem;">Tu cuenta ha sido activada correctamente. Ya puedes iniciar sesión.</div>
+  <a href="p01-login.html" class="btn-premium btn-full" style="justify-content:center;">
+    <i class="fa-solid fa-right-to-bracket"></i> Ir al inicio de sesión
+  </a>
+</div>
+
+<script>
+function showState(state, tab) {
+  document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  ['paso1','activacion','recuperacion','error','menor','exito'].forEach(s => {
+    const el = document.getElementById('state-' + s);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById('state-' + state);
+  if (target) { target.style.display = 'block'; target.classList.add('slide-up'); }
+}
+function togglePwd(id) {
+  const input = document.querySelector('#state-activacion input[type="password"]');
+  const icon = document.getElementById(id + '-icon');
+  if (input.type === 'password') { input.type = 'text'; icon.className = 'fa-regular fa-eye-slash'; }
+  else { input.type = 'password'; icon.className = 'fa-regular fa-eye'; }
+}
+function updateStrength(val) {
+  const fill = document.getElementById('strength-fill');
+  const label = document.getElementById('strength-label');
+  let pct = 0, color = '#ef4444', text = 'Muy débil';
+  if (val.length >= 4) { pct = 25; color = '#f97316'; text = 'Débil'; }
+  if (val.length >= 6) { pct = 50; color = '#eab308'; text = 'Regular'; }
+  if (val.length >= 8 && /[A-Z]/.test(val)) { pct = 75; color = '#22c55e'; text = 'Buena'; }
+  if (val.length >= 10 && /[A-Z]/.test(val) && /[0-9]/.test(val)) { pct = 100; color = '#16a34a'; text = 'Muy segura'; }
+  fill.style.width = pct + '%'; fill.style.background = color; label.textContent = text;
+}
+</script>
+</body>
+</html>

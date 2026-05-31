@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-04 a P-07 — Wizard Reserva · CITAMEDIC</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="_base.css">
+<style>
+  .wizard-wrapper { max-width: 860px; margin: 0 auto; padding: 2rem; }
+  .wizard-steps { display: flex; align-items: center; margin-bottom: 2.5rem; }
+  .wstep { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; flex: 1; }
+  .wstep-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; transition: all 0.3s; }
+  .wstep-circle.done { background: var(--teal); color: white; }
+  .wstep-circle.active { background: var(--navy); color: white; box-shadow: 0 0 0 4px rgba(29,45,80,0.15); }
+  .wstep-circle.pending { background: #f1f5f9; color: var(--text-muted); }
+  .wstep-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-align: center; }
+  .wstep-label.active { color: var(--navy); font-weight: 700; }
+  .wstep-line { flex: 1; height: 2px; background: var(--border); margin-bottom: 1.25rem; transition: background 0.3s; }
+  .wstep-line.done { background: var(--teal); }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; animation: slideUp 0.3s ease forwards; }
+  .step-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--navy); margin-bottom: 0.5rem; }
+  .step-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+  .esp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .esp-card { background: white; border: 2px solid var(--border); border-radius: 20px; padding: 1.5rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .esp-card:hover { border-color: var(--teal); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .esp-card.selected { border-color: var(--teal); background: var(--teal-light); }
+  .esp-icon { width: 56px; height: 56px; border-radius: 16px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.4rem; color: var(--teal); }
+  .esp-name { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-bottom: 0.3rem; }
+  .turno-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .turno-card { background: white; border: 2px solid var(--border); border-radius: 20px; padding: 2rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .turno-card:hover:not(.disabled) { border-color: var(--teal); transform: translateY(-2px); }
+  .turno-card.selected { border-color: var(--teal); background: var(--teal-light); }
+  .turno-card.disabled { opacity: 0.5; cursor: not-allowed; }
+  .turno-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .turno-name { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.25rem; color: var(--navy); }
+  .turno-hours { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+  .slot-group-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem; color: var(--navy); margin: 1.25rem 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+  .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+  .slot-card { background: white; border: 2px solid var(--border); border-radius: 14px; padding: 1rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .slot-card:hover:not(.disabled) { border-color: var(--teal); }
+  .slot-card.selected { border-color: var(--teal); background: var(--teal-light); }
+  .slot-card.disabled { opacity: 0.5; cursor: not-allowed; background: #f8fafc; }
+  .slot-time { font-weight: 700; font-size: 1rem; color: var(--navy); }
+  .slot-end { font-size: 0.78rem; color: var(--text-muted); }
+  .resumen-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 20px; padding: 1.75rem; margin-bottom: 1.5rem; }
+  .resumen-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+  .resumen-row:last-child { border-bottom: none; }
+  .resumen-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+  .resumen-value { font-weight: 700; color: var(--navy); }
+  .breadcrumb-trail { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .bc-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+  .bc-item.done { color: var(--teal); font-weight: 600; cursor: pointer; }
+  .bc-item.done:hover { text-decoration: underline; }
+  .bc-item.current { color: var(--navy); font-weight: 700; }
+  .bc-sep { color: var(--text-muted); }
+  .nav-buttons { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .domingo-block { background: #fee2e2; border: 1px solid #fecaca; border-radius: 20px; padding: 2.5rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="proto-nav">
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Índice</a>
+  <span>/</span>
+  <a href="p03-dashboard-paciente.html">Dashboard</a>
+  <span>/</span>
+  <span>P-04 a P-07 — Wizard Reserva</span>
+  <span style="margin-left:auto;color:var(--text-muted);font-size:0.75rem;">RF08, RF09 · Paciente</span>
+</div>
+
+<div class="wizard-wrapper">
+
+  <!-- Indicador de pasos -->
+  <div class="wizard-steps">
+    <div class="wstep">
+      <div class="wstep-circle" id="sc1">1</div>
+      <div class="wstep-label" id="sl1">Especialidad</div>
+    </div>
+    <div class="wstep-line" id="line1"></div>
+    <div class="wstep">
+      <div class="wstep-circle" id="sc2">2</div>
+      <div class="wstep-label" id="sl2">Turno</div>
+    </div>
+    <div class="wstep-line" id="line2"></div>
+    <div class="wstep">
+      <div class="wstep-circle" id="sc3">3</div>
+      <div class="wstep-label" id="sl3">Horario</div>
+    </div>
+    <div class="wstep-line" id="line3"></div>
+    <div class="wstep">
+      <div class="wstep-circle" id="sc4">4</div>
+      <div class="wstep-label" id="sl4">Confirmación</div>
+    </div>
+  </div>
+
+  <!-- PASO 1: Especialidad -->
+  <div id="step1" class="step-panel active">
+    <div class="step-title">¿Qué especialidad necesitas?</div>
+    <div class="step-sub">Selecciona la especialidad médica para tu cita</div>
+    <div class="esp-grid">
+      <div class="esp-card" onclick="selectEsp(this,'Medicina General')">
+        <div class="esp-icon"><i class="fa-solid fa-stethoscope"></i></div>
+        <div class="esp-name">Medicina General</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;">8 cupos</span>
+      </div>
+      <div class="esp-card" onclick="selectEsp(this,'Pediatría')">
+        <div class="esp-icon"><i class="fa-solid fa-baby"></i></div>
+        <div class="esp-name">Pediatría</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;">5 cupos</span>
+      </div>
+      <div class="esp-card" onclick="selectEsp(this,'Odontología')">
+        <div class="esp-icon"><i class="fa-solid fa-tooth"></i></div>
+        <div class="esp-name">Odontología</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;">3 cupos</span>
+      </div>
+      <div class="esp-card" onclick="selectEsp(this,'Ginecología')">
+        <div class="esp-icon"><i class="fa-solid fa-venus"></i></div>
+        <div class="esp-name">Ginecología</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;">6 cupos</span>
+      </div>
+      <div class="esp-card" onclick="selectEsp(this,'Psicología')">
+        <div class="esp-icon"><i class="fa-solid fa-brain"></i></div>
+        <div class="esp-name">Psicología</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;">2 cupos</span>
+      </div>
+    </div>
+    <div class="nav-buttons" style="margin-top:2rem;">
+      <button class="btn-premium" id="btn-next1" onclick="goStep(2)" disabled style="opacity:0.5;">
+        Siguiente <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- PASO 2: Turno -->
+  <div id="step2" class="step-panel">
+    <div class="breadcrumb-trail">
+      <div class="bc-item done" onclick="goStep(1)"><i class="fa-solid fa-stethoscope"></i> <span id="bc-esp">Medicina General</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item current">Turno</div>
+    </div>
+    <div class="step-title">Selecciona el turno</div>
+    <div class="step-sub">Elige el horario que mejor se adapte a tu disponibilidad</div>
+    <div class="turno-grid">
+      <div class="turno-card" onclick="selectTurno(this,'Mañana')">
+        <div class="turno-icon">🌅</div>
+        <div class="turno-name">Mañana</div>
+        <div class="turno-hours">08:00 – 13:30</div>
+        <span class="badge badge-success" style="margin-top:0.75rem;">5 slots disponibles</span>
+      </div>
+      <div class="turno-card" onclick="selectTurno(this,'Tarde')">
+        <div class="turno-icon">🌆</div>
+        <div class="turno-name">Tarde</div>
+        <div class="turno-hours">15:00 – 19:00</div>
+        <span class="badge badge-success" style="margin-top:0.75rem;">3 slots disponibles</span>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-premium-outline" onclick="goStep(1)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+      <button class="btn-premium" id="btn-next2" onclick="goStep(3)" disabled style="opacity:0.5;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PASO 3: Slot -->
+  <div id="step3" class="step-panel">
+    <div class="breadcrumb-trail">
+      <div class="bc-item done" onclick="goStep(1)"><i class="fa-solid fa-stethoscope"></i> <span id="bc-esp2">Medicina General</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item done" onclick="goStep(2)"><i class="fa-solid fa-clock"></i> <span id="bc-turno">Mañana</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item current">Horario</div>
+    </div>
+    <div class="step-title">Elige tu horario</div>
+    <div class="step-sub">Selecciona el slot que prefieres</div>
+
+    <div class="slot-group-title">📅 Lunes, 1 de junio de 2026</div>
+    <div class="slot-grid">
+      <div class="slot-card" onclick="selectSlot(this,'08:00')">
+        <div class="slot-time">08:00</div>
+        <div class="slot-end">– 08:20</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;font-size:0.65rem;">Disponible</span>
+      </div>
+      <div class="slot-card" onclick="selectSlot(this,'08:20')">
+        <div class="slot-time">08:20</div>
+        <div class="slot-end">– 08:40</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;font-size:0.65rem;">Disponible</span>
+      </div>
+      <div class="slot-card disabled">
+        <div class="slot-time">08:40</div>
+        <div class="slot-end">– 09:00</div>
+        <span class="badge badge-muted" style="margin-top:0.5rem;font-size:0.65rem;">Agotado</span>
+      </div>
+      <div class="slot-card" onclick="selectSlot(this,'09:00')">
+        <div class="slot-time">09:00</div>
+        <div class="slot-end">– 09:20</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;font-size:0.65rem;">Disponible</span>
+      </div>
+      <div class="slot-card disabled">
+        <div class="slot-time">09:20</div>
+        <div class="slot-end">– 09:40</div>
+        <span class="badge badge-muted" style="margin-top:0.5rem;font-size:0.65rem;">Agotado</span>
+      </div>
+      <div class="slot-card" onclick="selectSlot(this,'09:40')">
+        <div class="slot-time">09:40</div>
+        <div class="slot-end">– 10:00</div>
+        <span class="badge badge-success" style="margin-top:0.5rem;font-size:0.65rem;">Disponible</span>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-premium-outline" onclick="goStep(2)"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+      <button class="btn-premium" id="btn-next3" onclick="goStep(4)" disabled style="opacity:0.5;">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PASO 4: Confirmación -->
+  <div id="step4" class="step-panel">
+    <div class="breadcrumb-trail">
+      <div class="bc-item done" onclick="goStep(1)"><i class="fa-solid fa-stethoscope"></i> <span id="bc-esp3">Medicina General</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item done" onclick="goStep(2)"><i class="fa-solid fa-clock"></i> <span id="bc-turno2">Mañana</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item done" onclick="goStep(3)"><i class="fa-solid fa-calendar"></i> <span id="bc-slot">08:00</span></div>
+      <span class="bc-sep">›</span>
+      <div class="bc-item current">Confirmación</div>
+    </div>
+    <div class="step-title">Confirma tu reserva</div>
+    <div class="step-sub">Revisa los datos antes de confirmar</div>
+
+    <!-- Alerta éxito (oculta por defecto) -->
+    <div id="alert-exito" class="alert alert-success" style="display:none;">
+      <i class="fa-solid fa-circle-check"></i>
+      <div><strong>¡Cita reservada exitosamente!</strong><br>Tu código de ticket es: <strong style="font-family:monospace;">TKT-20260601-0042</strong></div>
+    </div>
+    <!-- Alerta error cupo -->
+    <div id="alert-cupo" class="alert alert-danger" style="display:none;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>El cupo seleccionado ya no está disponible. Por favor elija otro horario.</span>
+    </div>
+    <!-- Alerta error duplicado -->
+    <div id="alert-dup" class="alert alert-danger" style="display:none;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>Ya tiene una cita activa para esta fecha.</span>
+    </div>
+
+    <div class="resumen-card">
+      <div class="resumen-row"><span class="resumen-label">Especialidad</span><span class="resumen-value" id="res-esp">Medicina General</span></div>
+      <div class="resumen-row"><span class="resumen-label">Médico</span><span class="resumen-value">Dr. Carlos Ramírez</span></div>
+      <div class="resumen-row"><span class="resumen-label">Fecha</span><span class="resumen-value">Lunes, 1 de junio de 2026</span></div>
+      <div class="resumen-row"><span class="resumen-label">Turno</span><span class="resumen-value" id="res-turno">Mañana (08:00 – 13:30)</span></div>
+      <div class="resumen-row"><span class="resumen-label">Hora</span><span class="resumen-value" id="res-slot">08:00 – 08:20</span></div>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button class="btn-premium" onclick="showExito()"><i class="fa-solid fa-check"></i> Confirmar reserva</button>
+      <button class="btn-premium-outline" onclick="goStep(3)"><i class="fa-solid fa-arrow-left"></i> Cambiar horario</button>
+      <button class="btn-premium-outline" onclick="showErrorCupo()" style="color:#ef4444;border-color:#fecaca;">Simular error cupo</button>
+      <button class="btn-premium-outline" onclick="showErrorDup()" style="color:#ef4444;border-color:#fecaca;">Simular duplicado</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let selEsp = '', selTurno = '', selSlot = '';
+let currentStep = 1;
+
+function goStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  currentStep = n;
+  updateStepUI();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateStepUI() {
+  for (let i = 1; i <= 4; i++) {
+    const circle = document.getElementById('sc' + i);
+    const label = document.getElementById('sl' + i);
+    if (i < currentStep) {
+      circle.className = 'wstep-circle done';
+      circle.innerHTML = '<i class="fa-solid fa-check" style="font-size:0.75rem;"></i>';
+    } else if (i === currentStep) {
+      circle.className = 'wstep-circle active';
+      circle.textContent = i;
+      label.className = 'wstep-label active';
+    } else {
+      circle.className = 'wstep-circle pending';
+      circle.textContent = i;
+      label.className = 'wstep-label';
+    }
+    if (i < 4) {
+      document.getElementById('line' + i).className = 'wstep-line' + (i < currentStep ? ' done' : '');
+    }
+  }
+}
+
+function selectEsp(card, name) {
+  document.querySelectorAll('.esp-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selEsp = name;
+  document.getElementById('btn-next1').disabled = false;
+  document.getElementById('btn-next1').style.opacity = '1';
+  document.getElementById('bc-esp').textContent = name;
+  document.getElementById('bc-esp2').textContent = name;
+  document.getElementById('bc-esp3').textContent = name;
+  document.getElementById('res-esp').textContent = name;
+}
+
+function selectTurno(card, name) {
+  document.querySelectorAll('.turno-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selTurno = name;
+  document.getElementById('btn-next2').disabled = false;
+  document.getElementById('btn-next2').style.opacity = '1';
+  document.getElementById('bc-turno').textContent = name;
+  document.getElementById('bc-turno2').textContent = name;
+  document.getElementById('res-turno').textContent = name + (name==='Mañana' ? ' (08:00 – 13:30)' : ' (15:00 – 19:00)');
+}
+
+function selectSlot(card, time) {
+  document.querySelectorAll('.slot-card:not(.disabled)').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selSlot = time;
+  document.getElementById('btn-next3').disabled = false;
+  document.getElementById('btn-next3').style.opacity = '1';
+  document.getElementById('bc-slot').textContent = time;
+  const endMin = parseInt(time.split(':')[1]) + 20;
+  const endH = time.split(':')[0];
+  document.getElementById('res-slot').textContent = time + ' – ' + endH + ':' + String(endMin).padStart(2,'0');
+}
+
+function showExito() {
+  document.getElementById('alert-exito').style.display = 'flex';
+  document.getElementById('alert-cupo').style.display = 'none';
+  document.getElementById('alert-dup').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function showErrorCupo() {
+  document.getElementById('alert-cupo').style.display = 'flex';
+  document.getElementById('alert-exito').style.display = 'none';
+  document.getElementById('alert-dup').style.display = 'none';
+}
+function showErrorDup() {
+  document.getElementById('alert-dup').style.display = 'flex';
+  document.getElementById('alert-exito').style.display = 'none';
+  document.getElementById('alert-cupo').style.display = 'none';
+}
+
+updateStepUI();
+</script>
+</body>
+</html>
